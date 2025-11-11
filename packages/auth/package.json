@@ -1,0 +1,18 @@
+{
+  "name": "@dentora/auth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@workspace/typescript-config": "workspace:*",
+    "better-auth": "^1.3.34",
+    "@dentora/database": "workspace:*"
+  },
+  "exports": {
+    "./auth": "./src/auth.ts",
+    "./client": "./src/client.ts"
+  }
+}
