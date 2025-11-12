@@ -4,3 +4,5 @@ node_modules
 
 /generated/prisma
 database/prisma/generated
+../generated/prisma
+../src/generated/prisma

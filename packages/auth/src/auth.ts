@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import prisma from "@dentora/database";
+import { prisma } from "@dentora/database";
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {

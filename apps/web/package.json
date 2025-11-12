@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@dentora/auth": "workspace:*",
+    "@dentora/database": "workspace:*",
     "@workspace/ui": "workspace:*",
     "better-auth": "^1.3.34",
     "lucide-react": "^0.475.0",
