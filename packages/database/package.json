@@ -2,30 +2,31 @@
   "name": "@dentora/database",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/client.ts",
   "scripts": {
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio"
+    "db:migrate": "prisma migrate dev --skip-generate",
+    "db:deploy": "prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.19.0",
+    "@prisma/extension-accelerate": "^2.0.2",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "dotenv": "^17.2.3"
   },
   "devDependencies": {
     "@types/node": "^20.19.9",
-    "prisma": "^6.19.0"
+    "prisma": "^6.19.0",
+    "tsx": "^4.20.6"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "exports": {
-    ".": "./src/client.ts"
+    ".": "./src/index.ts"
   }
 }
