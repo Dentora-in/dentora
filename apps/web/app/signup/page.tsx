@@ -11,7 +11,7 @@ export default function SignupPage() {
             <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
               <GalleryVerticalEnd className="size-4" />
             </div>
-            Dentora
+            Acme Inc.
           </a>
         </div>
         <div className="flex flex-1 items-center justify-center">
@@ -22,7 +22,7 @@ export default function SignupPage() {
       </div>
       <div className="bg-muted relative hidden lg:block">
         <img
-          src="https://avatars.githubusercontent.com/u/129583682?s=400&u=b22fad46a3197362ed0b03f5c4535f67ea2515ed&v=4"
+          src="/placeholder.svg"
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
