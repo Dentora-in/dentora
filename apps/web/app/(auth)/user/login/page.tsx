@@ -1,18 +1,18 @@
 "use client";
 
 import { GalleryVerticalEnd } from "lucide-react";
-import { LoginForm } from "@/components/login-form";
+import { LoginForm } from "@/components/auth/login-form";
 import { useState } from "react";
 import { authClient, signIn } from "@dentora/auth/client";
 import { toast } from "@workspace/ui/components/sonner";
-import { SignIn } from "@/types/user.types";
+import { LogIn } from "@/interfaces/user.interface";
 import { usePathname, useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const pathname = usePathname();
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
-  const [formData, setFormData] = useState<SignIn>({
+  const [formData, setFormData] = useState<LogIn>({
     email: "",
     password: "",
   });

@@ -11,7 +11,7 @@ import {
 } from "@workspace/ui/components/field";
 import { Input } from "@workspace/ui/components/input";
 import { Spinner } from "@workspace/ui/components/spinner";
-import { SigInForm } from "@/types/user.types";
+import { LogInForm } from "@/interfaces/user.interface";
 
 export function LoginForm({
   className,
@@ -22,7 +22,7 @@ export function LoginForm({
   onGoogleLogin,
   context,
   ...props
-}: React.ComponentProps<"form"> & SigInForm) {
+}: React.ComponentProps<"form"> & LogInForm) {
   return (
     <form
       onSubmit={onSubmit}
@@ -83,7 +83,7 @@ export function LoginForm({
         <FieldSeparator>Or continue with</FieldSeparator>
 
         <Field>
-          {/* TODO: add nice google svg */}
+          {/* TODO: add nice google svg, should match with the theme*/}
           <Button variant="outline" type="button" onClick={onGoogleLogin}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
