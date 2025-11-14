@@ -11,5 +11,8 @@
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "zod": "^3.25.76"
+  },
+  "exports": {
+    "./zod": "./src/zod/index.ts"
   }
 }

@@ -8,50 +8,126 @@ import {
   FieldSeparator,
 } from "@workspace/ui/components/field";
 import { Input } from "@workspace/ui/components/input";
+import { signUpForm } from "@/interfaces/user.interface";
+import { Spinner } from "@workspace/ui/components/spinner";
+import { signupSchema } from "@dentora/shared/zod"
 
 export function SignupForm({
   className,
+  onSubmit,
+  loading,
+  formData,
+  setFormData,
+  onGoogleLogin,
+  context,
+  errors,
+  setErrors,
   ...props
-}: React.ComponentProps<"form">) {
+}: React.ComponentProps<"form"> & signUpForm) {
+  const validateField = (fieldName: string, value: string) => {
+    const newFormData = { ...formData, [fieldName]: value };
+
+    const result = signupSchema.safeParse(newFormData);
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        const field = err.path[0] as string;
+        fieldErrors[field] = err.message;
+      });
+      setErrors(fieldErrors);
+    } else {
+      setErrors({});
+    }
+  };
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+      onSubmit={onSubmit}
+    >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">Create your account</h1>
-          <p className="text-muted-foreground text-sm text-balance">
-            Fill in the form below to create your account
-          </p>
         </div>
         <Field>
           <FieldLabel htmlFor="name">Full Name</FieldLabel>
-          <Input id="name" type="text" placeholder="John Doe" required />
+          <Input
+            id="name"
+            type="text"
+            placeholder="Dentora"
+            required
+            value={formData.name}
+            onChange={(e) => {
+              setFormData({ ...formData, name: e.target.value });
+            }}
+          />
+          <FieldDescription>
+            {errors?.name && <p className="text-red-500">{errors.name}</p>}
+          </FieldDescription>
         </Field>
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input id="email" type="email" placeholder="m@example.com" required />
+          <Input
+            id="email"
+            type="email"
+            placeholder="dentora@gmail.com"
+            required
+            value={formData.email}
+            onChange={(e) => {
+              setFormData({ ...formData, email: e.target.value });
+            }}
+          />
           <FieldDescription>
-            We&apos;ll use this to contact you. We will not share your email
-            with anyone else.
+            {errors?.email ? (
+              <p className="text-red-500">{errors.email}</p>
+            ) : (
+              "We'll use this to contact you. We will not share your email with anyone else."
+            )}
           </FieldDescription>
         </Field>
         <Field>
           <FieldLabel htmlFor="password">Password</FieldLabel>
-          <Input id="password" type="password" required />
+          <Input
+            id="password"
+            type="password"
+            required
+            value={formData.password}
+            onChange={(e) => {
+              setFormData({ ...formData, password: e.target.value });
+            }}
+          />
           <FieldDescription>
-            Must be at least 8 characters long.
+            {errors?.confirm_password ? (
+              <p className="text-red-500">{errors.confirm_password}</p>
+            ) : (
+              "Must be at least 8 characters long."
+            )}
           </FieldDescription>
         </Field>
         <Field>
           <FieldLabel htmlFor="confirm-password">Confirm Password</FieldLabel>
-          <Input id="confirm-password" type="password" required />
+          <Input
+            id="confirm-password"
+            type="password"
+            required
+            value={formData.confirm_password}
+            onChange={(e) => {
+              setFormData({ ...formData, confirm_password: e.target.value });
+              validateField && validateField("confirm_password", e.target.value);
+            }}
+          />
           <FieldDescription>Please confirm your password.</FieldDescription>
         </Field>
         <Field>
-          <Button type="submit">Create Account</Button>
+          <Button type="submit">
+            {loading ? <Spinner /> : "Create Account"}
+          </Button>
         </Field>
         <FieldSeparator>Or continue with</FieldSeparator>
         <Field>
-          <Button variant="outline" type="button">
+          <Button variant="outline" type="button" onClick={onGoogleLogin}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -70,7 +146,7 @@ export function SignupForm({
             Sign up with Google
           </Button>
           <FieldDescription className="px-6 text-center">
-            Already have an account? <a href="#">Sign in</a>
+            Already have an account? <a href={`/${context}/login`}>Sign in</a>
           </FieldDescription>
         </Field>
       </FieldGroup>

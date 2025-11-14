@@ -15,8 +15,8 @@ export default function Landingpage() {
                     <h1 className="text-2xl font-bold">For users</h1>
                     <div className="flex gap-2">
                         <Button className="hover:cursor-pointer" size="sm" onClick={() => setTheme(theme === "white" ? "dark" : "white")}>Theme</Button>
-                        <Button className="hover:cursor-pointer" size="sm" onClick={() => route.push("/u/login")}>Log In</Button>
-                        <Button className="hover:cursor-pointer" size="sm" onClick={() => route.push("/u/signup")}>Sign Up</Button>
+                        <Button className="hover:cursor-pointer" size="sm" onClick={() => route.push("/user/login")}>Log In</Button>
+                        <Button className="hover:cursor-pointer" size="sm" onClick={() => route.push("/user/signup")}>Sign Up</Button>
                     </div>
                 </div>
             </div>

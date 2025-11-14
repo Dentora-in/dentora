@@ -17,10 +17,10 @@ export default function LoginPage() {
     password: "",
   });
 
-  const context = pathname.startsWith("/u")
-    ? "u"
-    : pathname.startsWith("/c")
-      ? "c"
+  const context = pathname.startsWith("/user")
+    ? "user"
+    : pathname.startsWith("/client")
+      ? "client"
       : "unknown";
 
   const manual_login = async (e: React.FormEvent) => {
@@ -56,7 +56,7 @@ export default function LoginPage() {
     }
   };
 
-  const login_with_google = async (e: React.FormEvent) => {
+  const with_google = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
@@ -106,7 +106,7 @@ export default function LoginPage() {
               setFormData={setFormData}
               onSubmit={manual_login}
               loading={loading}
-              onGoogleLogin={login_with_google}
+              onGoogleLogin={with_google}
               context={context}
             />
           </div>
