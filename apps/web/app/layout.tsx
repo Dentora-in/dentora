@@ -1,32 +1,36 @@
-import { Geist, Geist_Mono } from "next/font/google"
+import { Geist, Geist_Mono } from "next/font/google";
 
-import "@workspace/ui/globals.css"
-import { Providers } from "@/components/providers"
-import { Toaster } from "@workspace/ui/components/sonner"
+import "@workspace/ui/globals.css";
+import { Providers } from "@/components/providers";
+import { Toaster } from "@workspace/ui/components/sonner";
+import AuthWatcher from "@/components/auth-watcher";
 
 const fontSans = Geist({
   subsets: ["latin"],
   variable: "--font-sans",
-})
+});
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
-})
+});
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="en" suppressHydrationWarning suppressContentEditableWarning>
       <body
         className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <AuthWatcher />
+          {children}
+        </Providers>
         <Toaster />
       </body>
     </html>
-  )
+  );
 }

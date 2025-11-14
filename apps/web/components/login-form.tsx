@@ -10,59 +10,25 @@ import {
   FieldSeparator,
 } from "@workspace/ui/components/field";
 import { Input } from "@workspace/ui/components/input";
-import { toast } from "@workspace/ui/components/sonner";
 import { Spinner } from "@workspace/ui/components/spinner";
-import { signIn } from "@dentora/auth/client";
-import { useState } from "react";
-import { SignIn } from "@/types/user.types";
-import { useRouter, usePathname } from "next/navigation";
-import { prisma } from "@dentora/database";
+import { SigInForm } from "@/types/user.types";
 
-export function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [formData, setFormData] = useState<SignIn>({
-    email: "",
-    password: "",
-  });
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const context = pathname.startsWith("/u") ? "u" : pathname.startsWith("/c") ? "c" : "unknown";
-
-  const manual_login = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      await signIn.email(
-        {
-          email: formData.email,
-          password: formData.password,
-        },
-        {
-          onRequest: () => {
-            setLoading(true);
-          },
-          onSuccess: () => {
-            toast.success("Successfully signed in!");
-            setLoading(false);
-            // router.push(context === "u" ? "/dashboard" : "/clinic/dashboard");
-            router.push("/");
-          },
-          onError: (ctx) => {
-            console.error(ctx.error.message);
-            toast.error(ctx.error.message);
-          },
-        }
-      );
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+export function LoginForm({
+  className,
+  onSubmit,
+  loading,
+  formData,
+  setFormData,
+  onGoogleLogin,
+  context,
+  ...props
+}: React.ComponentProps<"form"> & SigInForm) {
   return (
-    <form onSubmit={manual_login} className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      onSubmit={onSubmit}
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+    >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">
@@ -78,10 +44,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
           <Input
             id="email"
             type="email"
-            placeholder="you@example.com"
+            placeholder="dentora@gmail.com"
             required
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
           />
         </Field>
 
@@ -100,7 +68,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
             type="password"
             required
             value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, password: e.target.value })
+            }
           />
         </Field>
 
@@ -113,7 +83,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
         <FieldSeparator>Or continue with</FieldSeparator>
 
         <Field>
-          <Button variant="outline" type="button">
+          {/* TODO: add nice google svg */}
+          <Button variant="outline" type="button" onClick={onGoogleLogin}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
