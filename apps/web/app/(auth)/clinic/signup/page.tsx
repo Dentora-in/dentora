@@ -6,13 +6,15 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SignUp } from "@/interfaces/user.interface";
+import Image from "next/image";
+import Dentor from "@/images/D.jpg"
 
 export default function SignupPage() {
   const pathname = usePathname();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<SignUp>({
-    full_name: "",
+    name: "",
     email: "",
     password: "",
     confirm_password: "",
@@ -41,8 +43,8 @@ export default function SignupPage() {
         </div>
       </div>
       <div className="bg-muted relative hidden lg:block">
-        <img
-          src="https://avatars.githubusercontent.com/u/129583682?s=400&u=b22fad46a3197362ed0b03f5c4535f67ea2515ed&v=4"
+        <Image
+          src={Dentor}
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />

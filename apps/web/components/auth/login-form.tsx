@@ -31,12 +31,9 @@ export function LoginForm({
     >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">
-            {context === "user" ? "User" : "Clinic"} Login
+          <h1 className="text-center text-xl font-semibold">
+            Log in to your Dentora account
           </h1>
-          <p className="text-muted-foreground text-sm text-balance">
-            Enter your email below to login to your account
-          </p>
         </div>
 
         <Field>
@@ -76,7 +73,7 @@ export function LoginForm({
 
         <Field>
           <Button type="submit" disabled={loading}>
-            {loading ? <Spinner /> : "Login"}
+            {loading ? <Spinner /> : "Log In"}
           </Button>
         </Field>
 
@@ -99,7 +96,7 @@ export function LoginForm({
                 d="M5 13c0 3.9 3.1 7 7 7 2.1 0 3.7-.8 4.8-2.1l-1.9-1.9c-.7.5-1.6.9-2.9.9-2.3 0-4.2-1.6-4.7-3.8H5z"
               />
             </svg>
-            Login with Google
+            Continue with Google
           </Button>
 
           <FieldDescription className="text-center">

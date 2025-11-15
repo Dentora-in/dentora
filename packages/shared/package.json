@@ -13,6 +13,7 @@
     "zod": "^3.25.76"
   },
   "exports": {
-    "./zod": "./src/zod/index.ts"
+    "./zod": "./src/zod/index.ts",
+    "./validation": "./src/zod/validation.ts"
   }
 }

@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
 
 export interface LogIn {
   email: string;
@@ -12,14 +11,12 @@ export interface LogInForm {
   setFormData: React.Dispatch<React.SetStateAction<LogIn>>;
   loading: boolean;
   context: string;
-  errors?: Record<string, string>;
 }
 
 export interface SignUp {
   name: string;
   email: string;
   password: string;
-  confirm_password: string;
 }
 
 export interface signUpForm {
@@ -29,6 +26,4 @@ export interface signUpForm {
   setFormData: React.Dispatch<React.SetStateAction<SignUp>>;
   loading: boolean;
   context: string;
-  errors?: Record<string, string>;
-  setErrors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }

@@ -1,6 +1,7 @@
 import { LoginForm } from "@/components/auth/login-form"
 import { GalleryVerticalEnd } from "lucide-react"
-
+import Image from "next/image"
+import Dentor from "@/images/D.jpg"
 
 export default function LoginPage() {
   return (
@@ -21,8 +22,8 @@ export default function LoginPage() {
         </div>
       </div>
       <div className="bg-muted relative hidden lg:block">
-        <img
-          src="https://avatars.githubusercontent.com/u/129583682?s=400&u=b22fad46a3197362ed0b03f5c4535f67ea2515ed&v=4"
+        <Image
+          src={Dentor}
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
