@@ -29,7 +29,7 @@ export default function RootLayout({
           <AuthWatcher />
           {children}
         </Providers>
-        <Toaster />
+        <Toaster richColors />
       </body>
     </html>
   );
