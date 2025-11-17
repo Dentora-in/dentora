@@ -17,28 +17,24 @@ export const getAllAppointments = (req: Request, res: Response) => {
     }
 };
 
-// export const getAllSlotes = async (req: Request, res: Response) => {
-//     try {
-//         const availableSlots = await prisma.doctorSlot.findMany({
-//             where: {
-//                 isBooked: false,
-//                 date: { gte: new Date() }
-//             },
-//             include: {
-//                 doctor: true
-//             }
-//         });
+export const getAllSlotes = async (req: Request, res: Response) => {
+    try {
+        const availableSlots = await prisma.doctorSlot.findMany({
+            where: {
+                isBooked: false,
+            }
+        });
 
-//         return {
-//             "success": true,
-//             "slotes": availableSlots
-//         }
+        return res.status(200).json({
+            "success": true,
+            "slotes": availableSlots,
+        })
 
-//     } catch (e) {
-//         console.error(e);
-//         return {
-//             "success": false,
-//             "message": "Fail to get all slotes"
-//         }
-//     }
-// };
+    } catch (e) {
+        console.error(e);
+        return {
+            "success": false,
+            "message": "Fail to get all slotes"
+        }
+    }
+};

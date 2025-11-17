@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/controllers/appointment.controller.ts","./src/routes/appointment.routes.ts","./src/routes/route.ts"],"version":"5.7.3"}
+{"root":["./src/index.ts","./src/controllers/appointment.controller.ts","./src/routes/appointment.routes.ts","./src/routes/route.ts"],"version":"5.9.3"}
