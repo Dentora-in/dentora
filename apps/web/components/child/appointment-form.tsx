@@ -37,17 +37,6 @@ const AVAILABLE_TIMES = [
   '9:30 AM',
   '10:00 AM',
   '10:30 AM',
-  '11:00 AM',
-  '11:30 AM',
-  '2:00 PM',
-  '2:30 PM',
-  '3:00 PM',
-  '3:00 PM',
-  '3:00 PM',
-  '3:00 PM',
-  '3:00 PM',
-  '3:00 PM',
-  '3:00 PM',
 ];
 
 const COUNTRY_CODES = [
@@ -200,7 +189,6 @@ export function Appointment({
           </div>
         </div>
 
-        {/* Phone Number with Country Code */}
         <div className="space-y-2">
           <Label htmlFor="phoneNo">Phone Number</Label>
           <div className="flex gap-2">
@@ -234,7 +222,6 @@ export function Appointment({
           </div>
         </div>
 
-        {/* Email */}
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -248,7 +235,6 @@ export function Appointment({
           />
         </div>
 
-        {/* Date Picker */}
         <div className="space-y-2">
           <Label htmlFor="bookingDate">Appointment Date</Label>
           <Input
@@ -261,12 +247,11 @@ export function Appointment({
           />
         </div>
 
-        {/* Time Slots */}
-        <div className="space-y-2">
+        <div className="space-y-2 mb-4">
           <Label>Appointment Time</Label>
-          <div className="overflow-x-auto max-h-32 sm:max-h-52" style={{scrollbarWidth: "thin", }}>
+          <div className="overflow-x-auto max-h-36 sm:max-h-52 w-full" style={{scrollbarWidth: "thin", }}>
             <div 
-              className="grid gap-2 sm:gap-3 pb-2 pr-1 w-max sm:w-full"
+              className="grid gap-2 grid-cols-3 sm:gap-3 pb-2 pr-1 sm:w-full"
             >
               {AVAILABLE_TIMES.map((time) => (
                 <button
@@ -287,7 +272,7 @@ export function Appointment({
         </div>
 
         {/* Policy Checkbox */}
-        <div className="flex items-center space-x-2 pt-2">
+        <div className="flex items-center space-x-2 mb-2">
           <Checkbox
             id="acceptPolicy"
             checked={formData.acceptPolicy}
@@ -302,7 +287,7 @@ export function Appointment({
         <Button
           type="submit"
           disabled={!formData.acceptPolicy}
-          className="w-full mt-6"
+          className="w-full mt-3"
           size="lg"
         >
           Submit
