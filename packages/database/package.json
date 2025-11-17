@@ -2,7 +2,6 @@
   "name": "@dentora/database",
   "version": "1.0.0",
   "description": "",
-  "main": "src/client.ts",
   "scripts": {
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev --skip-generate",

@@ -12,7 +12,7 @@ export default function SignupPage() {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<SignUp>({
-    full_name: "",
+    name: "",
     email: "",
     password: "",
     confirm_password: "",

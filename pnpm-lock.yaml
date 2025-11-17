@@ -42,6 +42,9 @@ importers:
 
   apps/server:
     dependencies:
+      '@dentora/database':
+        specifier: workspace:*
+        version: link:../../packages/database
       '@types/express':
         specifier: ^5.0.5
         version: 5.0.5
@@ -137,10 +140,10 @@ importers:
     dependencies:
       '@prisma/client':
         specifier: ^6.19.0
-        version: 6.19.0(prisma@6.19.0(typescript@5.9.2))(typescript@5.9.2)
+        version: 6.19.0(prisma@6.19.0(typescript@5.9.3))(typescript@5.9.3)
       '@prisma/extension-accelerate':
         specifier: ^2.0.2
-        version: 2.0.2(@prisma/client@6.19.0(prisma@6.19.0(typescript@5.9.2))(typescript@5.9.2))
+        version: 2.0.2(@prisma/client@6.19.0(prisma@6.19.0(typescript@5.9.3))(typescript@5.9.3))
       '@workspace/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -152,14 +155,14 @@ importers:
         version: 17.2.3
       typescript:
         specifier: ^5
-        version: 5.9.2
+        version: 5.9.3
     devDependencies:
       '@types/node':
         specifier: ^20.19.9
         version: 20.19.9
       prisma:
         specifier: ^6.19.0
-        version: 6.19.0(typescript@5.9.2)
+        version: 6.19.0(typescript@5.9.3)
       tsx:
         specifier: ^4.20.6
         version: 4.20.6
@@ -3507,6 +3510,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   uglify-js@3.19.3:
     resolution: {integrity: sha512-v3Xu+yuwBXisp6QYTcH4UbH+xYJXqnq2m/LtQVWKWzYc1iehYnLixoQDN9FH6/j9/oybfd6W9Ghwkl8+UMKTKQ==}
     engines: {node: '>=0.8.0'}
@@ -4096,10 +4104,10 @@ snapshots:
       prisma: 6.19.0(typescript@5.7.3)
       typescript: 5.7.3
 
-  '@prisma/client@6.19.0(prisma@6.19.0(typescript@5.9.2))(typescript@5.9.2)':
+  '@prisma/client@6.19.0(prisma@6.19.0(typescript@5.9.3))(typescript@5.9.3)':
     optionalDependencies:
-      prisma: 6.19.0(typescript@5.9.2)
-      typescript: 5.9.2
+      prisma: 6.19.0(typescript@5.9.3)
+      typescript: 5.9.3
 
   '@prisma/config@6.19.0':
     dependencies:
@@ -4121,9 +4129,9 @@ snapshots:
       '@prisma/fetch-engine': 6.19.0
       '@prisma/get-platform': 6.19.0
 
-  '@prisma/extension-accelerate@2.0.2(@prisma/client@6.19.0(prisma@6.19.0(typescript@5.9.2))(typescript@5.9.2))':
+  '@prisma/extension-accelerate@2.0.2(@prisma/client@6.19.0(prisma@6.19.0(typescript@5.9.3))(typescript@5.9.3))':
     dependencies:
-      '@prisma/client': 6.19.0(prisma@6.19.0(typescript@5.9.2))(typescript@5.9.2)
+      '@prisma/client': 6.19.0(prisma@6.19.0(typescript@5.9.3))(typescript@5.9.3)
 
   '@prisma/fetch-engine@6.19.0':
     dependencies:
@@ -6569,12 +6577,12 @@ snapshots:
       - magicast
     optional: true
 
-  prisma@6.19.0(typescript@5.9.2):
+  prisma@6.19.0(typescript@5.9.3):
     dependencies:
       '@prisma/config': 6.19.0
       '@prisma/engines': 6.19.0
     optionalDependencies:
-      typescript: 5.9.2
+      typescript: 5.9.3
     transitivePeerDependencies:
       - magicast
 
@@ -7234,6 +7242,8 @@ snapshots:
   typescript@5.7.3: {}
 
   typescript@5.9.2: {}
+
+  typescript@5.9.3: {}
 
   uglify-js@3.19.3:
     optional: true
