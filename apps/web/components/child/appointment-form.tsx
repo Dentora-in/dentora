@@ -1,24 +1,25 @@
-'use client';
+"use client";
 
-import { useState, ChangeEvent, FormEvent } from 'react';
-import { Button } from '@workspace/ui/components/button';
-import { Input } from '@workspace/ui/components/input';
-import { Label } from '@workspace/ui/components/label';
-import { Checkbox } from '@workspace/ui/components/checkbox';
+import { useState, ChangeEvent, FormEvent } from "react";
+import { Button } from "@workspace/ui/components/button";
+import { Input } from "@workspace/ui/components/input";
+import { Label } from "@workspace/ui/components/label";
+import { Checkbox } from "@workspace/ui/components/checkbox";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@workspace/ui/components/select';
-import { Card } from '@workspace/ui/components/card';
+} from "@workspace/ui/components/select";
+import { Card } from "@workspace/ui/components/card";
 
 interface AppointmentFormData {
   firstName: string;
   lastName: string;
   age: string;
   gender: string;
+  phoneCountry: string;
   phoneNo: string;
   email: string;
   bookingDate: string;
@@ -41,6 +42,25 @@ const AVAILABLE_TIMES = [
   '2:00 PM',
   '2:30 PM',
   '3:00 PM',
+  '3:00 PM',
+  '3:00 PM',
+  '3:00 PM',
+  '3:00 PM',
+  '3:00 PM',
+  '3:00 PM',
+];
+
+const COUNTRY_CODES = [
+  { code: '+1', country: 'US' },
+  { code: '+44', country: 'UK' },
+  { code: '+91', country: 'India' },
+  { code: '+86', country: 'China' },
+  { code: '+81', country: 'Japan' },
+  { code: '+33', country: 'France' },
+  { code: '+49', country: 'Germany' },
+  { code: '+39', country: 'Italy' },
+  { code: '+34', country: 'Spain' },
+  { code: '+61', country: 'Australia' },
 ];
 
 export function Appointment({
@@ -52,6 +72,7 @@ export function Appointment({
     lastName: initialData?.lastName || '',
     age: initialData?.age || '',
     gender: initialData?.gender || '',
+    phoneCountry: initialData?.phoneCountry || '+1',
     phoneNo: initialData?.phoneNo || '',
     email: initialData?.email || '',
     bookingDate: initialData?.bookingDate || '',
@@ -63,6 +84,18 @@ export function Appointment({
     e: ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target;
+    
+    if (name === 'age') {
+      const numValue = parseInt(value, 10);
+      if (value === '' || (numValue >= 0 && numValue <= 150)) {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      }
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -100,7 +133,7 @@ export function Appointment({
 
   return (
     <Card className="w-full max-w-md mx-auto p-6 sm:p-8">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">
+      <h1 className="text-2xl sm:text-3xl font-bold md:mb-6 text-center">
         APPOINTMENT
       </h1>
 
@@ -142,10 +175,12 @@ export function Appointment({
               value={formData.age}
               onChange={handleInputChange}
               placeholder="Age"
+              min="0"
+              max="150"
               required
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 w-full">
             <Label htmlFor="gender">Gender</Label>
             <Select
               value={formData.gender}
@@ -153,7 +188,7 @@ export function Appointment({
                 handleSelectChange('gender', value)
               }
             >
-              <SelectTrigger id="gender">
+              <SelectTrigger id="gender" className="w-full">
                 <SelectValue placeholder="Select gender" />
               </SelectTrigger>
               <SelectContent>
@@ -165,18 +200,38 @@ export function Appointment({
           </div>
         </div>
 
-        {/* Phone Number */}
+        {/* Phone Number with Country Code */}
         <div className="space-y-2">
           <Label htmlFor="phoneNo">Phone Number</Label>
-          <Input
-            id="phoneNo"
-            name="phoneNo"
-            type="tel"
-            value={formData.phoneNo}
-            onChange={handleInputChange}
-            placeholder="Phone number"
-            required
-          />
+          <div className="flex gap-2">
+            <Select
+              value={formData.phoneCountry}
+              onValueChange={(value) =>
+                handleSelectChange('phoneCountry', value)
+              }
+            >
+              <SelectTrigger className="w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {COUNTRY_CODES.map((item) => (
+                  <SelectItem key={item.code} value={item.code}>
+                    {item.code}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              id="phoneNo"
+              name="phoneNo"
+              type="tel"
+              value={formData.phoneNo}
+              onChange={handleInputChange}
+              placeholder="Phone number"
+              className="flex-1"
+              required
+            />
+          </div>
         </div>
 
         {/* Email */}
@@ -209,21 +264,25 @@ export function Appointment({
         {/* Time Slots */}
         <div className="space-y-2">
           <Label>Appointment Time</Label>
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            {AVAILABLE_TIMES.map((time) => (
-              <button
-                key={time}
-                type="button"
-                onClick={() => handleTimeSelect(time)}
-                className={`py-2 px-2 sm:px-3 rounded-md border-2 text-sm font-medium transition-colors ${
-                  formData.bookingTiming === time
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-input bg-background hover:border-primary'
-                }`}
-              >
-                {time}
-              </button>
-            ))}
+          <div className="overflow-x-auto max-h-32 sm:max-h-52" style={{scrollbarWidth: "thin", }}>
+            <div 
+              className="grid gap-2 sm:gap-3 pb-2 pr-1 w-max sm:w-full"
+            >
+              {AVAILABLE_TIMES.map((time) => (
+                <button
+                  key={time}
+                  type="button"
+                  onClick={() => handleTimeSelect(time)}
+                  className={`py-2 px-2 sm:px-3 rounded-md border-2 text-sm font-medium transition-colors whitespace-nowrap ${
+                    formData.bookingTiming === time
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-input bg-background hover:border-primary'
+                  }`}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
