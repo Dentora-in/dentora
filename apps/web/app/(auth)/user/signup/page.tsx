@@ -8,17 +8,19 @@ import { useRouter } from "next/navigation";
 import { SignUp } from "@/interfaces/user.interface";
 import { authClient, signUp } from "@dentora/auth/client";
 import { toast } from "@workspace/ui/components/sonner";
+import Image from "next/image";
+import Link from "next/link";
+import Dentor from "@/images/D.jpg";
+import { signupSchema } from "@dentora/shared/zod";
 
 export default function SignupPage() {
   const pathname = usePathname();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<SignUp>({
     name: "",
     email: "",
     password: "",
-    confirm_password: "",
   });
 
   const context = pathname.startsWith("/user")
@@ -29,13 +31,31 @@ export default function SignupPage() {
 
   const manual_login = async (e: React.FormEvent) => {
     e.preventDefault();
+    const validation = signupSchema.safeParse(formData);
+
+    if (!validation.success) {
+      const fieldErrors = validation.error.flatten().fieldErrors;
+      const mapped: Record<string, string> = Object.entries(fieldErrors).reduce(
+        (acc, [key, val]) => {
+          acc[key] = Array.isArray(val)
+            ? (val[0] ?? "Invalid value")
+            : "Invalid value";
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+      const firstErr = Object.values(mapped)[0];
+      if (firstErr) toast.warning(firstErr);
+      return;
+    }
+
     try {
       setLoading(true);
       await signUp.email(
         {
           name: formData.name,
           email: formData.email,
-          password: formData.confirm_password,
+          password: formData.password,
         },
         {
           onRequest: () => {
@@ -44,8 +64,6 @@ export default function SignupPage() {
           onSuccess: () => {
             toast.success("Successfully signed in!");
             setLoading(false);
-            // router.push(context === "user" ? "/dashboard" : "/clinic/dashboard");
-            // TODO : push to designated place
             router.push("/");
           },
           onError: (ctx) => {
@@ -56,6 +74,7 @@ export default function SignupPage() {
       );
     } catch (err) {
       console.error(err);
+      toast.error("Sign up failed. Check console for details.");
     } finally {
       setLoading(false);
     }
@@ -71,13 +90,9 @@ export default function SignupPage() {
           callbackURL: "/?google_oauth=1",
         },
         {
-          onRequest: () => {
-            setLoading(true);
-          },
+          onRequest: () => setLoading(true),
           onSuccess: () => {
             setLoading(false);
-            // router.push(context === "u" ? "/dashboard" : "/clinic/dashboard");
-            // TODO : push to designated place
             router.push("/");
           },
           onError: (ctx) => {
@@ -97,12 +112,12 @@ export default function SignupPage() {
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
-          <a href="#" className="flex items-center gap-2 font-medium">
+          <Link href="/" className="flex items-center gap-2 font-medium">
             <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
               <GalleryVerticalEnd className="size-4" />
             </div>
             Dentora
-          </a>
+          </Link>
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
@@ -113,16 +128,15 @@ export default function SignupPage() {
               formData={formData}
               context={context}
               onGoogleLogin={with_google}
-              errors={errors}
-              setErrors={setErrors}
             />
           </div>
         </div>
       </div>
       <div className="bg-muted relative hidden lg:block">
-        <img
-          src="https://avatars.githubusercontent.com/u/129583682?s=400&u=b22fad46a3197362ed0b03f5c4535f67ea2515ed&v=4"
+        <Image
+          src={Dentor}
           alt="Image"
+          fill
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>
