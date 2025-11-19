@@ -25,10 +25,17 @@ export const getAllSlotes = async (req: Request, res: Response) => {
             }
         });
 
-        return res.status(200).json({
-            "success": true,
-            "slotes": availableSlots,
-        })
+        if (availableSlots) {
+            return res.status(200).json({
+                "success": true,
+                "slotes": availableSlots,
+            })
+        } else {
+            return res.status(200).json({
+                "success": false,
+                "slotes": [],
+            })
+        }
 
     } catch (e) {
         console.error(e);
