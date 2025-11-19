@@ -10,30 +10,35 @@
   ],
   "tasks": {
     "build": {
-      "dependsOn": ["^build", "^db:generate"],
+      "dependsOn": ["^build", "^generate"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
-    "lint": {
-      "dependsOn": ["^lint"]
+    "start:server": {
+      "dependsOn": ["^generate"],
+      "cache": false
     },
-    "check-types": {
-      "dependsOn": ["^check-types"]
+    "db:migrate:dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "db:migrate:deploy": {
+      "cache": false
+    },
+    "db:push": {
+      "cache": false
+    },
+    "db:seed": {
+      "cache": false
     },
     "dev": {
-      "dependsOn": ["^db:generate"],
       "cache": false,
       "persistent": true
     },
-    "db:generate": {
+    "generate": {
+      "dependsOn": ["^generate"],
       "cache": false
     },
-    "db:migrate": {
-      "cache": false,
-      "persistent": true
-    },
-    "db:deploy": {
-      "cache": false
-    }
+    "lint": {}
   }
 }

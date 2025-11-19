@@ -2,11 +2,24 @@
   "name": "dentora",
   "version": "0.0.1",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "prisma": {
+    "schema": "packages/database/prisma/schema.prisma"
+  },
   "scripts": {
-    "build": "turbo build",
-    "dev": "turbo dev",
-    "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "build": "turbo run build",
+    "db:migrate:deploy": "turbo run db:migrate:deploy",
+    "db:migrate:dev": "turbo run db:migrate:dev",
+    "db:push": "turbo run db:push",
+    "db:seed": "turbo run db:seed",
+    "dev": "turbo run dev",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "generate": "turbo run generate",
+    "lint": "turbo run lint",
+    "start:server": "turbo run start:server"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -17,7 +30,8 @@
     "eslint": "^9.32.0",
     "prettier": "^3.6.2",
     "turbo": "^2.6.1",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "tsx": "4.19.1"
   },
   "packageManager": "pnpm@10.22.0",
   "engines": {
