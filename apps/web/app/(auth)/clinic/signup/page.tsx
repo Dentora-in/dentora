@@ -17,7 +17,6 @@ export default function SignupPage() {
     name: "",
     email: "",
     password: "",
-    confirm_password: "",
   });
 
   const context = pathname.startsWith("/u")
