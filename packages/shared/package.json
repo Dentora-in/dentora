@@ -14,6 +14,7 @@
   },
   "exports": {
     "./zod": "./src/zod/index.ts",
-    "./validation": "./src/zod/validation.ts"
+    "./validation": "./src/zod/validation.ts",
+    "./country-codes": "./src/services/resources/country-codes.json"
   }
 }

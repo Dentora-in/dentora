@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { getAllAppointments, getAllSlotes } from "../controllers/appointment.controller";
+import { bookAppointment, getAllSlotes } from "../controllers/appointment.controller";
 
 const router: Router = Router();
 
-// for appointments
-router.get("/", getAllAppointments);
-
 // for slots
 router.get("/slotes", getAllSlotes);
+
+// for appointments
+router.post("/", bookAppointment);
 
 export default router;

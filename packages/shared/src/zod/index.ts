@@ -1,5 +1,7 @@
 import { z, ZodError, ZodSchema } from "zod";
 
+export { ZodError, ZodSchema };
+
 const passwordSchema = z
   .string()
   .min(8, "Password must be at least 8 characters")
@@ -15,4 +17,32 @@ export const signupSchema = z.object({
 });
 
 export type SignupSchemaType = z.infer<typeof signupSchema>;
-export { ZodError, ZodSchema };
+
+export const AppointmentStatusSchema = z.enum([
+  "PENDING",
+  "CONFIRMED",
+  "CANCELLED",
+  "COMPLETED",
+]);
+
+export const appointmentSchema = z.object({
+  id: z.string().cuid().optional(),
+  firstName: z.string(),
+  lastName: z.string(),
+  age: z.number(),
+  gender: z.string(),
+  phoneCountry: z.string().optional(),
+  phoneNo: z.string(),
+  email: z.string().email(),
+  appointmentDate: z.coerce.date(),
+  notes: z.string().optional(),
+  doctorId: z.string().optional(),
+  slotId: z.string().optional(),
+  paymentStatus: z.string().optional(),
+  paymentId: z.string().nullable().optional(),
+  verified: z.boolean().default(false),
+  status: AppointmentStatusSchema.default("PENDING"),
+  userId: z.string().optional(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+});
