@@ -9,3 +9,6 @@ prisma :
 
 turbo :
     #11139
+
+
+refer- https://www.youtube.com/playlist?list=PLlaJNuOIC_9--9vwfGBR8XF2zymdqD-Sk

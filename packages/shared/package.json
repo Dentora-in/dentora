@@ -8,13 +8,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-apps/meet": "^0.7.1",
+    "@google-cloud/local-auth": "2.1.0",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
+    "googleapis": "^166.0.0",
+    "nodemailer": "^7.0.10",
     "zod": "^3.25.76"
   },
   "exports": {
     "./zod": "./src/zod/index.ts",
     "./validation": "./src/zod/validation.ts",
-    "./country-codes": "./src/services/resources/country-codes.json"
+    "./country-codes": "./src/services/resources/country-codes.json",
+    "./meeting": "./src/services/createMeetService.ts"
   }
 }

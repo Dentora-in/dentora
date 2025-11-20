@@ -4,9 +4,10 @@
   "globalEnv": [
     "DATABASE_URL",
     "NODE_ENV",
+    "BACKEND_PORT",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
-    "BACKEND_PORT"
+    "GOOGLE_REDIRECT_URI"
   ],
   "tasks": {
     "build": {

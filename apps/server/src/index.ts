@@ -1,5 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
-import router from "./routes/route";
+import router from "./route";
+import google_route from "./routes/google.route";
+import { prisma } from "@dentora/database";
 require('dotenv').config();
 
 const app = express();
@@ -15,6 +17,7 @@ app.get("/health", (req: Request, res: Response) => {
 });
 
 app.use("/v0/", router);
+app.use("/g/", google_route);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error("Error:", err);

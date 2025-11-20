@@ -81,7 +81,6 @@ model Doctor {
   id              String                @id @default(cuid())
   userId          String                @unique
   user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   firstName       String
   lastName        String
   specialization  String?
@@ -89,11 +88,9 @@ model Doctor {
   place           String?
   phoneNo         String
   email           String?
-
   availability    DoctorAvailability[]
   slots           DoctorSlot[]
   appointments    Appointment[]
-
   createdAt       DateTime              @default(now())
   updatedAt       DateTime              @updatedAt
 
@@ -138,21 +135,17 @@ model Appointment {
   email           String
   appointmentDate DateTime
   notes           String?
-
+  meetLink        String?
   doctorId        String?
   doctor          Doctor?          @relation(fields: [doctorId], references: [id])
-
   slotId          String?          @unique
   slot            DoctorSlot?      @relation(fields: [slotId], references: [id])
-
   paymentStatus   String?
   paymentId       String?
   verified        Boolean          @default(false)
   status          AppointmentStatus @default(PENDING)
-
   userId          String?
   user            User?            @relation(fields: [userId], references: [id])
-
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
