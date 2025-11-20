@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "@dentora/database";
 import { appointmentSchema } from "@dentora/shared/zod";
-import { AppointmentStatus } from "@dentora/database";
+import { AppointmentStatus } from "@dentora/database/index";
 import { createMeetEvent } from "@dentora/shared/meeting";
 
 const activeStatuses: AppointmentStatus[] = [
