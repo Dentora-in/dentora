@@ -16,7 +16,8 @@
     "lint": "eslint . --max-warnings 0",
     "prebuild": "npm run generate",
     "predev": "npm run generate",
-    "studio": "prisma studio"
+    "studio": "prisma studio",
+    "seed": "ts-node ./prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",

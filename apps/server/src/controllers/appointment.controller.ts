@@ -23,8 +23,6 @@ export const bookAppointment = async (req: Request, res: Response) => {
 
         const data = parsed.data;
 
-        console.log(">>>>>>>>>>data", data);
-
         let userId = data.userId;
 
         const existingAppointment = await prisma.appointment.findFirst({
