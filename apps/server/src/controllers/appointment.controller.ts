@@ -3,6 +3,7 @@ import { prisma } from "@dentora/database";
 import { appointmentSchema } from "@dentora/shared/zod";
 import { AppointmentStatus } from "@dentora/database";
 import { createMeetEvent } from "@dentora/shared/meeting";
+import { emailService } from "@dentora/shared/mailing";
 
 const activeStatuses: AppointmentStatus[] = [
     AppointmentStatus.PENDING,
@@ -120,9 +121,21 @@ export const bookAppointment = async (req: Request, res: Response) => {
 
         const meetLink = await createMeetEvent(
             data.email,
-            slot_details.startTime.toISOString(),
-            slot_details.endTime.toISOString()
+            slot_details!.startTime.toISOString(),
+            slot_details!.endTime.toISOString()
         );
+
+        if (!meetLink) {
+            return;
+        }
+
+        await emailService({
+            to: data.email,
+            patientName: `${data.firstName} ${data.lastName}`,
+            meetingLink: meetLink,
+            startTime: slot_details.startTime,
+            endTime: slot_details.endTime,
+        });
 
         const appointment = await prisma.appointment.create({
             data: {
