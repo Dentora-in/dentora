@@ -10,6 +10,8 @@ import {
 import { Input } from "@workspace/ui/components/input";
 import { signUpForm } from "@/interfaces/user.interface";
 import { Spinner } from "@workspace/ui/components/spinner";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export function SignupForm({
   className,
@@ -21,6 +23,8 @@ export function SignupForm({
   context,
   ...props
 }: React.ComponentProps<"form"> & signUpForm) {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <form
       onSubmit={onSubmit}
@@ -64,15 +68,30 @@ export function SignupForm({
           <div className="flex items-center">
             <FieldLabel htmlFor="password">Password</FieldLabel>
           </div>
-          <Input
-            id="password"
-            type="password"
-            required
-            value={formData.password}
-            onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
-            }
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter Password"
+              required
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </Field>
 
         <Field>
