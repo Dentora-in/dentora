@@ -2,7 +2,8 @@
   "name": "@dentora/database",
   "version": "1.0.0",
   "exports": {
-    ".": "./src/client.ts"
+    ".": "./src/client.ts",
+    "./index": "./src/index.ts"
   },
   "scripts": {
     "db:migrate:deploy": "prisma migrate deploy",
@@ -15,7 +16,8 @@
     "lint": "eslint . --max-warnings 0",
     "prebuild": "npm run generate",
     "predev": "npm run generate",
-    "studio": "prisma studio"
+    "studio": "prisma studio",
+    "seed": "ts-node ./prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
@@ -26,6 +28,7 @@
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "eslint": "^8.57.0",
+    "install": "^0.13.0",
     "prisma": "^6.19.0",
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.2",
