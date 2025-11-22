@@ -94,7 +94,7 @@ export function ResetPasswordForm({
             id="password"
             name="password"
             type={showPassword ? 'text' : 'password'}
-            placeholder="••••••••••"
+            placeholder="Enter New Password"
             value={formData.password}
             onChange={handleChange}
             disabled={loading}
@@ -124,7 +124,7 @@ export function ResetPasswordForm({
             id="confirmPassword"
             name="confirmPassword"
             type={showConfirmPassword ? 'text' : 'password'}
-            placeholder="••••••••••"
+            placeholder="Confirm Your Password"
             value={formData.confirmPassword}
             onChange={handleChange}
             disabled={loading}

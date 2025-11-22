@@ -12,6 +12,8 @@ import {
 import { Input } from "@workspace/ui/components/input";
 import { Spinner } from "@workspace/ui/components/spinner";
 import { LogInForm } from "@/interfaces/user.interface";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 
 export function LoginForm({
   className,
@@ -23,6 +25,8 @@ export function LoginForm({
   context,
   ...props
 }: React.ComponentProps<"form"> & LogInForm) {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <form
       onSubmit={onSubmit}
@@ -60,15 +64,31 @@ export function LoginForm({
               Forgot your password?
             </a>
           </div>
-          <Input
-            id="password"
-            type="password"
-            required
-            value={formData.password}
-            onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
-            }
-          />
+
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter Password"
+              required
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </Field>
 
         <Field>
