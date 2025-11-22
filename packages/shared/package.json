@@ -2,8 +2,10 @@
   "name": "@dentora/shared",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {},
+  "type": "module",
+  "scripts": {
+    "build": "tsc && tsc-alias -p tsconfig.json --resolve-full-paths"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -20,11 +22,16 @@
   "exports": {
     "./zod": "./src/zod/index.ts",
     "./validation": "./src/zod/validation.ts",
-    "./country-codes": "./src/services/resources/country-codes.json",
+    "./country-codes": "./src/services/country-codes.ts",
     "./meeting": "./src/services/meeting.service.ts",
     "./mailing": "./src/services/mailing.service.ts"
   },
   "devDependencies": {
-    "@types/nodemailer": "^7.0.4"
+    "@types/nodemailer": "^7.0.4",
+    "@types/node": "^20.19.9",
+    "nodemon": "^3.1.11",
+    "tsx": "^4.20.6",
+    "typescript": "^5",
+    "tsc-alias": "^1.8.16"
   }
 }

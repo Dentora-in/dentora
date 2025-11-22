@@ -1,4 +1,4 @@
-[
+export const COUNTRY_CODES = [
   {
     "country_code" : "AL",
     "country_en" : "Albania",

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "@dentora/database";
-import countryCodes from "@dentora/shared/country-codes";
+import { COUNTRY_CODES } from "@dentora/shared/country-codes";
 
 export const getAllSlotes = async (req: Request, res: Response) => {
     try {
@@ -16,7 +16,7 @@ export const getAllSlotes = async (req: Request, res: Response) => {
             return res.status(200).json({
                 "success": true,
                 "slotes": availableSlots,
-                "country-codes": countryCodes
+                "country-codes": COUNTRY_CODES
             })
         } else {
             return res.status(200).json({

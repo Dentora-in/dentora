@@ -1,7 +1,25 @@
 {
   "extends": "@workspace/typescript-config/base.json",
   "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./dist"
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "declaration": true,
+    "removeComments": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "jsx": "react",
+    "paths": {
+      "@/*": ["src/*"],
+    }
   },
+  "include": ["src/**/*", "packages/*", "emails/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
