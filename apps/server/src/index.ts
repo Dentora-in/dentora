@@ -2,7 +2,8 @@ import express, { Request, Response, NextFunction } from "express";
 import router from "./route";
 import google_route from "./routes/google.route";
 import { prisma } from "@dentora/database";
-require('dotenv').config();
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 app.use(express.json());
