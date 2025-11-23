@@ -2,15 +2,29 @@
   "extends": "@workspace/typescript-config/nextjs.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "lib": ["dom", "dom.iterable", "ES2022"],
+    "jsx": "preserve",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "paths": {
-      "@/*": ["./*"],
-      "@workspace/ui/*": ["../../packages/ui/src/*"]
+      "@/*": [
+        "./*",
+        "apps/web/*"
+      ],
+      "@workspace/ui/*": [
+        "../../packages/ui/src/*"
+      ]
     },
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "incremental": true,
+    "isolatedModules": true
   },
   "include": [
     "next-env.d.ts",
@@ -19,5 +33,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
