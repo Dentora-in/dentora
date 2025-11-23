@@ -1,0 +1,40 @@
+{
+  "name": "@dentora/database",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsup src/* --watch",
+    "format": "prisma format",
+    "generate": "prisma generate",
+    "lint": "eslint . --max-warnings 0",
+    "prebuild": "dotenv -e .env -- prisma generate",
+    "predev": "dotenv -e .env -- prisma generate",
+    "seed": "ts-node ./prisma/seed.ts",
+    "db:seed": "tsx src/seed.ts",
+    "db:generate": "dotenv -e .env -- prisma generate",
+    "db:migrate": "dotenv -e .env -- prisma migrate dev",
+    "db:push": "dotenv -e .env -- prisma db push",
+    "db:studio": "dotenv -e .env -- prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.9",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "eslint": "^8.57.0",
+    "install": "^0.13.0",
+    "prisma": "^6.19.0",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.0.2",
+    "tsx": "4.19.1",
+    "typescript": "5.5.4"
+  },
+  "exports": {
+    ".": "./src/client.ts",
+    "./index": "./src/index.ts"
+  }
+}

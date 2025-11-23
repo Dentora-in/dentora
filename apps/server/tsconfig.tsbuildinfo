@@ -1,0 +1,1 @@
+{"root":["./src/index.ts","./src/route.ts","./src/controllers/appointment.controller.ts","./src/controllers/slotes.controller.ts","./src/routes/appointment.routes.ts","./src/routes/google.route.ts","./src/routes/slotes.routes.ts"],"version":"5.9.3"}

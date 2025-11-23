@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id
+  name          String
+  email         String         @unique
+  emailVerified Boolean        @default(false)
+  image         String?
+  role          UserRole       @default(PATIENT)
+  password      String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  sessions      Session[]
+  accounts      Account[]
+  appointments  Appointment[]
+  doctorProfile Doctor?
+
+  @@map("user")
+}
+
+enum UserRole {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("verification")
+}
+
+model Doctor {
+  id              String                @id @default(cuid())
+  userId          String                @unique
+  user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName       String
+  lastName        String
+  specialization  String?
+  experienceYears Int?
+  place           String?
+  phoneNo         String
+  email           String?
+  availability    DoctorAvailability[]
+  slots           DoctorSlot[]
+  appointments    Appointment[]
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@map("doctors")
+}
+
+model DoctorAvailability {
+  id        String   @id @default(cuid())
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  dayOfWeek Int
+  startTime DateTime
+  endTime   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("doctor_availability")
+}
+
+model DoctorSlot {
+  id            String        @id @default(cuid())
+  doctorId      String
+  doctor        Doctor        @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  date          DateTime
+  startTime     DateTime
+  endTime       DateTime
+  isBooked      Boolean       @default(false)
+  appointment   Appointment?
+  createdAt     DateTime      @default(now())
+
+  @@map("doctor_slots")
+}
+
+model Appointment {
+  id              String            @id @default(cuid())
+  firstName       String
+  lastName        String
+  age             Int
+  gender          String
+  phoneCountry    String?
+  phoneNo         String
+  email           String
+  appointmentDate DateTime
+  notes           String?
+  meetLink        String?
+  doctorId        String?
+  doctor          Doctor?          @relation(fields: [doctorId], references: [id])
+  slotId          String?          @unique
+  slot            DoctorSlot?      @relation(fields: [slotId], references: [id])
+  paymentStatus   String?
+  paymentId       String?
+  verified        Boolean          @default(false)
+  status          AppointmentStatus @default(PENDING)
+  userId          String?
+  user            User?            @relation(fields: [userId], references: [id])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@map("appointments")
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}

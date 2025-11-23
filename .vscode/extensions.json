@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "Gruntfuggly.todo-tree",
+    "bradlc.vscode-tailwindcss",
+    "ms-azuretools.vscode-containers",
+    "ms-azuretools.vscode-docker",
+    "dsznajder.es7-react-js-snippets",
+    "esbenp.prettier-vscode",
+    "vscode-icons-team.vscode-icons",
+    "formulahendry.auto-rename-tag"
+  ]
+}
