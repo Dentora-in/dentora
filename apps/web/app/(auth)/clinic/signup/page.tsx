@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SignUp } from "@/interfaces/user.interface";
 import Image from "next/image";
-import Dentor from "@/images/D.jpg"
+import Dentor from "@/public/logo.jpg"
 
 export default function SignupPage() {
   const pathname = usePathname();
