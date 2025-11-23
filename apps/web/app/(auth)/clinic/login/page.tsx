@@ -1,7 +1,7 @@
 import { LoginForm } from "@/components/auth/login-form"
 import { GalleryVerticalEnd } from "lucide-react"
 import Image from "next/image"
-import Dentor from "@/images/D.jpg"
+import Dentor from "@/public/logo.jpg"
 
 export default function LoginPage() {
   return (
