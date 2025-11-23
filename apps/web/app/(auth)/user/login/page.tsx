@@ -1,6 +1,5 @@
 "use client";
 
-import { GalleryVerticalEnd } from "lucide-react";
 import { LoginForm } from "@/components/auth/login-form";
 import { useState } from "react";
 import { authClient, signIn } from "@dentora/auth/client";
