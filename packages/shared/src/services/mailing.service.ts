@@ -1,8 +1,5 @@
 import nodemailer from "nodemailer";
 
-// ==================== TYPES ====================
-
-// Arguments passed into emailService()
 export interface AppointmentEmailPayload {
   to: string;
   patientName: string;
@@ -11,7 +8,6 @@ export interface AppointmentEmailPayload {
   endTime: string | Date;
 }
 
-// Arguments passed to createICS()
 interface ICSOptions {
   title: string;
   description: string;
@@ -20,14 +16,10 @@ interface ICSOptions {
   endTime: string | Date;
 }
 
-// ==================== HELPERS ====================
-
-// Convert JS date → ICS date string
 const formatICSDate = (date: Date): string => {
   return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
 };
 
-// Create ICS event data
 const createICS = ({
   title,
   description,
@@ -36,26 +28,24 @@ const createICS = ({
   endTime,
 }: ICSOptions): string => {
   return `
-BEGIN:VCALENDAR
-PRODID:-//Dentora App//EN
-VERSION:2.0
-CALSCALE:GREGORIAN
-METHOD:REQUEST
-BEGIN:VEVENT
-UID:${Date.now()}@dentora.com
-DTSTAMP:${formatICSDate(new Date())}
-DTSTART:${formatICSDate(new Date(startTime))}
-DTEND:${formatICSDate(new Date(endTime))}
-SUMMARY:${title}
-DESCRIPTION:${description}\\nMeeting Link: ${meetingLink}
-LOCATION:Online
-STATUS:CONFIRMED
-END:VEVENT
-END:VCALENDAR
+    BEGIN:VCALENDAR
+    PRODID:-//Dentora App//EN
+    VERSION:2.0
+    CALSCALE:GREGORIAN
+    METHOD:REQUEST
+    BEGIN:VEVENT
+    UID:${Date.now()}@dentora.com
+    DTSTAMP:${formatICSDate(new Date())}
+    DTSTART:${formatICSDate(new Date(startTime))}
+    DTEND:${formatICSDate(new Date(endTime))}
+    SUMMARY:${title}
+    DESCRIPTION:${description}\\nMeeting Link: ${meetingLink}
+    LOCATION:Online
+    STATUS:CONFIRMED
+    END:VEVENT
+    END:VCALENDAR
 `.trim();
 };
-
-// ==================== EMAIL SERVICE ====================
 
 export const emailService = async ({
   to,
@@ -73,7 +63,6 @@ export const emailService = async ({
       },
     });
 
-    // 2. Build ICS file
     const appointmentICS = createICS({
       title: `Dentora Appointment`,
       description: `Hello ${patientName}, your appointment is scheduled.`,
@@ -82,12 +71,51 @@ export const emailService = async ({
       endTime,
     });
 
-    // 3. Email message
     const message = {
-      from: `"Dentora"`,
+      from: `"Dentora" <${process.env.MAIL_SERVICE_EMAIL}>`,
       to,
-      subject: "Your Appointment Details",
-      text: "Your appointment is confirmed. Please open this email to add it to your calendar.",
+      subject: `Dentora Appointment Confirmation – ${patientName}`,
+
+      text: `
+        Hello ${patientName},
+
+        Your appointment has been successfully scheduled on Dentora.
+
+        📅 Appointment Details  
+        • Start Time: ${new Date(startTime).toLocaleString()}  
+        • End Time: ${new Date(endTime).toLocaleString()}  
+        • Meeting Link: ${meetingLink}
+
+        We have also attached a calendar invite (.ics file). Please open the attachment to add the appointment to your calendar.
+
+        If you have any questions or need to reschedule, please reply to this email.
+
+        Warm regards,  
+        Dentora Team
+          `.trim(),
+
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 16px; color: #333;">
+          <h2 style="margin-bottom: 8px; color: #0A7AFF;">Dentora Appointment Confirmation</h2>
+
+          <p>Hi <strong>${patientName}</strong>,</p>
+
+          <p>Your appointment has been successfully scheduled. Below are your appointment details:</p>
+
+          <div style="background: #f4f7ff; border-left: 4px solid #0A7AFF; padding: 12px 16px; margin: 16px 0;">
+            <p style="margin: 0;"><strong>📅 Start:</strong> ${new Date(startTime).toLocaleString()}</p>
+            <p style="margin: 4px 0;"><strong>📅 End:</strong> ${new Date(endTime).toLocaleString()}</p>
+            <p style="margin: 4px 0;"><strong>🔗 Meeting Link:</strong> <a href="${meetingLink}" style="color: #0A7AFF;">Join Meeting</a></p>
+          </div>
+
+          <p>We’ve attached a calendar invite so you can easily save this appointment.</p>
+
+          <p>If you have any questions or need to reschedule, just reply to this email — we’re here to help.</p>
+
+          <p style="margin-top: 24px;">Warm regards,<br><strong>Dentora Team</strong></p>
+        </div>
+      `.trim(),
+
       icalEvent: {
         filename: "appointment.ics",
         method: "REQUEST",
@@ -95,7 +123,6 @@ export const emailService = async ({
       },
     };
 
-    // 4. Send email
     await transporter.sendMail(message);
 
     return {
