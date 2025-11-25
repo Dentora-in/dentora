@@ -4,6 +4,7 @@ import "@workspace/ui/globals.css";
 import { Providers } from "@/components/providers/providers";
 import { Toaster } from "@workspace/ui/components/sonner";
 import AuthWatcher from "@/components/providers/auth-watcher";
+import { Header } from "@/components/child/header";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -23,12 +24,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning suppressContentEditableWarning>
       <body
-        className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
+        className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased`}
       >
         <Providers>
           <AuthWatcher />
-          {children}
+          <Header />
+          <main>
+            {children}
+          </main>
         </Providers>
+
         <Toaster richColors />
       </body>
     </html>

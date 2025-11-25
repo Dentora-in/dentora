@@ -1,4 +1,4 @@
-import Landingpage from "@/components/layouts/landingpage";
+import Landingpage from "@/components/layouts/landing-page/page";
 
 export const metadata = {
   title: "Dentora – Modern Dental Management System",
