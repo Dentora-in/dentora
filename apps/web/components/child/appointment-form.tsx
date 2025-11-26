@@ -13,7 +13,6 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select";
 import { Card } from "@workspace/ui/components/card";
-import { Header } from "./header";
 
 interface AppointmentFormData {
   firstName: string;
@@ -114,10 +113,6 @@ export function Appointment({ onSubmit, initialData }: AppointmentProps) {
   return (
     <>
       <Card className="w-full max-w-md mx-auto p-6 sm:p-8">
-        <h1 className="text-2xl sm:text-3xl font-bold md:mb-6 text-center">
-          APPOINTMENT
-        </h1>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name Fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -291,3 +286,4 @@ export function Appointment({ onSubmit, initialData }: AppointmentProps) {
     </>
   );
 }
+
