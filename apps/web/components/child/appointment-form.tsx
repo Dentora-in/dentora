@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
@@ -13,39 +13,13 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select";
 import { Card } from "@workspace/ui/components/card";
+import { getAllSlotes } from "@/api/api.appointment";
+import {
+  AppointmentFormData,
+  AppointmentProps,
+} from "@/interfaces/appointment.interface";
 
-interface AppointmentFormData {
-  firstName: string;
-  lastName: string;
-  age: string;
-  gender: string;
-  phoneCountry: string;
-  phoneNo: string;
-  email: string;
-  bookingDate: string;
-  bookingTiming: string;
-  acceptPolicy: boolean;
-}
-
-interface AppointmentProps {
-  onSubmit?: (data: AppointmentFormData) => void;
-  initialData?: Partial<AppointmentFormData>;
-}
-
-const AVAILABLE_TIMES = ["9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM"];
-
-const COUNTRY_CODES = [
-  { code: "+1", country: "US" },
-  { code: "+44", country: "UK" },
-  { code: "+91", country: "India" },
-  { code: "+86", country: "China" },
-  { code: "+81", country: "Japan" },
-  { code: "+33", country: "France" },
-  { code: "+49", country: "Germany" },
-  { code: "+39", country: "Italy" },
-  { code: "+34", country: "Spain" },
-  { code: "+61", country: "Australia" },
-];
+const today = new Date().toISOString().split("T")[0];
 
 export function Appointment({ onSubmit, initialData }: AppointmentProps) {
   const [formData, setFormData] = useState<AppointmentFormData>({
@@ -53,13 +27,24 @@ export function Appointment({ onSubmit, initialData }: AppointmentProps) {
     lastName: initialData?.lastName || "",
     age: initialData?.age || "",
     gender: initialData?.gender || "",
-    phoneCountry: initialData?.phoneCountry || "+1",
+    phoneCountry: initialData?.phoneCountry || "+91",
     phoneNo: initialData?.phoneNo || "",
     email: initialData?.email || "",
-    bookingDate: initialData?.bookingDate || "",
+    bookingDate: initialData?.bookingDate || today,
     bookingTiming: initialData?.bookingTiming || "",
     acceptPolicy: initialData?.acceptPolicy || false,
   });
+  const [slotes, getSlotes] = useState([]);
+  const [countryCode, setCountryCode] = useState([]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const data = await getAllSlotes(formData.bookingDate);
+      getSlotes(data.slotes);
+      setCountryCode(data.country_codes);
+    };
+    fetch();
+  }, [formData.bookingDate]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -95,11 +80,21 @@ export function Appointment({ onSubmit, initialData }: AppointmentProps) {
     }));
   };
 
-  const handleTimeSelect = (time: string) => {
+  const handleTimeSelect = (id: string) => {
     setFormData((prev) => ({
       ...prev,
-      bookingTiming: time,
+      bookingTiming: id,
     }));
+  };
+
+  const formatTime = (isoString: string) => {
+    const date = new Date(isoString);
+
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -186,10 +181,14 @@ export function Appointment({ onSubmit, initialData }: AppointmentProps) {
                 <SelectTrigger className="w-20">
                   <SelectValue />
                 </SelectTrigger>
+
                 <SelectContent>
-                  {COUNTRY_CODES.map((item) => (
-                    <SelectItem key={item.code} value={item.code}>
-                      {item.code}
+                  {countryCode.map((item: any) => (
+                    <SelectItem
+                      key={item.id}
+                      value={`+${item.phone_code}`} 
+                    >
+                      +{item.phone_code}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -238,19 +237,25 @@ export function Appointment({ onSubmit, initialData }: AppointmentProps) {
               className="overflow-x-auto max-h-36 sm:max-h-52 w-full"
               style={{ scrollbarWidth: "thin" }}
             >
+              {slotes.length === 0 && (
+                <p className="text-sm text-red-500">
+                  No slots available for this date.
+                </p>
+              )}
+
               <div className="grid gap-2 grid-cols-3 sm:gap-3 pb-2 pr-1 sm:w-full">
-                {AVAILABLE_TIMES.map((time) => (
+                {slotes.map((slot: any) => (
                   <button
-                    key={time}
+                    key={slot.id}
                     type="button"
-                    onClick={() => handleTimeSelect(time)}
+                    onClick={() => handleTimeSelect(slot.id)}
                     className={`py-2 px-2 sm:px-3 rounded-md border-2 text-sm font-medium transition-colors whitespace-nowrap ${
-                      formData.bookingTiming === time
+                      formData.bookingTiming === slot.id
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-input bg-background hover:border-primary"
                     }`}
                   >
-                    {time}
+                    {formatTime(slot.startTime)}
                   </button>
                 ))}
               </div>
@@ -286,4 +291,3 @@ export function Appointment({ onSubmit, initialData }: AppointmentProps) {
     </>
   );
 }
-

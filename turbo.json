@@ -14,7 +14,8 @@
     "MAIL_SERVICE_EMAIL",
     "MAIL_SERVICE_EMAIL_PASS",
     "REDIS_HOST",
-    "REDIS_PORT"
+    "REDIS_PORT",
+    "NEXT_PUBLIC_BACKEND_URL"
   ],
   "tasks": {
     "build": {

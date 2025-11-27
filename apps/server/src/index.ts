@@ -3,10 +3,12 @@ import router from "./route";
 import google_route from "./routes/google.route";
 import { prisma } from "@dentora/database";
 import * as dotenv from "dotenv";
+import cors from "cors";
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 const port = process.env.BACKEND_PORT || 5000;
 
