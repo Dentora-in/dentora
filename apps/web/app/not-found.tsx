@@ -15,7 +15,7 @@ export default function NotFound() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-6 text-center gap-8">
+    <main className="flex flex-col items-center justify-center min-h-screen px-6 text-center gap-8">
       <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight animate-fade-up">
         Oops! <span className="text-primary">Page Not Found</span>
       </h1>
@@ -50,6 +50,6 @@ export default function NotFound() {
           </Button>
         </Link>
       </div>
-    </div>
+    </main>
   );
 }
