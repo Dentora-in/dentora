@@ -2,7 +2,7 @@
 export interface AppointmentFormData {
   firstName: string;
   lastName: string;
-  age: string;
+  age: number | undefined;
   gender: string;
   phoneCountry: string;
   phoneNo: string;
@@ -10,9 +10,4 @@ export interface AppointmentFormData {
   bookingDate: string;
   bookingTiming: string;
   acceptPolicy: boolean;
-}
-
-export interface AppointmentProps {
-  onSubmit?: (data: AppointmentFormData) => void;
-  initialData?: Partial<AppointmentFormData>;
 }

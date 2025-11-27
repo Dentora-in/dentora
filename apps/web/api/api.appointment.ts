@@ -1,3 +1,4 @@
+import { AppointmentFormData } from "@/interfaces/appointment.interface";
 import axios from "axios";
 
 export const getAllSlotes = async (date: string) => {
@@ -13,4 +14,16 @@ export const getAllSlotes = async (date: string) => {
         console.error(e);
         return e;
     }
+};
+
+export const newAppointment = async (data: AppointmentFormData) => {
+  try {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/v0/appointment`,
+      data
+    );
+    return response.data;
+  } catch (err: any) {
+    return err;
+  }
 };

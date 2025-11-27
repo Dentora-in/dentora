@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
@@ -13,34 +14,37 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select";
 import { Card } from "@workspace/ui/components/card";
-import { getAllSlotes } from "@/api/api.appointment";
-import {
-  AppointmentFormData,
-  AppointmentProps,
-} from "@/interfaces/appointment.interface";
+import { Spinner } from "@workspace/ui/components/spinner";
+import { toast } from "@workspace/ui/components/sonner";
+import { getAllSlotes, newAppointment } from "@/api/api.appointment";
+import { AppointmentFormData } from "@/interfaces/appointment.interface";
 
 const today = new Date().toISOString().split("T")[0];
 
-export function Appointment({ onSubmit, initialData }: AppointmentProps) {
+export function Appointment() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState<AppointmentFormData>({
-    firstName: initialData?.firstName || "",
-    lastName: initialData?.lastName || "",
-    age: initialData?.age || "",
-    gender: initialData?.gender || "",
-    phoneCountry: initialData?.phoneCountry || "+91",
-    phoneNo: initialData?.phoneNo || "",
-    email: initialData?.email || "",
-    bookingDate: initialData?.bookingDate || today,
-    bookingTiming: initialData?.bookingTiming || "",
-    acceptPolicy: initialData?.acceptPolicy || false,
+    firstName: "",
+    lastName: "",
+    age: undefined,
+    gender: "",
+    phoneCountry: "+91",
+    phoneNo: "",
+    email: "",
+    bookingDate: today,
+    bookingTiming: "",
+    acceptPolicy: false,
   });
-  const [slotes, getSlotes] = useState([]);
+
+  const [slotes, setSlotes] = useState([]);
   const [countryCode, setCountryCode] = useState([]);
 
   useEffect(() => {
     const fetch = async () => {
       const data = await getAllSlotes(formData.bookingDate);
-      getSlotes(data.slotes);
+      setSlotes(data.slotes);
       setCountryCode(data.country_codes);
     };
     fetch();
@@ -48,62 +52,95 @@ export function Appointment({ onSubmit, initialData }: AppointmentProps) {
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
-    if (name === "age") {
-      const numValue = parseInt(value, 10);
-      if (value === "" || (numValue >= 0 && numValue <= 150)) {
-        setFormData((prev) => ({
-          ...prev,
-          [name]: value,
-        }));
-      }
-      return;
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleCheckboxChange = (checked: boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      acceptPolicy: checked,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleTimeSelect = (id: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      bookingTiming: id,
-    }));
+    setFormData((prev) => ({ ...prev, bookingTiming: id }));
   };
 
-  const formatTime = (isoString: string) => {
-    const date = new Date(isoString);
+  const isFormValid = () => {
+    return Object.values({
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      age: formData.age,
+      gender: formData.gender,
+      phoneNo: formData.phoneNo,
+      email: formData.email,
+      bookingDate: formData.bookingDate,
+      bookingTiming: formData.bookingTiming,
+      acceptPolicy: formData.acceptPolicy,
+    }).every(Boolean);
+  };
 
-    return date.toLocaleTimeString("en-US", {
+  const resetForm = () => {
+    setFormData({
+      firstName: "",
+      lastName: "",
+      age: undefined,
+      gender: "",
+      phoneCountry: "+91",
+      phoneNo: "",
+      email: "",
+      bookingDate: today,
+      bookingTiming: "",
+      acceptPolicy: false,
+    });
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!isFormValid()) {
+      toast("Missing Information", {
+        description: "Please fill all fields before submitting.",
+      });
+      return;
+    }
+
+    const payload = {
+      ...formData,
+      age: Number(formData.age),
+      appointmentDate: formData.bookingDate,
+      slotId: formData.bookingTiming,
+    };
+
+    delete (payload as any).bookingDate;
+    delete (payload as any).bookingTiming;
+
+    setLoading(true);
+
+    const result = await newAppointment(payload);
+
+    if (result?.success) {
+      toast.success("Appointment Booked 🎉", {
+        description: "Your appointment has been successfully scheduled.",
+      });
+
+      resetForm();
+      setLoading(false);
+      router.push("/");
+      return;
+    }
+
+    toast.error(
+      result?.response?.data?.message ||
+        "Could not book your appointment. Please try again."
+    );
+
+    setLoading(false);
+  };
+
+  const formatTime = (iso: string) =>
+    new Date(iso).toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
     });
-  };
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (onSubmit) {
-      onSubmit(formData);
-    }
-    console.log("Form Data:", formData);
-  };
 
   return (
     <>
@@ -184,10 +221,7 @@ export function Appointment({ onSubmit, initialData }: AppointmentProps) {
 
                 <SelectContent>
                   {countryCode.map((item: any) => (
-                    <SelectItem
-                      key={item.id}
-                      value={`+${item.phone_code}`} 
-                    >
+                    <SelectItem key={item.id} value={`+${item.phone_code}`}>
                       +{item.phone_code}
                     </SelectItem>
                   ))}
@@ -267,7 +301,12 @@ export function Appointment({ onSubmit, initialData }: AppointmentProps) {
             <Checkbox
               id="acceptPolicy"
               checked={formData.acceptPolicy}
-              onCheckedChange={handleCheckboxChange}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  acceptPolicy: Boolean(checked),
+                }))
+              }
             />
             <Label
               htmlFor="acceptPolicy"
@@ -284,7 +323,7 @@ export function Appointment({ onSubmit, initialData }: AppointmentProps) {
             className="w-full mt-3"
             size="lg"
           >
-            Submit
+            {loading ? <Spinner /> : "Book Appointment"}
           </Button>
         </form>
       </Card>
