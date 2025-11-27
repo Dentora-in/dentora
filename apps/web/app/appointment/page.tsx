@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Appointment } from "@/components/child/appointment-form";

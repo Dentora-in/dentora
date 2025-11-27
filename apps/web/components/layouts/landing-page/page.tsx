@@ -9,7 +9,6 @@ import { CTASection } from "./childs/cta-section";
 
 export default function Landingpage() {
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
 
   return (
     <>
