@@ -21,8 +21,7 @@ import { AppointmentFormData } from "@/interfaces/appointment.interface";
 
 const today = new Date().toISOString().split("T")[0];
 
-export function Appointment() {
-  const router = useRouter();
+export function Appointment({ setIsSuccess }: any) {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState<AppointmentFormData>({
@@ -44,8 +43,8 @@ export function Appointment() {
   useEffect(() => {
     const fetch = async () => {
       const data = await getAllSlotes(formData.bookingDate);
-      setSlotes(data.slotes);
-      setCountryCode(data.country_codes);
+      setSlotes(data.slotes || []);
+      setCountryCode(data.country_codes || []);
     };
     fetch();
   }, [formData.bookingDate]);
@@ -77,21 +76,6 @@ export function Appointment() {
     }).every(Boolean);
   };
 
-  const resetForm = () => {
-    setFormData({
-      firstName: "",
-      lastName: "",
-      age: undefined,
-      gender: "",
-      phoneCountry: "+91",
-      phoneNo: "",
-      email: "",
-      bookingDate: today,
-      bookingTiming: "",
-      acceptPolicy: false,
-    });
-  };
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -117,13 +101,8 @@ export function Appointment() {
     const result = await newAppointment(payload);
 
     if (result?.success) {
-      toast.success("Appointment Booked 🎉", {
-        description: "Your appointment has been successfully scheduled.",
-      });
-
-      resetForm();
       setLoading(false);
-      router.push("/");
+      setIsSuccess(true);
       return;
     }
 
@@ -330,3 +309,5 @@ export function Appointment() {
     </>
   );
 }
+
+export default Appointment;
