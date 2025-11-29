@@ -21,7 +21,7 @@ import { useEffect, useRef, useState } from "react";
 
 export default function AppointmentPage() {
   const router = useRouter();
-  const [isSuccess, setIsSuccess] = useState(true);
+  const [isSuccess, setIsSuccess] = useState(false);
   const toastShown = useRef(false);
 
   useEffect(() => {

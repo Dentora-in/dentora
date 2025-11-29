@@ -2,7 +2,7 @@ import { Button } from "@workspace/ui/components/button";
 
 export function HeroSection() {
   return (
-    <section className="relative w-full py-20 md:py-32 px-6 bg-gradient-to-b from-primary/5 to-background">
+    <section className="relative w-full py-20 md:py-32 px-6">
       <div className="mx-auto max-w-4xl text-center">
         <div className="mb-6 inline-block rounded-full bg-primary/10 px-4 py-2">
           <p className="text-sm font-medium text-primary">✨ Introducing Dentora Pro</p>
