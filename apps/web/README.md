@@ -21,3 +21,7 @@ https://youtu.be/-rcRf7yswfM
 
 
 https://www.shadcn.io/text/sliding-number
+
+https://animate-ui.com/docs/components/backgrounds/gravity-stars
+
+https://animate-ui.com/docs/icons?icon=circle-check-big&search=done
