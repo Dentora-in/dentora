@@ -21,16 +21,15 @@ export function Header() {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/appointment", label: "Appointments" },
-    { href: "/blogs", label: "Blogs" },
     { href: "/contact", label: "Contact Us" },
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 border-b border-border/50 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
       <nav className="flex items-center justify-between px-4 sm:px-6 py-1 mx-auto max-w-7xl">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="text-2xl font-bold text-primary">🦷</div>
+          {/* <div className="text-2xl font-bold text-primary">🦷</div> */}
           <span className="text-lg font-bold hidden sm:block">Dentora</span>
         </Link>
 
@@ -53,7 +52,7 @@ export function Header() {
         {/* Desktop Buttons */}
         <div className="hidden md:flex items-center gap-3">
           <ThemeToggler />
-          <Button variant="ghost" size="sm" asChild>
+          <Button variant="ghost" size="sm" asChild className="border">
             <Link href="/user/login">Log In</Link>
           </Button>
           <Button size="sm" asChild>
