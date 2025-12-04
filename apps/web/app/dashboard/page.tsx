@@ -1,3 +1,4 @@
+"use client";
 import { AppSidebar } from "@/app/dashboard/components/app-sidebar"
 import { DataTable } from "@/app/dashboard/components/data-table"
 import { SiteHeader } from "@/app/dashboard/components/site-header"
@@ -7,8 +8,19 @@ import {
 } from "@workspace/ui/components/sidebar"
 
 import data from "./data.json"
+import { useEffect } from "react"
+import { getAllAppointments } from "@/api/api.appointment";
 
 export default function Page() {
+
+  useEffect(() => {
+    async function fetch() {
+      const data = await getAllAppointments();
+      console.log("<>>>>>>>>>>>>>>>>>>>>>>>>from dashboard:::::::::::::::::", data);
+    }
+    fetch();
+  }, []);
+
   return (
     <SidebarProvider
       style={

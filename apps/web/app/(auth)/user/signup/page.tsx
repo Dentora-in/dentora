@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SignUp } from "@/interfaces/user.interface";
-import { authClient, signUp } from "@dentora/auth/client";
+import { signIn, signUp } from "@dentora/auth/client";
 import { toast } from "@workspace/ui/components/sonner";
 import Image from "next/image";
 import Link from "next/link";
@@ -66,7 +66,7 @@ export default function SignupPage() {
             setLoading(false);
             router.push("/");
           },
-          onError: (ctx) => {
+          onError: (ctx: any) => {
             console.error(ctx.error.message);
             toast.error(ctx.error.message);
           },
@@ -84,7 +84,7 @@ export default function SignupPage() {
     e.preventDefault();
     try {
       setLoading(true);
-      await authClient.signIn.social(
+      await signIn.social(
         {
           provider: "google",
           callbackURL: "/?google_oauth=1",
@@ -95,7 +95,7 @@ export default function SignupPage() {
             setLoading(false);
             router.push("/");
           },
-          onError: (ctx) => {
+          onError: (ctx: any) => {
             console.error(ctx.error.message);
             toast.error(ctx.error.message);
           },

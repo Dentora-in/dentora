@@ -19,7 +19,6 @@
     "@dentora/shared": "workspace:*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
-    "bullmq": "^5.64.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",

@@ -76,12 +76,31 @@ export const bookAppointment = async (req: Request, res: Response) => {
             message: "Appointment booked successfully"
         });
 
-    } catch (error: any) {
-        console.error("❌ Appointment booking error:", error);
+    } catch (e: any) {
+        console.error("❌ Appointment booking error:", e);
         return res.status(500).json({
             success: false,
-            message: error.message || "Internal server error",
+            message: e.message || "Internal server error",
         });
     }
 };
 
+export const getAllAppointment = async (req: Request, res:Response) => {
+    try {
+        // const doctorID = req.user;
+
+        // console.log(">>>>>>>>>>inside the getallappoitment", doctorID);
+
+        return res.status(200).json({
+            message: "hitted"
+        });
+        
+
+    } catch (e: any) {
+        console.error("❌ Appointment booking error:", e);
+        return res.status(500).json({
+            success: false,
+            message: e.message || "Internal server error",
+        });
+    }
+}
