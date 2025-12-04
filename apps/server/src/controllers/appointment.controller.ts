@@ -85,22 +85,16 @@ export const bookAppointment = async (req: Request, res: Response) => {
     }
 };
 
-export const getAllAppointment = async (req: Request, res:Response) => {
-    try {
-        // const doctorID = req.user;
+export const getAllAppointment = async (req: Request, res: Response) => {
+  try {
+    console.log("User:", req.user);
 
-        // console.log(">>>>>>>>>>inside the getallappoitment", doctorID);
+    return res.status(200).json({
+      message: "Appointments fetched",
+      user: req.user
+    });
 
-        return res.status(200).json({
-            message: "hitted"
-        });
-        
-
-    } catch (e: any) {
-        console.error("❌ Appointment booking error:", e);
-        return res.status(500).json({
-            success: false,
-            message: e.message || "Internal server error",
-        });
-    }
-}
+  } catch (e: any) {
+    return res.status(500).json({ message: e.message });
+  }
+};

@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { fromNodeHeaders, getSession } from "@dentora/auth/client";
+import { fromNodeHeaders } from "@dentora/auth/client";
+import { auth } from "@dentora/auth/auth";
 
 export interface userSessionType {
     id: string;
@@ -22,15 +23,11 @@ declare global {
 async function authMiddleware(req: Request, res: Response, next: NextFunction) {
     console.log(">>>>>>>>>>>>>>>>.req.headers", req.headers);
     try {
-        const session = await getSession({
+        const session = await auth.api.getSession({
             headers: fromNodeHeaders(req.headers)
         });
 
-        if (session.data === null || session.error) {
-            return res.status(session.error.status).json({
-                error: session.error
-            });
-        }
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>session", session);
 
         if (!session) {
             return res.status(401).json({ error: "Unauthorized" });
