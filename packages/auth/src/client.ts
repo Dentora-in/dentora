@@ -3,7 +3,7 @@ import { customSessionClient } from "better-auth/client/plugins";
 import type { auth } from "./auth";
 export { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 
-const NEXT_PUBLIC_BETTER_AUTH_URL = process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:3001";
+const NEXT_PUBLIC_BETTER_AUTH_URL = process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:3000";
 
 console.log("process.env.NEXT_PUBLIC_BETTER_AUTH_URL", NEXT_PUBLIC_BETTER_AUTH_URL);
 
