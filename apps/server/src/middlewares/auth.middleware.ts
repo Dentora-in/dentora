@@ -21,13 +21,10 @@ declare global {
 }
 
 async function authMiddleware(req: Request, res: Response, next: NextFunction) {
-    console.log(">>>>>>>>>>>>>>>>.req.headers", req.headers);
     try {
         const session = await auth.api.getSession({
             headers: fromNodeHeaders(req.headers)
         });
-
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>session", session);
 
         if (!session) {
             return res.status(401).json({ error: "Unauthorized" });
