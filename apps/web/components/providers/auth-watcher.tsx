@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { toast } from "@workspace/ui/components/sonner";
-import { authClient } from "@dentora/auth/client";
+import { getSession } from "@dentora/auth/client";
 
 export default function AuthWatcher() {
   useEffect(() => {
@@ -11,7 +11,7 @@ export default function AuthWatcher() {
 
     if (!fromGoogle) return;
 
-    authClient.getSession().then((session) => {
+    getSession().then((session: any) => {
       if (session?.data?.user) {
         toast.success("Successfully signed in with Google!");
 

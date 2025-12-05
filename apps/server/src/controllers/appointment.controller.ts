@@ -18,7 +18,6 @@ export const bookAppointment = async (req: Request, res: Response) => {
         const data = parsed.data;
 
         const result = await prisma.$transaction(async (tx) => {
-            // Ensure user exists
             let user = await tx.user.findUnique({ where: { email: data.email } });
 
             if (!user) {
@@ -32,13 +31,20 @@ export const bookAppointment = async (req: Request, res: Response) => {
                 });
             }
 
-            // Lock slot row
             const slot = await tx.doctorSlot.findUnique({
                 where: { id: data.slotId },
             });
 
             if (!slot) throw new Error("Slot does not exist");
             if (slot.isBooked) throw new Error("Slot already booked");
+
+            const existingAppointment = await tx.appointment.findUnique({
+                where: { slotId: data.slotId },
+            });
+
+            if (existingAppointment) {
+                throw new Error("An appointment already exists for this slot");
+            }
 
             // Mark slot booked
             const updatedSlot = await tx.doctorSlot.update({
@@ -76,12 +82,47 @@ export const bookAppointment = async (req: Request, res: Response) => {
             message: "Appointment booked successfully"
         });
 
-    } catch (error: any) {
-        console.error("❌ Appointment booking error:", error);
+    } catch (e: any) {
+        console.error("❌ Appointment booking error:", e);
         return res.status(500).json({
             success: false,
-            message: error.message || "Internal server error",
+            message: e.message || "Internal server error",
         });
     }
 };
 
+export const getAllAppointment = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    const { status, page, limit } = req.query;
+
+    if(!user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const userDetails = await prisma.user.findUnique({
+        where: {
+            id: user.id,
+            role: UserRole.DOCTOR as UserRole
+        }
+    });
+
+    if(!userDetails) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const appointments = await prisma.appointment.findMany({
+      where: {
+        doctorId: userDetails.id,
+      },
+    });
+
+    return res.status(200).json({
+      message: "Appointments fetched",
+      appointments: appointments,
+    });
+
+  } catch (e: any) {
+    return res.status(500).json({ message: e.message });
+  }
+};

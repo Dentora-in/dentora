@@ -1,14 +1,24 @@
+import * as dotenv from "dotenv";
+dotenv.config();
 import express, { Request, Response, NextFunction } from "express";
 import router from "./route";
 import google_route from "./routes/google.route";
-import { prisma } from "@dentora/database";
-import * as dotenv from "dotenv";
 import cors from "cors";
-dotenv.config();
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+];
 
 const app = express();
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 app.use(express.json());
-app.use(cors());
 
 const port = process.env.BACKEND_PORT || 5000;
 

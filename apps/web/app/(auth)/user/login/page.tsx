@@ -2,7 +2,7 @@
 
 import { LoginForm } from "@/components/auth/login-form";
 import { useState } from "react";
-import { authClient, signIn } from "@dentora/auth/client";
+import { signIn } from "@dentora/auth/client";
 import { toast } from "@workspace/ui/components/sonner";
 import { LogIn } from "@/interfaces/user.interface";
 import { usePathname, useRouter } from "next/navigation";
@@ -45,7 +45,7 @@ export default function LoginPage() {
             // TODO : push to designated place
             router.push("/");
           },
-          onError: (ctx) => {
+          onError: (ctx: any) => {
             console.error(ctx.error.message);
             toast.error(ctx.error.message);
           },
@@ -62,7 +62,7 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       setLoading(true);
-      await authClient.signIn.social(
+      await signIn.social(
         {
           provider: "google",
           callbackURL: "/?google_oauth=1",
@@ -77,7 +77,7 @@ export default function LoginPage() {
             // TODO : push to designated place
             router.push("/");
           },
-          onError: (ctx) => {
+          onError: (ctx: any) => {
             console.error(ctx.error.message);
             toast.error(ctx.error.message);
           },
