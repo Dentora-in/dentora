@@ -12,4 +12,4 @@ const authClient: any = createAuthClient({
   plugins: [customSessionClient<typeof auth>()],
 });
 
-export const { signUp, signIn, signOut, getSession, useSession } = authClient;
+export const { signUp, signIn, signOut, getSession, useSession, resetPassword } = authClient;

@@ -94,32 +94,58 @@ export const bookAppointment = async (req: Request, res: Response) => {
 export const getAllAppointment = async (req: Request, res: Response) => {
   try {
     const user = req.user;
-    const { status, page, limit } = req.query;
+    const statusQuery = (req.query.status as string) || undefined;
+    const pageQuery = Number(req.query.page ?? 1);
+    const limitQuery = Number(req.query.limit ?? 10);
 
     if(!user) {
         return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const userDetails = await prisma.user.findUnique({
+    const doctor_details = await prisma.user.findUnique({
         where: {
             id: user.id,
             role: UserRole.DOCTOR as UserRole
         }
     });
 
-    if(!userDetails) {
+    if(!doctor_details) {
         return res.status(401).json({ message: "Unauthorized" });
     }
 
+    // sanitize the inputs
+    const page = Number.isFinite(pageQuery) && pageQuery > 0 ? Math.floor(pageQuery) : 1;
+    const limit = Number.isFinite(limitQuery) && limitQuery > 0 ? Math.min(Math.floor(limitQuery), 100) : 10; // max 100
+
+    const where: any = { doctorId: doctor_details.id }
+
+    if(statusQuery) {
+        where.status = statusQuery;
+    }
+
+    // find the total count for pagination
+    const total = await prisma.appointment.count({ where });
+
+    // based the the query have to calc the page and limit
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const skip = (page - 1) * limit;
+
     const appointments = await prisma.appointment.findMany({
-      where: {
-        doctorId: userDetails.id,
-      },
+        where,
+        orderBy: { appointmentDate: "desc" },
+        skip,
+        take: limit,
     });
 
     return res.status(200).json({
-      message: "Appointments fetched",
-      appointments: appointments,
+      success: true,
+      meta_data: {
+        total,
+        page,
+        limit,
+        totalPages
+      },
+      appointments
     });
 
   } catch (e: any) {

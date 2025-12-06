@@ -14,7 +14,6 @@ import {
   ArrowBigLeftDash,
   CalendarIcon,
   CheckCircle,
-  Link,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";

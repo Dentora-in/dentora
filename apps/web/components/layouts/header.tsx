@@ -54,10 +54,10 @@ export function Header() {
         <div className="hidden md:flex items-center gap-3">
           <ThemeToggler />
           <Button variant="ghost" size="sm" asChild className="border">
-            <Link href="/user/login">Log In</Link>
+            <Link href="/login">Log In</Link>
           </Button>
           <Button size="sm" asChild>
-            <Link href="/user/signup">Sign Up</Link>
+            <Link href="/signup">Sign Up</Link>
           </Button>
         </div>
 
