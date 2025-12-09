@@ -11,25 +11,113 @@ import {
 } from "@workspace/ui/components/field";
 import { Input } from "@workspace/ui/components/input";
 import { Spinner } from "@workspace/ui/components/spinner";
-import { LogInForm } from "@/interfaces/user.interface";
+import { LogIn } from "@/interfaces/user.interface";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "@dentora/auth/client";
+import { toast } from "@workspace/ui/components/sonner";
+import { resetPassword } from "@/api/api.appointment";
 
 export function LoginForm({
   className,
-  onSubmit,
-  loading,
-  formData,
-  setFormData,
-  onGoogleLogin,
-  context,
   ...props
-}: React.ComponentProps<"form"> & LogInForm) {
+}: React.ComponentProps<"form">) {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
+  const [formData, setFormData] = useState<LogIn>({
+    email: "",
+    password: "",
+  });
+
+    const manual_login = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await signIn.email(
+        {
+          email: formData.email,
+          password: formData.password,
+        },
+        {
+          onRequest: () => {
+            setLoading(true);
+          },
+          onSuccess: () => {
+            toast.success("Successfully signed in!");
+            setLoading(false);
+            // router.push(context === "u" ? "/dashboard" : "/clinic/dashboard");
+            // TODO : push to designated place
+            router.push("/");
+          },
+          onError: (ctx: any) => {
+            console.error(ctx.error.message);
+            toast.error(ctx.error.message);
+          },
+        }
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const with_google = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await signIn.social(
+        {
+          provider: "google",
+          callbackURL: "/?google_oauth=1",
+        },
+        {
+          onRequest: () => {
+            setLoading(true);
+          },
+          onSuccess: () => {
+            setLoading(false);
+            // router.push(context === "u" ? "/dashboard" : "/clinic/dashboard");
+            // TODO : push to designated place
+            router.push("/");
+          },
+          onError: (ctx: any) => {
+            console.error(ctx.error.message);
+            toast.error(ctx.error.message);
+          },
+        }
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!formData.email) {
+      return toast.error("Please enter your email in the input box");
+    }
+
+    try {
+      const response = await resetPassword(formData.password);
+
+      if (!response.ok) {
+        throw new Error(response?.message || response?.error || "Failed to request password reset");
+      }
+
+      toast.success("Password reset link has been sent! Check your email.");
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to request password reset");
+    }
+  };
 
   return (
     <form
-      onSubmit={onSubmit}
+      onSubmit={manual_login}
       className={cn("flex flex-col gap-6", className)}
       {...props}
     >
@@ -58,7 +146,11 @@ export function LoginForm({
           <div className="flex items-center">
             <FieldLabel htmlFor="password">Password</FieldLabel>
             <a
-              href={`/${context}/reset-password`}
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handleResetPassword();
+              }}
               className="ml-auto text-sm underline-offset-4 hover:underline"
             >
               Forgot your password?
@@ -100,7 +192,7 @@ export function LoginForm({
         <FieldSeparator>Or continue with</FieldSeparator>
 
         <Field>
-          <Button variant="outline" type="button" onClick={onGoogleLogin}>
+          <Button variant="outline" type="button" onClick={with_google}>
             <svg xmlns="http://www.w3.org/2000/svg" width="256" height="262" viewBox="0 0 256 262"><path fill="#4285f4" d="M255.878 133.451c0-10.734-.871-18.567-2.756-26.69H130.55v48.448h71.947c-1.45 12.04-9.283 30.172-26.69 42.356l-.244 1.622l38.755 30.023l2.685.268c24.659-22.774 38.875-56.282 38.875-96.027"/>
             <path fill="#34a853" d="M130.55 261.1c35.248 0 64.839-11.605 86.453-31.622l-41.196-31.913c-11.024 7.688-25.82 13.055-45.257 13.055c-34.523 0-63.824-22.773-74.269-54.25l-1.531.13l-40.298 31.187l-.527 1.465C35.393 231.798 79.49 261.1 130.55 261.1"/><path fill="#fbbc05" d="M56.281 156.37c-2.756-8.123-4.351-16.827-4.351-25.82c0-8.994 1.595-17.697 4.206-25.82l-.073-1.73L15.26 71.312l-1.335.635C5.077 89.644 0 109.517 0 130.55s5.077 40.905 13.925 58.602z"/><path fill="#eb4335" d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0C79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"/>
             </svg>
@@ -110,7 +202,7 @@ export function LoginForm({
           <FieldDescription className="text-center">
             Don&apos;t have an account?{" "}
             <a
-              href={`/${context}/signup`}
+              href={`/signup`}
               className="underline underline-offset-4"
             >
               Sign up

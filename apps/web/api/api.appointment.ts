@@ -2,6 +2,25 @@ import { AppointmentFormData } from "@/interfaces/appointment.interface";
 import { useSession } from "@dentora/auth/client";
 import axios from "axios";
 
+export const resetPassword = async (email: string) => {
+    try {
+        const response = await axios.post("/api/auth/request-password-reset", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email
+        }),
+      });
+
+        return response.data;
+    } catch (e) {
+        console.error(e);
+        return e;
+    }
+};
+
 export const getAllSlotes = async (date: string) => {
     try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v0/slotes`,
