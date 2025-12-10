@@ -1,6 +1,6 @@
 import { z, ZodError, ZodSchema } from "zod";
 
-export { ZodError, ZodSchema };
+export { ZodError, ZodSchema, z };
 
 const passwordSchema = z
   .string()

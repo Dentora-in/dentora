@@ -1,67 +1,69 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import { useState } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
+import { Eye, EyeOff } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@workspace/ui/components/button"
+import { Input } from "@workspace/ui/components/input"
+import { toast } from "@workspace/ui/components/sonner"
+import { resetPassword } from "@dentora/auth/client"
 
-import Link from 'next/link'
-import { Button } from '@workspace/ui/components/button'
-import { Input } from '@workspace/ui/components/input'
+export function ResetPasswordForm() {
+  const searchParams = useSearchParams()
+  const token = searchParams.get("token") || ""
+  const router = useRouter()
 
-export function ResetPasswordForm({
-  context
-}: {
-  context: string;
-}) {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    password: '',
-    confirmPassword: '',
-  })
-  const [error, setError] = useState('')
+  const [formData, setFormData] = useState({ password: "", confirmPassword: "" })
+  const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-    setError('')
+    setFormData((prev) => ({ ...prev, [name]: value }))
+    setError("")
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setError('')
-    setLoading(true)
+    setError("")
+    if (!token) {
+      setError("Invalid or missing token")
+      return
+    }
 
     // Validation
     if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters')
-      setLoading(false)
+      setError("Password must be at least 8 characters")
       return
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match')
-      setLoading(false)
+      setError("Passwords do not match")
       return
     }
 
     try {
-      // TODO: Replace with actual API call to reset password
-      // const response = await fetch('/api/auth/reset-password', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ password: formData.password }),
-      // })
+      setLoading(true)
+      const { data, error } = await resetPassword({
+          newPassword: formData.password,
+          token: token as string,
+      });
 
-      // Simulated success
+      if (error) {
+        throw new Error(error.message || "Failed to reset password")
+      }
+
+      toast.success("Password reset successfully!")
       setSuccess(true)
-      setFormData({ password: '', confirmPassword: '' })
-    } catch (err) {
-      setError('Something went wrong. Please try again.')
+      setFormData({ password: "", confirmPassword: "" })
+      router.push(`/login`)
+    } catch (err: any) {
+      console.error(err)
+      setError(err.message || "Something went wrong. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -75,7 +77,7 @@ export function ResetPasswordForm({
             Password reset successfully! You can now log in with your new password.
           </p>
         </div>
-        <Link href="/login">
+        <Link href={`/login`}>
           <Button className="w-full">Back to login</Button>
         </Link>
       </div>
@@ -84,7 +86,7 @@ export function ResetPasswordForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* New Password Field */}
+      {/* Password Fields */}
       <div className="space-y-2">
         <label htmlFor="password" className="block text-sm font-medium text-foreground">
           New Password<span className="text-destructive">*</span>
@@ -93,7 +95,7 @@ export function ResetPasswordForm({
           <Input
             id="password"
             name="password"
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             placeholder="Enter New Password"
             value={formData.password}
             onChange={handleChange}
@@ -105,16 +107,11 @@ export function ResetPasswordForm({
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
-            {showPassword ? (
-              <EyeOff className="w-4 h-4" />
-            ) : (
-              <Eye className="w-4 h-4" />
-            )}
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
-      {/* Confirm Password Field */}
       <div className="space-y-2">
         <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground">
           Confirm Password<span className="text-destructive">*</span>
@@ -123,7 +120,7 @@ export function ResetPasswordForm({
           <Input
             id="confirmPassword"
             name="confirmPassword"
-            type={showConfirmPassword ? 'text' : 'password'}
+            type={showConfirmPassword ? "text" : "password"}
             placeholder="Confirm Your Password"
             value={formData.confirmPassword}
             onChange={handleChange}
@@ -135,34 +132,27 @@ export function ResetPasswordForm({
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
-            {showConfirmPassword ? (
-              <EyeOff className="w-4 h-4" />
-            ) : (
-              <Eye className="w-4 h-4" />
-            )}
+            {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
-      {/* Error Message */}
       {error && (
         <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-3">
           <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
         </div>
       )}
 
-      {/* Submit Button */}
       <Button
         type="submit"
         disabled={loading}
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2.5"
       >
-        {loading ? 'Resetting...' : 'Reset Password'}
+        {loading ? "Resetting..." : "Reset Password"}
       </Button>
 
-      {/* Back to Login Link */}
       <div className="text-center">
-        <Link href={`/${context}/login`} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <Link href={`/login`} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
           Back to login
         </Link>
       </div>

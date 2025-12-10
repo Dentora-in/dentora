@@ -1,6 +1,9 @@
+import { prisma } from "@dentora/database";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "@dentora/database";
+export { fromNodeHeaders } from "better-auth/node";
+import { loadEmailTemplate } from "@dentora/shared/template-loader";
+import { emailQueue } from "@dentora/shared/queue";
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
@@ -8,21 +11,41 @@ export const auth = betterAuth({
     }),
     emailAndPassword: {
         enabled: true,
+        sendResetPassword: async ({ user, url }) => {
+            console.log(`User: ${user.email}`);
+            console.log(`Reset link: ${url}`);
+
+            const html = loadEmailTemplate("reset-password.html", {
+                email: user.email,
+                reset_link: url,
+            });
+
+            await emailQueue.add("reset-password", {
+                to: user.email,
+                subject: "Reset Your Dentora Password",
+                html,
+                text: `Reset your password using this link: ${url}`,
+            });
+        },
+        onPasswordReset: async ({ user }, request) => {
+            const html = loadEmailTemplate("password-reset-success.html", {
+                name: user.name,
+                email: user.email
+            });
+
+            await emailQueue.add("password-reset-success", {
+                to: user.email,
+                subject: "Your Password Was Reset Successfully",
+                html,
+                text: `Your password was successfully changed.`,
+            });
+        },
     },
-    // TODO : need to add the mailing service sapartly
-    // emailVerification: {
-    //     sendOnSignUp: true,
-    //     autoSignInAfterVerification: true,
-    //     sendVerificationEmail: async ({ user, url, token }, request) => {
-    //         // Use your email sending service here, e.g. SendGrid, Resend, etc.
-    //         await yourEmailService.send({
-    //             to: user.email,
-    //             subject: "Please verify your email",
-    //             html: `Click this link to verify: <a href="${url}">${url}</a>`,
-    //         });
-    //     },
-    //     expiresIn: 60 * 60
-    // },
+    secret: process.env.NEXT_PUBLIC_BETTER_AUTH_SECRET,
+    session: {
+        expiresIn: 60 * 60 * 24 * 7, // 7 days
+        updateAge: 60 * 60 * 24, // 1 day (every 1 day the session expiration is updated)
+    },
     socialProviders: {
         google: {
             prompt: "select_account",

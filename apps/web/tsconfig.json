@@ -1,5 +1,5 @@
 {
-  "extends": "@workspace/typescript-config/nextjs.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
     "lib": ["dom", "dom.iterable", "ES2022"],

@@ -1,10 +1,16 @@
+import { createAuthClient } from "better-auth/client";
 import { customSessionClient } from "better-auth/client/plugins";
-import { createAuthClient } from "better-auth/react";
-import { auth } from "./auth";
+import type { auth } from "./auth";
+export { fromNodeHeaders, toNodeHandler } from "better-auth/node";
+export type { Session, User } from "better-auth";
 
-export const authClient = createAuthClient({
-  baseURL: process.env.BETTER_AUTH_URL,
+const NEXT_PUBLIC_BETTER_AUTH_URL = process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:3000";
+
+console.log("process.env.NEXT_PUBLIC_BETTER_AUTH_URL", NEXT_PUBLIC_BETTER_AUTH_URL);
+
+const authClient: any = createAuthClient({
+  baseURL: NEXT_PUBLIC_BETTER_AUTH_URL,
   plugins: [customSessionClient<typeof auth>()],
 });
 
-export const { signUp, signIn, signOut, getSession, useSession } = authClient;
+export const { signUp, signIn, signOut, getSession, useSession, resetPassword, forgetPassword } = authClient;

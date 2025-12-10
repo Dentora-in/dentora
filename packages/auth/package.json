@@ -1,6 +1,7 @@
 {
   "name": "@dentora/auth",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "index.js",
   "keywords": [],
@@ -8,8 +9,10 @@
   "license": "ISC",
   "dependencies": {
     "@dentora/database": "workspace:*",
+    "@dentora/shared": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
-    "better-auth": "^1.3.34"
+    "better-auth": "^1.3.34",
+    "dotenv": "^17.2.3"
   },
   "exports": {
     "./auth": "./src/auth.ts",

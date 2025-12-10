@@ -20,7 +20,6 @@ export function SignupForm({
   formData,
   setFormData,
   onGoogleLogin,
-  context,
   ...props
 }: React.ComponentProps<"form"> & signUpForm) {
   const [showPassword, setShowPassword] = useState(false);
@@ -113,7 +112,7 @@ export function SignupForm({
           <FieldDescription className="text-center">
             Already have an account?{" "}
             <a
-              href={`/${context}/login`}
+              href={`/login`}
               className="underline underline-offset-4"
             >
               Log in

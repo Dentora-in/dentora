@@ -1,19 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "@dentora/database";
 import { appointmentSchema } from "@dentora/shared/zod";
-import { AppointmentStatus } from "@dentora/database";
-import { createMeetEvent } from "@dentora/shared/meeting";
-import { emailService } from "@dentora/shared/mailing";
-
-const activeStatuses: AppointmentStatus[] = [
-    AppointmentStatus.PENDING,
-    AppointmentStatus.CONFIRMED,
-];
+import { UserRole } from "@dentora/database";
+import { appointmentQueue } from "@dentora/shared/queue";
+import { isDevelopmentMode } from "@dentora/shared/globals";
 
 export const bookAppointment = async (req: Request, res: Response) => {
     try {
         const parsed = appointmentSchema.safeParse(req.body);
-
         if (!parsed.success) {
             return res.status(400).json({
                 success: false,
@@ -24,141 +18,138 @@ export const bookAppointment = async (req: Request, res: Response) => {
 
         const data = parsed.data;
 
-        let userId = data.userId;
-
-        const existingAppointment = await prisma.appointment.findFirst({
-            where: {
-                email: data.email,
-                status: {
-                    in: activeStatuses
-                },
-            },
-        });
-
-        if (existingAppointment) {
-            return res.status(400).json({
-                success: false,
-                message: "You already have an active appointment. Please complete or cancel it before booking a new one.",
-            });
-        }
-
-        if (!userId) {
-            let user = await prisma.user.findUnique({
-                where: { email: data.email }
-            });
+        const result = await prisma.$transaction(async (tx) => {
+            let user = await tx.user.findUnique({ where: { email: data.email } });
 
             if (!user) {
-                user = await prisma.user.create({
+                user = await tx.user.create({
                     data: {
                         id: crypto.randomUUID(),
                         name: `${data.firstName} ${data.lastName}`,
                         email: data.email,
-                        emailVerified: false,
-                        password: null,
-                        role: "PATIENT", //import from prisma
+                        role: UserRole.PATIENT,
                     },
                 });
             }
 
-            userId = user.id;
-        }
-
-        if (data.doctorId) {
-            const doctor = await prisma.doctor.findUnique({
-                where: { id: data.doctorId },
+            const slot = await tx.doctorSlot.findUnique({
+                where: { id: data.slotId },
             });
 
-            if (!doctor) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Selected doctor does not exist",
-                });
+            if (!slot) throw new Error("Slot does not exist");
+            if (slot.isBooked) throw new Error("Slot already booked");
+
+            const existingAppointment = await tx.appointment.findUnique({
+                where: { slotId: data.slotId },
+            });
+
+            if (existingAppointment) {
+                throw new Error("An appointment already exists for this slot");
             }
-        }
 
-        if (!data.slotId) {
-            return res.status(400).json({
-                success: false,
-                message: "slotId is required"
+            // Mark slot booked
+            const updatedSlot = await tx.doctorSlot.update({
+                where: { id: slot.id },
+                data: { isBooked: true },
             });
-        }
 
-        const slot = await prisma.doctorSlot.findUnique({
-            where: { id: data.slotId }
+            // Create appointment record
+            const appointment = await tx.appointment.create({
+                data: {
+                    ...data,
+                    userId: user.id,
+                },
+            });
+
+            return { appointment, slot: updatedSlot };
         });
 
-        if (!slot) {
-            return res.status(404).json({
-                success: false,
-                message: "Selected time slot does not exist",
-            });
-        }
-
-        if (slot.isBooked) {
-            return res.status(400).json({
-                success: false,
-                message: "This time slot is already booked",
-            });
-        }
-
-        const slot_details = await prisma.doctorSlot.findUnique({
-            where: {
-                id: data.slotId
-            }
-        });
-
-        if (!slot_details) {
-            return res.status(400).json({
-                success: false,
-                message: "slot has already taken. Please try with other time!!"
-            });
-        }
-
-        const doctor_details = await prisma.doctorSlot.update({
-            where: { id: data.slotId },
-            data: { isBooked: true },
-        });
-
-        const meetLink = await createMeetEvent(
-            data.email,
-            slot_details!.startTime.toISOString(),
-            slot_details!.endTime.toISOString()
-        );
-
-        if (!meetLink) {
-            return;
-        }
-
-        await emailService({
-            to: data.email,
-            patientName: `${data.firstName} ${data.lastName}`,
-            meetingLink: meetLink,
-            startTime: slot_details.startTime,
-            endTime: slot_details.endTime,
-        });
-
-        const appointment = await prisma.appointment.create({
-            data: {
-                ...data,
-                userId,
-                meetLink,
-                doctorId: doctor_details.doctorId
+        await appointmentQueue.add("SEND_EMAIL_AND_MEET", {
+            appointmentId: result.appointment.id,
+            email: result.appointment.email,
+            patientName: `${result.appointment.firstName} ${result.appointment.lastName}`,
+            slotStart: result.slot.startTime,
+            slotEnd: result.slot.endTime,
+        }, {
+            attempts: 5,
+            backoff: {
+                type: "exponential",
+                delay: 1000 * 60,
             },
         });
 
         return res.status(201).json({
             success: true,
-            message: "Appointment booked successfully",
-            appointment,
+            message: "Appointment booked successfully"
         });
 
-    } catch (error) {
-        console.error("❌ Appointment booking error:", error);
-
+    } catch (e: any) {
+        console.error("❌ Appointment booking error:", e);
         return res.status(500).json({
             success: false,
-            message: "Internal server error while booking appointment",
+            message: e.message || "Internal server error",
         });
     }
 };
 
+export const getAllAppointment = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    const statusQuery = (req.query.status as string) || undefined;
+    const pageQuery = Number(req.query.page ?? 1);
+    const limitQuery = Number(req.query.limit ?? 10);
+
+    if(!user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const doctor_details = await prisma.user.findUnique({
+        where: {
+            id: user.id,
+            role: UserRole.DOCTOR as UserRole
+        }
+    });
+
+    if(!doctor_details) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // sanitize the inputs
+    const page = Number.isFinite(pageQuery) && pageQuery > 0 ? Math.floor(pageQuery) : 1;
+    const limit = Number.isFinite(limitQuery) && limitQuery > 0 ? Math.min(Math.floor(limitQuery), 100) : 10; // max 100
+
+    const where: any = { doctorId: doctor_details.id }
+
+    if(statusQuery) {
+        where.status = statusQuery;
+    }
+
+    // find the total count for pagination
+    const total = await prisma.appointment.count({ where });
+
+    // based the the query have to calc the page and limit
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const skip = (page - 1) * limit;
+
+    const appointments = await prisma.appointment.findMany({
+        where,
+        orderBy: { appointmentDate: "desc" },
+        skip,
+        take: limit,
+    });
+
+    return res.status(200).json({
+      success: true,
+      meta_data: {
+        total,
+        page,
+        limit,
+        totalPages
+      },
+      appointments
+    });
+
+  } catch (e: any) {
+    return res.status(500).json({ message: e.message });
+  }
+};

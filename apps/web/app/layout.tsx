@@ -1,13 +1,16 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Lexend, Geist_Mono } from "next/font/google";
 
 import "@workspace/ui/globals.css";
 import { Providers } from "@/components/providers/providers";
 import { Toaster } from "@workspace/ui/components/sonner";
 import AuthWatcher from "@/components/providers/auth-watcher";
+import HeaderWrapper from "@/components/layouts/header-wrapper";
 
-const fontSans = Geist({
+// TODO: @anmol: add good font and remove comments
+const fontSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
+  weight: "600"
 });
 
 const fontMono = Geist_Mono({
@@ -23,12 +26,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning suppressContentEditableWarning>
       <body
-        className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
+        className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased`}
       >
         <Providers>
           <AuthWatcher />
-          {children}
+          <HeaderWrapper />
+          <main>
+            {children}
+          </main>
         </Providers>
+
         <Toaster richColors />
       </body>
     </html>

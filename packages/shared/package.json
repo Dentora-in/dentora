@@ -17,14 +17,19 @@
     "dotenv": "^17.2.3",
     "googleapis": "^166.0.0",
     "nodemailer": "^7.0.10",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "bullmq": "^5.64.1"
   },
   "exports": {
+    "./globals": "./src/common/index.ts",
     "./zod": "./src/zod/index.ts",
     "./validation": "./src/zod/validation.ts",
     "./country-codes": "./src/services/country-codes.ts",
     "./meeting": "./src/services/meeting.service.ts",
-    "./mailing": "./src/services/mailing.service.ts"
+    "./mailing": "./src/services/mailing.service.ts",
+    "./queue": "./src/services/queue.service.ts",
+    "./general-mailing": "./src/services/general-email.service.ts",
+    "./template-loader": "./src/loader/template-loader.ts"
   },
   "devDependencies": {
     "@types/nodemailer": "^7.0.4",

@@ -5,11 +5,17 @@
     "DATABASE_URL",
     "NODE_ENV",
     "BACKEND_PORT",
+    "NEXT_PUBLIC_BETTER_AUTH_SECRET",
+    "NEXT_PUBLIC_BETTER_AUTH_URL",
+    "NEXT_PUBLIC_BACKEND_URL",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
     "GOOGLE_REDIRECT_URI",
+    "GOOGLE_REFRESH_TOKEN",
     "MAIL_SERVICE_EMAIL",
-    "MAIL_SERVICE_EMAIL_PASS"
+    "MAIL_SERVICE_EMAIL_PASS",
+    "REDIS_HOST",
+    "REDIS_PORT"
   ],
   "tasks": {
     "build": {
@@ -18,8 +24,13 @@
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "start:server": {
-      "dependsOn": ["^generate"],
-      "cache": false
+      "dependsOn": ["^generate"]
+    },
+    "start:web": {
+      "dependsOn": ["^generate"]
+    },
+    "start:worker": {
+      "dependsOn": ["^generate"]
     },
     "db:migrate:dev": {
       "cache": false,
