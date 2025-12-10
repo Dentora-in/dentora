@@ -2,6 +2,8 @@ import { prisma } from "@dentora/database";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 export { fromNodeHeaders } from "better-auth/node";
+import { loadEmailTemplate } from "@dentora/shared/template-loader";
+import { emailQueue } from "@dentora/shared/queue";
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
@@ -9,19 +11,34 @@ export const auth = betterAuth({
     }),
     emailAndPassword: {
         enabled: true,
-        sendResetPassword: async ({ user, url, token }, request) => {
-            console.log("🚀 Password reset requested!");
+        sendResetPassword: async ({ user, url }) => {
             console.log(`User: ${user.email}`);
-            console.log(`Reset link: ${url}?token=${token}`);
+            console.log(`Reset link: ${url}`);
 
-            // void sendEmail({
-            //     to: user.email,
-            //     subject: "Reset your password",
-            //     text: `Click the link to reset your password: ${url}`,
-            // });
+            const html = loadEmailTemplate("reset-password.html", {
+                email: user.email,
+                reset_link: url,
+            });
+
+            await emailQueue.add("reset-password", {
+                to: user.email,
+                subject: "Reset Your Dentora Password",
+                html,
+                text: `Reset your password using this link: ${url}`,
+            });
         },
         onPasswordReset: async ({ user }, request) => {
-            console.log(`✅ Password for user ${user.email} has been reset.`);
+            const html = loadEmailTemplate("password-reset-success.html", {
+                name: user.name,
+                email: user.email
+            });
+
+            await emailQueue.add("password-reset-success", {
+                to: user.email,
+                subject: "Your Password Was Reset Successfully",
+                html,
+                text: `Your password was successfully changed.`,
+            });
         },
     },
     secret: process.env.NEXT_PUBLIC_BETTER_AUTH_SECRET,
