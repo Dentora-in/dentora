@@ -4,6 +4,7 @@ import express, { Request, Response, NextFunction } from "express";
 import router from "./route";
 import google_route from "./routes/google.route";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
 
 const allowedOrigins = [
   "http://localhost:3000",
@@ -11,6 +12,20 @@ const allowedOrigins = [
 ];
 
 const app = express();
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, 
+  max: 100,
+  message: {
+    error: true,
+    message: "Too many requests, please try again later.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(limiter);
+
 app.use(
   cors({
     origin: allowedOrigins,

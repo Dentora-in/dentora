@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { isDevelopmentMode } from "@dentora/shared/globals";
 
 export interface AppointmentEmailPayload {
   to: string;
@@ -122,6 +123,15 @@ export const emailService = async ({
         content: appointmentICS,
       },
     };
+
+    if (isDevelopmentMode) {
+      console.log("📧 [DEV MODE] Email payload:", JSON.stringify(message, null, 2));
+
+      return {
+        success: true,
+        message: "Email logged in development mode. No email sent.",
+      };
+    }
 
     await transporter.sendMail(message);
 

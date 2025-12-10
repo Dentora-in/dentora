@@ -20,7 +20,8 @@
     "db:generate": "turbo run generate",
     "lint": "turbo run lint",
     "start:server": "turbo run start:server",
-    "start:worker": "turbo run start:worker"
+    "start:worker": "turbo run start:worker",
+    "start:web": "turbo run start:web"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

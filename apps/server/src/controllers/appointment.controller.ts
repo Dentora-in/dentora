@@ -3,6 +3,7 @@ import { prisma } from "@dentora/database";
 import { appointmentSchema } from "@dentora/shared/zod";
 import { UserRole } from "@dentora/database";
 import { appointmentQueue } from "@dentora/shared/queue";
+import { isDevelopmentMode } from "@dentora/shared/globals";
 
 export const bookAppointment = async (req: Request, res: Response) => {
     try {
