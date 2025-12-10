@@ -26,7 +26,9 @@
     "./country-codes": "./src/services/country-codes.ts",
     "./meeting": "./src/services/meeting.service.ts",
     "./mailing": "./src/services/mailing.service.ts",
-    "./queue": "./src/services/queue.service.ts"
+    "./queue": "./src/services/queue.service.ts",
+    "./general-mailing": "./src/services/general-email.service.ts",
+    "./template-loader": "./src/loader/template-loader.ts"
   },
   "devDependencies": {
     "@types/nodemailer": "^7.0.4",

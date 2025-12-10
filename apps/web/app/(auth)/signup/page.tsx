@@ -23,12 +23,6 @@ export default function SignupPage() {
     password: "",
   });
 
-  const context = pathname.startsWith("/user")
-    ? "user"
-    : pathname.startsWith("/client")
-      ? "client"
-      : "unknown";
-
   const manual_login = async (e: React.FormEvent) => {
     e.preventDefault();
     const validation = signupSchema.safeParse(formData);
@@ -118,7 +112,6 @@ export default function SignupPage() {
               loading={loading}
               setFormData={setFormData}
               formData={formData}
-              context={context}
               onGoogleLogin={with_google}
             />
           </div>

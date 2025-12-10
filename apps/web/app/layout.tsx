@@ -4,7 +4,7 @@ import "@workspace/ui/globals.css";
 import { Providers } from "@/components/providers/providers";
 import { Toaster } from "@workspace/ui/components/sonner";
 import AuthWatcher from "@/components/providers/auth-watcher";
-import { Header } from "@/components/layouts/header";
+import HeaderWrapper from "@/components/layouts/header-wrapper";
 
 // TODO: @anmol: add good font and remove comments
 const fontSans = Plus_Jakarta_Sans({
@@ -30,7 +30,7 @@ export default function RootLayout({
       >
         <Providers>
           <AuthWatcher />
-          <Header />
+          <HeaderWrapper />
           <main>
             {children}
           </main>

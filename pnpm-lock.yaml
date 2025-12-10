@@ -213,6 +213,9 @@ importers:
       '@dentora/database':
         specifier: workspace:*
         version: link:../database
+      '@dentora/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@workspace/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config

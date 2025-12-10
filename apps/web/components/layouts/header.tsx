@@ -4,19 +4,29 @@ import * as React from "react";
 import Link from "next/link";
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@workspace/ui/components/navigation-menu";
-import { useIsMobile } from "@workspace/ui/hooks/use-mobile";
-import { ThemeToggler } from "@/components/child/theme-toggler";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@workspace/ui/components/sheet";
 import { Button } from "@workspace/ui/components/button";
+import { ThemeToggler } from "@/components/child/theme-toggler";
+import { useAuthSession } from "@/hooks/get-session";
+import { signOut } from "@dentora/auth/client";
+import { Menu } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function Header() {
-  const isMobile = useIsMobile();
+  const { user, session, isLoading } = useAuthSession();
+  const [isOpen, setIsOpen] = React.useState(false);
+  const router = useRouter();
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -25,18 +35,27 @@ export function Header() {
     { href: "/contact", label: "Contact Us" },
   ];
 
+  const logoutHandler = async () => {
+    await signOut();
+    setIsOpen(false);
+    router.push("/login");
+  };
+
+  if (isLoading) {
+    return <div className="h-14 bg-background" />; 
+  }
+
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
-      <nav className="flex items-center justify-between px-4 sm:px-6 py-1 mx-auto max-w-7xl">
-        {/* Logo */}
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
+      <nav className="flex items-center justify-between px-4 sm:px-6 py-3 mx-auto max-w-7xl h-14">
+        {/* --- Logo --- */}
         <Link href="/" className="flex items-center gap-2">
-          {/* <div className="text-2xl font-bold text-primary">🦷</div> */}
-          <span className="text-lg font-bold hidden sm:block">Dentora</span>
+          <span className="text-lg font-bold">Dentora</span>
         </Link>
 
-        {/* --- Navigation Menu --- */}
-        <NavigationMenu viewport={isMobile} className="hidden md:flex">
-          <NavigationMenuList className="gap-3">
+        {/* --- Desktop Navigation --- */}
+        <NavigationMenu className="hidden md:flex">
+          <NavigationMenuList className="gap-1">
             {navLinks.map((link) => (
               <NavigationMenuItem key={link.href}>
                 <NavigationMenuLink
@@ -50,50 +69,88 @@ export function Header() {
           </NavigationMenuList>
         </NavigationMenu>
 
-        {/* Desktop Buttons */}
+        {/* --- Desktop Buttons --- */}
         <div className="hidden md:flex items-center gap-3">
           <ThemeToggler />
-          <Button variant="ghost" size="sm" asChild className="border">
-            <Link href="/user/login">Log In</Link>
-          </Button>
-          <Button size="sm" asChild>
-            <Link href="/user/signup">Sign Up</Link>
-          </Button>
+          {user?.name && <p className="text-sm font-medium">{user.name}</p>}
+          {session ? (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={logoutHandler}
+              className="border hover:cursor-pointer"
+            >
+              Log out
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/login">Log In</Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link href="/signup">Sign Up</Link>
+              </Button>
+            </>
+          )}
         </div>
 
-        {/* Mobile Nav (simple dropdown using NavigationMenu) */}
+        {/* --- Mobile Navigation (Sheet/Sidebar) --- */}
         <div className="md:hidden flex items-center gap-2">
           <ThemeToggler />
+          
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            
+            <SheetContent side="right">
+              <SheetHeader className="text-left border-b pb-4 mb-4">
+                <SheetTitle className="font-bold">Dentora</SheetTitle>
+              </SheetHeader>
+              
+              <div className="flex flex-col gap-4 px-5">
+                {/* Mobile Links */}
+                <div className="flex flex-col gap-2">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setIsOpen(false)}
+                      className="text-sm font-medium hover:text-primary transition-colors py-2"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
 
-          <NavigationMenu viewport={true}>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>Menu</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid gap-3 p-4 w-[200px]">
-                    {navLinks.map((link) => (
-                      <li key={link.href}>
-                        <NavigationMenuLink asChild>
-                          <Link href={link.href}>{link.label}</Link>
-                        </NavigationMenuLink>
-                      </li>
-                    ))}
+                <div className="border-t my-2" />
 
-                    <li className="pt-3 border-t">
-                      <NavigationMenuLink asChild>
-                        <Link href="/user/login">Log In</Link>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link href="/user/signup">Sign Up</Link>
-                      </NavigationMenuLink>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+                {/* Mobile Auth Buttons */}
+                <div className="flex flex-col gap-2">
+                  {session ? (
+                    <div className="flex flex-col gap-2">
+                       <p className="text-sm text-muted-foreground">Signed in as {user?.name}</p>
+                       <Button onClick={logoutHandler} variant="destructive" className="w-full hover:cursor-pointer">
+                         Log out
+                       </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <Button variant="outline" asChild className="w-full">
+                        <Link href="/login" onClick={() => setIsOpen(false)}>Log In</Link>
+                      </Button>
+                      <Button asChild className="w-full">
+                        <Link href="/signup" onClick={() => setIsOpen(false)}>Sign Up</Link>
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </nav>
     </header>

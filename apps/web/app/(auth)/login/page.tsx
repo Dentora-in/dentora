@@ -1,27 +1,19 @@
 "use client";
 
-import { GalleryVerticalEnd } from "lucide-react";
+import { LoginForm } from "@/components/auth/login-form";
 import { usePathname } from "next/navigation";
-import { ResetPasswordForm } from "@/components/auth/reset-password";
-import Link from "next/link";
 import Image from "next/image";
 import Dentor from "@/public/logo.png";
 
 export default function LoginPage() {
   const pathname = usePathname();
 
-  const context = pathname.startsWith("/user")
-    ? "user"
-    : pathname.startsWith("/client")
-      ? "client"
-      : "unknown";
-
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <ResetPasswordForm context={context}/>
+            <LoginForm />
           </div>
         </div>
       </div>
