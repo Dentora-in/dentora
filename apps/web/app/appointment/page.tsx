@@ -10,11 +10,7 @@ import {
 } from "@workspace/ui/components/card";
 import { toast } from "@workspace/ui/components/sonner";
 import { cn } from "@workspace/ui/lib/utils";
-import {
-  ArrowBigLeftDash,
-  CalendarIcon,
-  CheckCircle,
-} from "lucide-react";
+import { ArrowBigLeftDash, CalendarIcon, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -74,14 +70,15 @@ export default function AppointmentPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start bg-background px-4 py-6 md:justify-center relative overflow-hidden">
+    <div className="flex flex-col items-center justify-start bg-background md:justify-center relative overflow-hidden mt-3">
       {/* Optional Background Pattern */}
       <div className="absolute inset-0 bg-[url('/dentora-bg.svg')] opacity-[0.08] pointer-events-none bg-cover bg-center" />
 
       <div className="relative z-10 w-full max-w-lg md:max-w-2xl">
         <Card
           className={cn(
-            "backdrop-blur-xl bg-white/60 dark:bg-neutral-900/60 shadow-xl rounded-3xl border border-white/20 dark:border-neutral-700/30"
+            "rounded-none shadow-none border-0 bg-background",
+            "md:rounded-3xl md:shadow-xl md:border md:backdrop-blur-xl md:bg-white/60 md:dark:bg-neutral-900/60 md:border-white/20 md:dark:border-neutral-700/30"
           )}
         >
           <CardHeader className="text-center pb-2">

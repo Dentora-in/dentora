@@ -47,8 +47,6 @@ export function LoginForm({
           onSuccess: () => {
             toast.success("Successfully signed in!");
             setLoading(false);
-            // router.push(context === "u" ? "/dashboard" : "/clinic/dashboard");
-            // TODO : push to designated place
             router.push("/");
           },
           onError: (ctx: any) => {
@@ -79,8 +77,6 @@ export function LoginForm({
           },
           onSuccess: () => {
             setLoading(false);
-            // router.push(context === "u" ? "/dashboard" : "/clinic/dashboard");
-            // TODO : push to designated place
             router.push("/");
           },
           onError: (ctx: any) => {

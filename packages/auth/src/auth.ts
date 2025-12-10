@@ -20,10 +20,14 @@ export const auth = betterAuth({
             //     text: `Click the link to reset your password: ${url}`,
             // });
         },
-        
         onPasswordReset: async ({ user }, request) => {
             console.log(`✅ Password for user ${user.email} has been reset.`);
         },
+    },
+    secret: process.env.NEXT_PUBLIC_BETTER_AUTH_SECRET,
+    session: {
+        expiresIn: 60 * 60 * 24 * 7, // 7 days
+        updateAge: 60 * 60 * 24, // 1 day (every 1 day the session expiration is updated)
     },
     socialProviders: {
         google: {
