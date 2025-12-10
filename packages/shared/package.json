@@ -21,6 +21,7 @@
     "bullmq": "^5.64.1"
   },
   "exports": {
+    "./globals": "./src/common/index.ts",
     "./zod": "./src/zod/index.ts",
     "./validation": "./src/zod/validation.ts",
     "./country-codes": "./src/services/country-codes.ts",
