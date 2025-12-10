@@ -24,8 +24,13 @@
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "start:server": {
-      "dependsOn": ["^generate"],
-      "cache": false
+      "dependsOn": ["^generate"]
+    },
+    "start:web": {
+      "dependsOn": ["^generate"]
+    },
+    "start:worker": {
+      "dependsOn": ["^generate"]
     },
     "db:migrate:dev": {
       "cache": false,
