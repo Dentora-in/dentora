@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "@dentora/database";
 import { appointmentSchema } from "@dentora/shared/zod";
-import { UserRole, AppointmentStatus } from "@dentora/database";
-import { queue } from "@dentora/shared/queue";
+import { UserRole } from "@dentora/database";
+import { appointmentQueue } from "@dentora/shared/queue";
 
 export const bookAppointment = async (req: Request, res: Response) => {
     try {
@@ -63,7 +63,7 @@ export const bookAppointment = async (req: Request, res: Response) => {
             return { appointment, slot: updatedSlot };
         });
 
-        await queue.add("SEND_EMAIL_AND_MEET", {
+        await appointmentQueue.add("SEND_EMAIL_AND_MEET", {
             appointmentId: result.appointment.id,
             email: result.appointment.email,
             patientName: `${result.appointment.firstName} ${result.appointment.lastName}`,

@@ -1,22 +1,21 @@
 "use client";
-import { AppSidebar } from "@/app/dashboard/components/app-sidebar"
-import { DataTable } from "@/app/dashboard/components/data-table"
-import { SiteHeader } from "@/app/dashboard/components/site-header"
+import { AppSidebar } from "@/app/dashboard/components/app-sidebar";
+import { DataTable } from "@/app/dashboard/components/data-table";
+import { SiteHeader } from "@/app/dashboard/components/site-header";
 import {
   SidebarInset,
   SidebarProvider,
-} from "@workspace/ui/components/sidebar"
+} from "@workspace/ui/components/sidebar";
 
-import data from "./data.json"
-import { useEffect } from "react"
+import data from "./data.json";
+import { useEffect } from "react";
 import { getAllAppointments } from "@/api/api.appointment";
 
 export default function Page() {
-
   useEffect(() => {
     async function fetch() {
       const data = await getAllAppointments();
-      console.log("<>>>>>>>>>>>>>>>>>>>>>>>>from dashboard:::::::::::::::::", data);
+      console.log("Fetched appointments:", data);
     }
     fetch();
   }, []);
@@ -26,11 +25,15 @@ export default function Page() {
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
+          "--header-height": "3.5rem",
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar
+        variant="inset"
+        className="!top-14 !h-[calc(100svh-3.5rem)] z-40"
+      />
+
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">
@@ -42,5 +45,5 @@ export default function Page() {
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

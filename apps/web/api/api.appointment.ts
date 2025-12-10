@@ -1,17 +1,12 @@
 import { AppointmentFormData } from "@/interfaces/appointment.interface";
-import { useSession } from "@dentora/auth/client";
 import axios from "axios";
 
 export const resetPassword = async (email: string) => {
     try {
-        const response = await axios.post("/api/auth/request-password-reset", {
-        method: "POST",
+        const response = await axios.post("/api/auth/request-password-reset", {email,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email: email
-        }),
       });
 
         return response.data;
