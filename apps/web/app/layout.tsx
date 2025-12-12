@@ -1,16 +1,14 @@
-import { Plus_Jakarta_Sans, Lexend, Geist_Mono } from "next/font/google";
+import { Lexend, Geist_Mono } from "next/font/google";
 
 import "@workspace/ui/globals.css";
 import { Providers } from "@/components/providers/providers";
 import { Toaster } from "@workspace/ui/components/sonner";
 import AuthWatcher from "@/components/providers/auth-watcher";
 import HeaderWrapper from "@/components/layouts/header-wrapper";
-import { getSession } from "@dentora/auth/client";
 import { auth } from "@dentora/auth/auth";
 import { headers } from "next/headers";
 
-// TODO: @anmol: add good font and remove comments
-const fontSans = Plus_Jakarta_Sans({
+const fontSans = Lexend({
   subsets: ["latin"],
   variable: "--font-sans",
   weight: "600"
