@@ -1,12 +1,10 @@
 "use client";
 
 import { LoginForm } from "@/components/auth/login-form";
-import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Dentor from "@/public/logo.png";
 
 export default function LoginPage() {
-  const pathname = usePathname();
 
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
