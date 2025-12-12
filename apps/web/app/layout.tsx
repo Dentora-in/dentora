@@ -5,6 +5,9 @@ import { Providers } from "@/components/providers/providers";
 import { Toaster } from "@workspace/ui/components/sonner";
 import AuthWatcher from "@/components/providers/auth-watcher";
 import HeaderWrapper from "@/components/layouts/header-wrapper";
+import { getSession } from "@dentora/auth/client";
+import { auth } from "@dentora/auth/auth";
+import { headers } from "next/headers";
 
 // TODO: @anmol: add good font and remove comments
 const fontSans = Plus_Jakarta_Sans({
@@ -18,17 +21,21 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+
   return (
     <html lang="en" suppressHydrationWarning suppressContentEditableWarning>
       <body
         className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased`}
       >
-        <Providers>
+        <Providers session={session}>
           <AuthWatcher />
           <HeaderWrapper />
           <main>

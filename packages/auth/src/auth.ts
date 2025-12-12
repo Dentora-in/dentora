@@ -4,6 +4,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 export { fromNodeHeaders } from "better-auth/node";
 import { loadEmailTemplate } from "@dentora/shared/template-loader";
 import { emailQueue } from "@dentora/shared/queue";
+import { customSession } from "better-auth/plugins";
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
@@ -52,5 +53,21 @@ export const auth = betterAuth({
             clientId: process.env.GOOGLE_CLIENT_ID as string,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
         },
-    }
+    },
+    plugins: [
+        customSession(async ({ user, session }) => {
+            const dbUser = await prisma.user.findUnique({
+                where: { id: user.id },
+                select: { role: true }
+            });
+
+            return {
+                user: {
+                    ...user,
+                    role: dbUser?.role,
+                },
+                session,
+            };
+        }),
+    ],
 });

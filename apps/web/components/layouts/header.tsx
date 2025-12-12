@@ -18,13 +18,13 @@ import {
 } from "@workspace/ui/components/sheet";
 import { Button } from "@workspace/ui/components/button";
 import { ThemeToggler } from "@/components/child/theme-toggler";
-import { useAuthSession } from "@/hooks/get-session";
 import { signOut } from "@dentora/auth/client";
 import { Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuthSession } from "../providers/session-provider";
 
 export function Header() {
-  const { user, session, isLoading } = useAuthSession();
+  const session = useAuthSession();
   const [isOpen, setIsOpen] = React.useState(false);
   const router = useRouter();
 
@@ -40,10 +40,7 @@ export function Header() {
     setIsOpen(false);
     router.push("/login");
   };
-
-  if (isLoading) {
-    return <div className="h-14 bg-background" />; 
-  }
+  console.log(">>>>>>>>>>>>>>>>>>>>sessionsessionsessionsession", session);
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
@@ -72,8 +69,8 @@ export function Header() {
         {/* --- Desktop Buttons --- */}
         <div className="hidden md:flex items-center gap-3">
           <ThemeToggler />
-          {user?.name && <p className="text-sm font-medium">{user.name}</p>}
-          {session ? (
+          {session?.session && <p className="text-sm font-medium">{session?.user.name}</p>}
+          {session?.session ? (
             <Button
               variant="destructive"
               size="sm"
@@ -130,9 +127,9 @@ export function Header() {
 
                 {/* Mobile Auth Buttons */}
                 <div className="flex flex-col gap-2">
-                  {session ? (
+                  {session?.session ? (
                     <div className="flex flex-col gap-2">
-                       <p className="text-sm text-muted-foreground">Signed in as {user?.name}</p>
+                       <p className="text-sm text-muted-foreground">Signed in as {session?.user?.name}</p>
                        <Button onClick={logoutHandler} variant="destructive" className="w-full hover:cursor-pointer">
                          Log out
                        </Button>
