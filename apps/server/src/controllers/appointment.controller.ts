@@ -3,7 +3,6 @@ import { prisma } from "@dentora/database";
 import { appointmentSchema } from "@dentora/shared/zod";
 import { UserRole } from "@dentora/database";
 import { appointmentQueue } from "@dentora/shared/queue";
-import { isDevelopmentMode } from "@dentora/shared/globals";
 
 export const bookAppointment = async (req: Request, res: Response) => {
     try {
@@ -106,7 +105,7 @@ export const getAllAppointment = async (req: Request, res: Response) => {
     const doctor_details = await prisma.user.findUnique({
         where: {
             id: user.id,
-            role: UserRole.DOCTOR as UserRole
+            role: user.role as UserRole
         }
     });
 
