@@ -40,7 +40,6 @@ export function Header() {
     setIsOpen(false);
     router.push("/login");
   };
-  console.log(">>>>>>>>>>>>>>>>>>>>sessionsessionsessionsession", session);
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
