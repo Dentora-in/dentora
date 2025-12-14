@@ -31,7 +31,7 @@ const data = {
   ],
 }
 
-export function AppSidebar({ onSelectPage, ...props }: { onSelectPage?: any } & React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       {/* <SidebarHeader>
@@ -39,12 +39,7 @@ export function AppSidebar({ onSelectPage, ...props }: { onSelectPage?: any } & 
       </SidebarHeader> */}
       <SidebarContent>
         <NavMain />
-        <NavDocuments
-          items={data.documents.map(doc => ({
-            ...doc,
-            onClick: () => onSelectPage?.(doc.name === "Appointments" ? "appointments" : "mySpace")
-          }))}
-        />
+        <NavDocuments items={data.documents} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
