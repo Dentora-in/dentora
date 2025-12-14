@@ -1,6 +1,8 @@
 "use client"
 
+import { GenericAlertDialog } from "@/components/child/alert-dialog"
 import { useAuthSession } from "@/components/providers/session-provider"
+import { signOut } from "@dentora/auth/client"
 import {
   IconCreditCard,
   IconDotsVertical,
@@ -29,11 +31,23 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@workspace/ui/components/sidebar"
+import { useRouter } from "next/navigation"
 
 export function NavUser() {
   const { isMobile } = useSidebar()
   const session = useAuthSession();
-  console.log(session)
+  const router = useRouter();
+
+  const logoutHandler = async () => {
+    await signOut();
+    router.push("/login");
+  };
+
+  const subPageNavigator = (page: string) => {
+    if(page === "my-account") {
+      router.push("/dashboard/my-account");
+    }
+  }
 
   return (
     <SidebarMenu>
@@ -79,24 +93,33 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => subPageNavigator("my-account")}>
                 <IconUserCircle />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconCreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled onClick={() => subPageNavigator("notifications")}>
                 <IconNotification />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <IconLogout />
-              Log out
-            </DropdownMenuItem>
+            <GenericAlertDialog
+              trigger={
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <IconLogout />
+                  Log out
+                </DropdownMenuItem>
+              }
+              title="Are you absolutely sure?"
+              description="You will be logged out of your account."
+              confirmText="Yes, log out"
+              cancelText="Cancel"
+              onResult={(confirmed) => {
+                if (confirmed) {
+                  logoutHandler()
+                }
+              }}
+            />
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
