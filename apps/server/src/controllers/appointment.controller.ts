@@ -143,7 +143,7 @@ export const getAllAppointment = async (req: Request, res: Response) => {
                 doctorId: doctor_details.id
             }
         });
-        const total_canclled = await prisma.appointment.count({
+        const total_cancelled = await prisma.appointment.count({
             where: {
                 status: "CANCELLED",
                 doctorId: doctor_details.id
@@ -171,7 +171,7 @@ export const getAllAppointment = async (req: Request, res: Response) => {
                 total_pending,
                 total_confirmed,
                 total_completed,
-                total_canclled,
+                total_cancelled,
             },
             appointments,
         });

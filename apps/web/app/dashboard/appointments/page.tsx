@@ -13,13 +13,14 @@ interface metaData {
   total_pending: number;
   total_confirmed: number;
   total_completed: number;
-  total_canclled: number;
+  total_cancelled: number;
 }
 
 export default function AppointmentsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [appointments, setAppointments] = useState();
   const [metaData, setMetaData] = useState<metaData>();
+  const [status, setStatus] = useState<string | undefined>(undefined);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -32,6 +33,7 @@ export default function AppointmentsPage() {
       const res = await getAllAppointments({
         page: pagination.pageIndex + 1,
         limit: pagination.pageSize,
+        status
       });
 
       setAppointments(res.appointments);
@@ -40,7 +42,7 @@ export default function AppointmentsPage() {
     }
 
     fetch();
-  }, [pagination.pageIndex, pagination.pageSize]);
+  }, [pagination.pageIndex, pagination.pageSize, status]);
 
   if (isLoading || !metaData) {
     return <FullPageSpinner />;
@@ -53,6 +55,8 @@ export default function AppointmentsPage() {
         metaData={metaData}
         pagination={pagination}
         setPagination={setPagination}
+        setStatus={setStatus}
+        currentStatus={status || "outline"}
       />
     </div>
   );
