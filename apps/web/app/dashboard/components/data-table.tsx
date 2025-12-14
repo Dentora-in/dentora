@@ -216,11 +216,36 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
   );
 }
 
+type DataTableProps = {
+  data?: z.infer<typeof schema>[];
+  metaData: {
+    total: number;
+    totalPages: number;
+    page: number;
+    limit: number;
+    total_pending: number;
+    total_confirmed: number;
+    total_completed: number;
+    total_canclled: number;
+  };
+  pagination: {
+    pageIndex: number;
+    pageSize: number;
+  };
+  setPagination: React.Dispatch<
+    React.SetStateAction<{
+      pageIndex: number;
+      pageSize: number;
+    }>
+  >;
+};
+
 export function DataTable({
   data: initialData,
-}: {
-  data?: z.infer<typeof schema>[];
-}) {
+  metaData,
+  pagination,
+  setPagination,
+}: DataTableProps) {
   const [data, setData] = React.useState<z.infer<typeof schema>[]>(
     initialData || []
   );
@@ -231,10 +256,6 @@ export function DataTable({
     []
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
   const sortableId = React.useId();
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
@@ -247,9 +268,15 @@ export function DataTable({
     [data]
   );
 
+  React.useEffect(() => {
+    setData(initialData || []);
+  }, [initialData]);
+
   const table = useReactTable({
     data,
     columns,
+    manualPagination: true,
+    pageCount: metaData.totalPages,
     state: {
       sorting,
       columnVisibility,
@@ -266,7 +293,6 @@ export function DataTable({
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
@@ -311,13 +337,20 @@ export function DataTable({
         <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
           <TabsTrigger value="outline">ALL</TabsTrigger>
           <TabsTrigger value="past-performance">
-            PENDING <Badge variant="secondary">3</Badge>
+            PENDING <Badge variant="secondary">{metaData?.total_pending}</Badge>
           </TabsTrigger>
           <TabsTrigger value="key-personnel">
-            CONFIRMED <Badge variant="secondary">2</Badge>
+            CONFIRMED{" "}
+            <Badge variant="secondary">{metaData?.total_confirmed}</Badge>
           </TabsTrigger>
-          <TabsTrigger value="focus-documents">CANCELLED</TabsTrigger>
-          <TabsTrigger value="complete">COMPLETED</TabsTrigger>
+          <TabsTrigger value="focus-documents">
+            CANCELLED{" "}
+            <Badge variant="secondary">{metaData?.total_canclled}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="complete">
+            COMPLETED{" "}
+            <Badge variant="secondary">{metaData?.total_completed}</Badge>
+          </TabsTrigger>
         </TabsList>
         <div className="flex items-center gap-2">
           <DropdownMenu>
