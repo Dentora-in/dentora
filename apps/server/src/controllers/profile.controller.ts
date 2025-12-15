@@ -9,6 +9,7 @@ export const getProfileDetails = async (req: Request, res: Response) => {
             return res.status(401).json({ message: "Please login or provide user ID" });
         }
 
+        // TODO : @anmole - only doctor role can get profile
         const profile_details = await prisma.doctor.findUnique({ where: { id: userId } });
 
         if (!profile_details) {
@@ -77,6 +78,7 @@ export const editProfileDetails = async (req: Request, res: Response) => {
             });
         }
 
+        // TODO : @anmole - only doctor role can edit profile
         const updatedDoctor = await prisma.doctor.update({
             where: {
                 userId,
