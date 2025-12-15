@@ -1,167 +1,238 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@workspace/ui/components/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
-import { Input } from "@workspace/ui/components/input"
-import { Label } from "@workspace/ui/components/label"
-import { Loader2, Edit2, Save, X, User, Stethoscope, Briefcase, MapPin, Phone, Mail } from "lucide-react"
-import { toast } from "@workspace/ui/components/sonner"
+import { useEffect, useState } from "react";
+import { Button } from "@workspace/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card";
+import { Input } from "@workspace/ui/components/input";
+import { Label } from "@workspace/ui/components/label";
+import {
+  Loader2,
+  Edit2,
+  Save,
+  X,
+  User,
+  Stethoscope,
+  Briefcase,
+  MapPin,
+  Phone,
+  Mail,
+} from "lucide-react";
+import { toast } from "@workspace/ui/components/sonner";
+import {
+  getProfileDetails,
+  updateProfileDetails,
+} from "@/api/api.profileDetails";
 
-interface DoctorData {
-  id: string
-  firstName: string
-  lastName: string
-  specialization: string
-  experienceYears: number
-  place: string
-  phoneNo: string
-  email: string
+export interface DoctorData {
+  first_name: string;
+  last_name: string;
+  specialization: string;
+  experienceYears: number;
+  place: string;
+  phoneNo: string;
+  email: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export default function DoctorProfile() {
-  const [isEditing, setIsEditing] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [doctorData, setDoctorData] = useState<DoctorData>({
-    id: "1",
-    firstName: "Sarah",
-    lastName: "Johnson",
-    specialization: "Cardiology",
-    experienceYears: 12,
-    place: "Central Medical Center",
-    phoneNo: "+1 (555) 123-4567",
-    email: "dr.sarah.johnson@hospital.com",
-  })
+    first_name: "",
+    last_name: "",
+    specialization: "",
+    experienceYears: 0,
+    place: "",
+    phoneNo: "",
+    email: "",
+    created_at: "",
+    updated_at: "",
+  });
 
-  const [formData, setFormData] = useState<DoctorData>(doctorData)
-  const [errors, setErrors] = useState<Partial<Record<keyof DoctorData, string>>>({})
+  const [formData, setFormData] = useState<DoctorData>(doctorData);
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof DoctorData, string>>
+  >({});
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const profileData = await getProfileDetails();
+        setDoctorData(profileData.profile_details);
+      } catch (e) {
+        console.error(e);
+        toast.error("Error getting the profile values");
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleEdit = () => {
-    setIsEditing(true)
-    setFormData(doctorData)
-    setErrors({})
-  }
+    setIsEditing(true);
+    setFormData(doctorData);
+    setErrors({});
+  };
 
   const handleCancel = () => {
-    setIsEditing(false)
-    setFormData(doctorData)
-    setErrors({})
-  }
+    setIsEditing(false);
+    setFormData(doctorData);
+    setErrors({});
+  };
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<Record<keyof DoctorData, string>> = {}
+    const newErrors: Partial<Record<keyof DoctorData, string>> = {};
 
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = "First name is required"
+    if (!formData.first_name.trim()) {
+      newErrors.first_name = "First name is required";
     }
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "Last name is required"
+    if (!formData.last_name.trim()) {
+      newErrors.last_name = "Last name is required";
     }
     if (!formData.specialization.trim()) {
-      newErrors.specialization = "Specialization is required"
+      newErrors.specialization = "Specialization is required";
     }
     if (!formData.place.trim()) {
-      newErrors.place = "Place/Clinic is required"
+      newErrors.place = "Place/Clinic is required";
     }
     if (formData.experienceYears < 0) {
-      newErrors.experienceYears = "Experience cannot be negative"
+      newErrors.experienceYears = "Experience cannot be negative";
     }
 
-    const phoneRegex = /^[\d\s\-+$$$$]+$/
+    const phoneRegex = /^[\d\s\-+$$$$]+$/;
     if (!formData.phoneNo.trim()) {
-      newErrors.phoneNo = "Phone number is required"
+      newErrors.phoneNo = "Phone number is required";
     } else if (!phoneRegex.test(formData.phoneNo)) {
-      newErrors.phoneNo = "Invalid phone number format"
+      newErrors.phoneNo = "Invalid phone number format";
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required"
+      newErrors.email = "Email is required";
     } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = "Invalid email format"
+      newErrors.email = "Invalid email format";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const getChangedFields = (original: DoctorData, edited: DoctorData) => {
+    return Object.fromEntries(
+      Object.entries(edited).filter(([key, value]) => {
+        return value !== original[key as keyof DoctorData];
+      })
+    );
+  };
 
   const handleSave = async () => {
     if (!validateForm()) {
       toast.error("Validation Error", {
         description: "Please fix the errors before saving.",
-      })
-      return
+      });
+      return;
     }
 
-    setIsSaving(true)
+    setIsSaving(true);
+
+    const changes = getChangedFields(doctorData, formData);
+
+    if (Object.keys(changes).length === 0) {
+      toast.info("No changes detected");
+      setIsEditing(false);
+      setIsSaving(false);
+      return;
+    }
 
     try {
-      // Replace with actual API call
-      // const response = await fetch(`/api/doctors/${doctorData.id}`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData),
-      // })
-      // if (!response.ok) throw new Error('Failed to update profile')
-      // const updatedData = await response.json()
+      const response = await updateProfileDetails(changes);
+      const updatedProfile = response.profile_details ?? response;
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      setDoctorData(formData)
-      setIsEditing(false)
+      setDoctorData(updatedProfile);
+      setFormData(updatedProfile);
+      setIsEditing(false);
 
       toast.success("Success", {
         description: "Profile updated successfully.",
-      })
+      });
     } catch (error) {
       toast.error("Error", {
         description: "Failed to update profile. Please try again.",
-      })
+      });
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
-  const handleInputChange = (field: keyof DoctorData, value: string | number) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+  const handleInputChange = (
+    field: keyof DoctorData,
+    value: string | number
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }))
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
-  }
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "—";
+    return new Date(dateString).toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-foreground mb-2">Doctor Profile</h1>
-        <p className="text-muted-foreground">Manage your professional information</p>
-      </div>
-
       <Card className="border-border shadow-lg">
         <CardHeader className="border-b border-border pb-6">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-2xl">
-                Dr. {doctorData.firstName} {doctorData.lastName}
+                Dr. {doctorData.first_name} {doctorData.last_name}
               </CardTitle>
               <CardDescription className="text-base mt-1">
-                {doctorData.specialization} • {doctorData.experienceYears} years of experience
+                {doctorData.specialization} • {doctorData.experienceYears} years
+                of experience
               </CardDescription>
             </div>
             {!isEditing ? (
-              <Button onClick={handleEdit} className="gap-2">
-                <Edit2 className="h-4 w-4" />
-                Edit Profile
-              </Button>
+              <div className="flex flex-col items-end gap-2 text-right">
+                <Button onClick={handleEdit} className="gap-2">
+                  <Edit2 className="h-4 w-4" />
+                  Edit Profile
+                </Button>
+
+                <CardDescription className="text-sm text-muted-foreground font-light">
+                  Last updated · {formatDate(doctorData.updated_at)}
+                </CardDescription>
+              </div>
             ) : (
               <div className="flex gap-2">
-                <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
+                <Button
+                  variant="outline"
+                  onClick={handleCancel}
+                  disabled={isSaving}
+                >
                   <X className="h-4 w-4 mr-2" />
                   Cancel
                 </Button>
-                <Button onClick={handleSave} disabled={isSaving} className="gap-2">
+                <Button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="gap-2"
+                >
                   {isSaving ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -194,14 +265,22 @@ export default function DoctorProfile() {
                     <div>
                       <Input
                         id="firstName"
-                        value={formData.firstName}
-                        onChange={(e) => handleInputChange("firstName", e.target.value)}
-                        className={errors.firstName ? "border-destructive" : ""}
+                        value={formData.first_name}
+                        onChange={(e) =>
+                          handleInputChange("first_name", e.target.value)
+                        }
+                        className={
+                          errors.first_name ? "border-destructive" : ""
+                        }
                       />
-                      {errors.firstName && <p className="text-sm text-destructive mt-1">{errors.firstName}</p>}
+                      {errors.first_name && (
+                        <p className="text-sm text-destructive mt-1">
+                          {errors.first_name}
+                        </p>
+                      )}
                     </div>
                   ) : (
-                    <p className="text-base py-2">{doctorData.firstName}</p>
+                    <p className="text-base py-2">{doctorData.first_name}</p>
                   )}
                 </div>
 
@@ -211,14 +290,20 @@ export default function DoctorProfile() {
                     <div>
                       <Input
                         id="lastName"
-                        value={formData.lastName}
-                        onChange={(e) => handleInputChange("lastName", e.target.value)}
-                        className={errors.lastName ? "border-destructive" : ""}
+                        value={formData.last_name}
+                        onChange={(e) =>
+                          handleInputChange("last_name", e.target.value)
+                        }
+                        className={errors.last_name ? "border-destructive" : ""}
                       />
-                      {errors.lastName && <p className="text-sm text-destructive mt-1">{errors.lastName}</p>}
+                      {errors.last_name && (
+                        <p className="text-sm text-destructive mt-1">
+                          {errors.last_name}
+                        </p>
+                      )}
                     </div>
                   ) : (
-                    <p className="text-base py-2">{doctorData.lastName}</p>
+                    <p className="text-base py-2">{doctorData.last_name}</p>
                   )}
                 </div>
               </div>
@@ -238,15 +323,23 @@ export default function DoctorProfile() {
                       <Input
                         id="specialization"
                         value={formData.specialization}
-                        onChange={(e) => handleInputChange("specialization", e.target.value)}
-                        className={errors.specialization ? "border-destructive" : ""}
+                        onChange={(e) =>
+                          handleInputChange("specialization", e.target.value)
+                        }
+                        className={
+                          errors.specialization ? "border-destructive" : ""
+                        }
                       />
                       {errors.specialization && (
-                        <p className="text-sm text-destructive mt-1">{errors.specialization}</p>
+                        <p className="text-sm text-destructive mt-1">
+                          {errors.specialization}
+                        </p>
                       )}
                     </div>
                   ) : (
-                    <p className="text-base py-2">{doctorData.specialization}</p>
+                    <p className="text-base py-2">
+                      {doctorData.specialization}
+                    </p>
                   )}
                 </div>
 
@@ -259,15 +352,26 @@ export default function DoctorProfile() {
                         type="number"
                         min="0"
                         value={formData.experienceYears}
-                        onChange={(e) => handleInputChange("experienceYears", Number.parseInt(e.target.value) || 0)}
-                        className={errors.experienceYears ? "border-destructive" : ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "experienceYears",
+                            Number.parseInt(e.target.value) || 0
+                          )
+                        }
+                        className={
+                          errors.experienceYears ? "border-destructive" : ""
+                        }
                       />
                       {errors.experienceYears && (
-                        <p className="text-sm text-destructive mt-1">{errors.experienceYears}</p>
+                        <p className="text-sm text-destructive mt-1">
+                          {errors.experienceYears}
+                        </p>
                       )}
                     </div>
                   ) : (
-                    <p className="text-base py-2">{doctorData.experienceYears} years</p>
+                    <p className="text-base py-2">
+                      {doctorData.experienceYears} years
+                    </p>
                   )}
                 </div>
               </div>
@@ -287,10 +391,16 @@ export default function DoctorProfile() {
                       <Input
                         id="place"
                         value={formData.place}
-                        onChange={(e) => handleInputChange("place", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("place", e.target.value)
+                        }
                         className={errors.place ? "border-destructive" : ""}
                       />
-                      {errors.place && <p className="text-sm text-destructive mt-1">{errors.place}</p>}
+                      {errors.place && (
+                        <p className="text-sm text-destructive mt-1">
+                          {errors.place}
+                        </p>
+                      )}
                     </div>
                   ) : (
                     <p className="text-base py-2 flex items-center gap-2">
@@ -309,10 +419,16 @@ export default function DoctorProfile() {
                           id="phoneNo"
                           type="tel"
                           value={formData.phoneNo}
-                          onChange={(e) => handleInputChange("phoneNo", e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("phoneNo", e.target.value)
+                          }
                           className={errors.phoneNo ? "border-destructive" : ""}
                         />
-                        {errors.phoneNo && <p className="text-sm text-destructive mt-1">{errors.phoneNo}</p>}
+                        {errors.phoneNo && (
+                          <p className="text-sm text-destructive mt-1">
+                            {errors.phoneNo}
+                          </p>
+                        )}
                       </div>
                     ) : (
                       <p className="text-base py-2 flex items-center gap-2">
@@ -330,10 +446,16 @@ export default function DoctorProfile() {
                           id="email"
                           type="email"
                           value={formData.email}
-                          onChange={(e) => handleInputChange("email", e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("email", e.target.value)
+                          }
                           className={errors.email ? "border-destructive" : ""}
                         />
-                        {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
+                        {errors.email && (
+                          <p className="text-sm text-destructive mt-1">
+                            {errors.email}
+                          </p>
+                        )}
                       </div>
                     ) : (
                       <p className="text-base py-2 flex items-center gap-2">
@@ -349,5 +471,5 @@ export default function DoctorProfile() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

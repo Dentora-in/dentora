@@ -8,6 +8,7 @@ const routeTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/dashboard/appointments": "Appointments",
   "/dashboard/my-space": "My Space",
+  "/dashboard/my-account": "My Profile",
 }
 
 export function SiteHeader() {
