@@ -9,6 +9,8 @@ import rateLimit from "express-rate-limit";
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
+  "https://4r5w0cht-3000.inc1.devtunnels.ms",
+  "https://4r5w0cht-3001.inc1.devtunnels.ms",
 ];
 
 const app = express();

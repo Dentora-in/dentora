@@ -83,17 +83,12 @@ export default function DoctorAvailabilityManager() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Availability state
-  const [availabilities, setAvailabilities] = useState<DoctorAvailability[]>(
-    []
-  );
+  const [availabilities, setAvailabilities] = useState<DoctorAvailability[]>([]);
   const [newAvailability, setNewAvailability] = useState<NewAvailability>({
     dayOfWeek: null,
     startTime: "",
     endTime: "",
   });
-  const [editingAvailability, setEditingAvailability] = useState<string | null>(
-    null
-  );
 
   // Slots state
   const [slots, setSlots] = useState<DoctorSlot[]>([]);
@@ -112,11 +107,9 @@ export default function DoctorAvailabilityManager() {
   const [showAutoGenerate, setShowAutoGenerate] = useState(false);
 
   // Filter state
-  const [filterStatus, setFilterStatus] = useState<
-    "all" | "available" | "booked"
-  >("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "available" | "booked">("all");
 
-  // Load data on mount
+  // Load data on mount (simulated)
   useEffect(() => {
     loadData();
   }, []);
@@ -124,18 +117,23 @@ export default function DoctorAvailabilityManager() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // Fetch availabilities
-      const availabilityRes = await fetch("/api/doctor/availability");
-      if (availabilityRes.ok) {
-        const data = await availabilityRes.json();
-        setAvailabilities(data);
+      // TODO: Replace with actual API calls
+      // const availabilityRes = await fetch("/api/doctor/availability");
+      // const slotsRes = await fetch("/api/doctor/slots");
+      
+      // Simulated delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Load from localStorage or use empty arrays
+      const savedAvailabilities = localStorage.getItem('availabilities');
+      const savedSlots = localStorage.getItem('slots');
+      
+      if (savedAvailabilities) {
+        setAvailabilities(JSON.parse(savedAvailabilities));
       }
-
-      // Fetch slots
-      const slotsRes = await fetch("/api/doctor/slots");
-      if (slotsRes.ok) {
-        const data = await slotsRes.json();
-        setSlots(data);
+      
+      if (savedSlots) {
+        setSlots(JSON.parse(savedSlots));
       }
     } catch (error) {
       toast.error("Error", {
@@ -163,29 +161,36 @@ export default function DoctorAvailabilityManager() {
     }
 
     if (newAvailability.startTime >= newAvailability.endTime) {
-      toast("Validation Error", {
+      toast.warning("Validation Error", {
         description: "End time must be after start time",
       });
       return;
     }
 
     try {
-      const res = await fetch("/api/doctor/availability", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newAvailability),
-      });
+      // TODO: Replace with actual API call
+      // const res = await fetch("/api/doctor/availability", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(newAvailability),
+      // });
 
-      if (res.ok) {
-        const data = await res.json();
-        setAvailabilities([...availabilities, data]);
-        setNewAvailability({ dayOfWeek: null, startTime: "", endTime: "" });
-        toast.success("Success", {
-          description: "Availability added successfully",
-        });
-      } else {
-        throw new Error("Failed to add availability");
-      }
+      const newData: DoctorAvailability = {
+        id: Date.now().toString(),
+        doctorId: "doctor-1",
+        dayOfWeek: newAvailability.dayOfWeek!,
+        startTime: newAvailability.startTime,
+        endTime: newAvailability.endTime,
+      };
+
+      const updatedAvailabilities = [...availabilities, newData];
+      setAvailabilities(updatedAvailabilities);
+      localStorage.setItem('availabilities', JSON.stringify(updatedAvailabilities));
+      
+      setNewAvailability({ dayOfWeek: null, startTime: "", endTime: "" });
+      toast.success("Success", {
+        description: "Availability added successfully",
+      });
     } catch (error) {
       toast.error("Failed to add availability");
     }
@@ -193,16 +198,16 @@ export default function DoctorAvailabilityManager() {
 
   const deleteAvailability = async (id: string) => {
     try {
-      const res = await fetch(`/api/doctor/availability/${id}`, {
-        method: "DELETE",
-      });
+      // TODO: Replace with actual API call
+      // const res = await fetch(`/api/doctor/availability/${id}`, {
+      //   method: "DELETE",
+      // });
 
-      if (res.ok) {
-        setAvailabilities(availabilities.filter((a) => a.id !== id));
-        toast.success("Availability deleted successfully");
-      } else {
-        throw new Error("Failed to delete availability");
-      }
+      const updatedAvailabilities = availabilities.filter((a) => a.id !== id);
+      setAvailabilities(updatedAvailabilities);
+      localStorage.setItem('availabilities', JSON.stringify(updatedAvailabilities));
+      
+      toast.success("Availability deleted successfully");
     } catch (error) {
       toast.error("Failed to delete availability");
     }
@@ -221,38 +226,45 @@ export default function DoctorAvailabilityManager() {
     }
 
     try {
-      const res = await fetch("/api/doctor/slots", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newSlot),
-      });
+      // TODO: Replace with actual API call
+      // const res = await fetch("/api/doctor/slots", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(newSlot),
+      // });
 
-      if (res.ok) {
-        const data = await res.json();
-        setSlots([...slots, data]);
-        setNewSlot({ date: "", startTime: "", endTime: "" });
-        toast.success("Slot created successfully");
-      } else {
-        const error = await res.json();
-        throw new Error(error.message || "Failed to create slot");
-      }
+      const newData: DoctorSlot = {
+        id: Date.now().toString(),
+        doctorId: "doctor-1",
+        date: newSlot.date,
+        startTime: newSlot.startTime,
+        endTime: newSlot.endTime,
+        isBooked: false,
+      };
+
+      const updatedSlots = [...slots, newData];
+      setSlots(updatedSlots);
+      localStorage.setItem('slots', JSON.stringify(updatedSlots));
+      
+      setNewSlot({ date: "", startTime: "", endTime: "" });
+      toast.success("Slot created successfully");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to create slot");
+      toast.error("Failed to create slot");
     }
   };
 
   const deleteSlot = async (id: string) => {
     try {
-      const res = await fetch(`/api/doctor/slots/${id}`, {
-        method: "DELETE",
-      });
+      // TODO: Replace with actual API call
+      // const res = await fetch(`/api/doctor/slots/${id}`, {
+      //   method: "DELETE",
+      // });
 
-      if (res.ok) {
-        setSlots(slots.filter((s) => s.id !== id));
-        toast.success("Slot deleted successfully");
-      } else {
-        throw new Error("Failed to delete slot");
-      }
+      const updatedSlots = slots.filter((s) => s.id !== id);
+      setSlots(updatedSlots);
+      localStorage.setItem('slots', JSON.stringify(updatedSlots));
+      
+      toast.success("Slot deleted successfully");
     } catch (error) {
       toast.error("Failed to delete slot");
     }
@@ -270,21 +282,55 @@ export default function DoctorAvailabilityManager() {
     }
 
     try {
-      const res = await fetch("/api/doctor/slots/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(autoGenerate),
-      });
+      // TODO: Replace with actual API call
+      // const res = await fetch("/api/doctor/slots/generate", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(autoGenerate),
+      // });
 
-      if (res.ok) {
-        const data = await res.json();
-        toast.success(`Generated ${data.count} slots successfully`);
-        loadData(); // Reload all slots
-        setShowAutoGenerate(false);
-        setAutoGenerate({ startDate: "", endDate: "", slotDuration: 30 });
-      } else {
-        throw new Error("Failed to generate slots");
+      // Generate slots from availabilities
+      const generatedSlots: DoctorSlot[] = [];
+      const start = new Date(autoGenerate.startDate);
+      const end = new Date(autoGenerate.endDate);
+
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const dayOfWeek = d.getDay() as DayOfWeek;
+        const dayAvailabilities = availabilities.filter(a => a.dayOfWeek === dayOfWeek);
+
+        dayAvailabilities.forEach(avail => {
+          const [startHour, startMin] = avail.startTime.split(':').map(Number);
+          const [endHour, endMin] = avail.endTime.split(':').map(Number);
+          
+          const startMinutes = startHour * 60 + startMin;
+          const endMinutes = endHour * 60 + endMin;
+          
+          for (let time = startMinutes; time < endMinutes; time += autoGenerate.slotDuration) {
+            const slotStartHour = Math.floor(time / 60);
+            const slotStartMin = time % 60;
+            const slotEndTime = time + autoGenerate.slotDuration;
+            const slotEndHour = Math.floor(slotEndTime / 60);
+            const slotEndMin = slotEndTime % 60;
+
+            generatedSlots.push({
+              id: `${d.toISOString().split('T')[0]}-${time}-${Date.now()}`,
+              doctorId: "doctor-1",
+              date: d.toISOString().split('T')[0],
+              startTime: `${String(slotStartHour).padStart(2, '0')}:${String(slotStartMin).padStart(2, '0')}`,
+              endTime: `${String(slotEndHour).padStart(2, '0')}:${String(slotEndMin).padStart(2, '0')}`,
+              isBooked: false,
+            });
+          }
+        });
       }
+
+      const updatedSlots = [...slots, ...generatedSlots];
+      setSlots(updatedSlots);
+      localStorage.setItem('slots', JSON.stringify(updatedSlots));
+
+      toast.success(`Generated ${generatedSlots.length} slots successfully`);
+      setShowAutoGenerate(false);
+      setAutoGenerate({ startDate: "", endDate: "", slotDuration: 30 });
     } catch (error) {
       toast.error("Failed to generate slots");
     }
@@ -309,32 +355,32 @@ export default function DoctorAvailabilityManager() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-7xl">
+    <div className="container mx-auto py-4 sm:py-8 px-3 sm:px-4 max-w-7xl">
       {/* Header */}
-      <div className="mb-8">
-        <p className="text-muted-foreground text-lg">
+      <div className="mb-6 sm:mb-8">
+        <p className="text-muted-foreground text-base sm:text-lg">
           Manage your availability and appointment slots
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         {/* SECTION 1: Weekly Availability */}
         <Card className="lg:col-span-2">
-          <CardHeader>
+          <CardHeader className="space-y-1 sm:space-y-1.5">
             <div className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-primary" />
-              <CardTitle>Weekly Availability</CardTitle>
+              <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <CardTitle className="text-lg sm:text-xl">Weekly Availability</CardTitle>
             </div>
-            <CardDescription>
+            <CardDescription className="text-sm">
               Define your recurring weekly schedule
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4 sm:space-y-6">
             {/* Add New Availability */}
-            <div className="grid gap-4 p-4 border border-border rounded-lg bg-muted/30">
-              <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4 p-3 sm:p-4 border border-border rounded-lg bg-muted/30">
+              <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
-                  <Label htmlFor="dayOfWeek">Day of Week</Label>
+                  <Label htmlFor="dayOfWeek" className="text-sm">Day of Week</Label>
                   <Select
                     value={newAvailability.dayOfWeek?.toString() ?? ""}
                     onValueChange={(value) =>
@@ -344,7 +390,7 @@ export default function DoctorAvailabilityManager() {
                       })
                     }
                   >
-                    <SelectTrigger id="dayOfWeek">
+                    <SelectTrigger id="dayOfWeek" className="h-10">
                       <SelectValue placeholder="Select day" />
                     </SelectTrigger>
                     <SelectContent>
@@ -358,10 +404,11 @@ export default function DoctorAvailabilityManager() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="startTime">Start Time</Label>
+                  <Label htmlFor="startTime" className="text-sm">Start Time</Label>
                   <Input
                     id="startTime"
                     type="time"
+                    className="h-10"
                     value={newAvailability.startTime}
                     onChange={(e) =>
                       setNewAvailability({
@@ -373,10 +420,11 @@ export default function DoctorAvailabilityManager() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="endTime">End Time</Label>
+                  <Label htmlFor="endTime" className="text-sm">End Time</Label>
                   <Input
                     id="endTime"
                     type="time"
+                    className="h-10"
                     value={newAvailability.endTime}
                     onChange={(e) =>
                       setNewAvailability({
@@ -388,7 +436,7 @@ export default function DoctorAvailabilityManager() {
                 </div>
               </div>
 
-              <Button onClick={addAvailability} className="w-full sm:w-auto">
+              <Button onClick={addAvailability} className="w-full sm:w-auto h-10">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Availability
               </Button>
@@ -396,26 +444,26 @@ export default function DoctorAvailabilityManager() {
 
             {/* Existing Availabilities */}
             <div className="space-y-3">
-              <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+              <h3 className="font-semibold text-xs sm:text-sm text-muted-foreground uppercase tracking-wide">
                 Current Schedule
               </h3>
               {availabilities.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-6 sm:py-8 text-sm sm:text-base text-muted-foreground">
                   No availability set. Add your first time slot above.
                 </div>
               ) : (
-                <div className="grid gap-3">
+                <div className="grid gap-2 sm:gap-3">
                   {availabilities.map((availability) => (
                     <div
                       key={availability.id}
-                      className="flex items-center justify-between p-4 border border-border rounded-lg bg-card hover:bg-accent/50 transition-colors"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 border border-border rounded-lg bg-card hover:bg-accent/50 transition-colors"
                     >
-                      <div className="flex items-center gap-4">
-                        <Badge variant="secondary" className="font-semibold">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                        <Badge variant="secondary" className="font-semibold text-xs sm:text-sm w-fit">
                           {DAYS_OF_WEEK[availability.dayOfWeek]}
                         </Badge>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
+                        <div className="flex items-center gap-2 text-xs sm:text-sm">
+                          <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                           <span className="font-medium">
                             {availability.startTime} – {availability.endTime}
                           </span>
@@ -423,11 +471,12 @@ export default function DoctorAvailabilityManager() {
                       </div>
                       <Button
                         variant="ghost"
-                        size="icon"
+                        size="sm"
                         onClick={() => deleteAvailability(availability.id)}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 w-full sm:w-auto"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-0 mr-2" />
+                        <span className="sm:hidden">Delete</span>
                       </Button>
                     </div>
                   ))}
@@ -439,32 +488,33 @@ export default function DoctorAvailabilityManager() {
 
         {/* SECTION 2: Auto-Generate Slots */}
         <Card>
-          <CardHeader>
+          <CardHeader className="space-y-1 sm:space-y-1.5">
             <div className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary" />
-              <CardTitle>Auto-Generate Slots</CardTitle>
+              <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <CardTitle className="text-lg sm:text-xl">Auto-Generate Slots</CardTitle>
             </div>
-            <CardDescription>
+            <CardDescription className="text-sm">
               Create slots from your availability schedule
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 sm:space-y-4">
             {!showAutoGenerate ? (
               <Button
                 onClick={() => setShowAutoGenerate(true)}
-                className="w-full"
+                className="w-full h-10"
                 variant="outline"
               >
                 <Zap className="h-4 w-4 mr-2" />
                 Generate Slots
               </Button>
             ) : (
-              <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/30">
+              <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 border border-border rounded-lg bg-muted/30">
                 <div className="space-y-2">
-                  <Label htmlFor="startDate">Start Date</Label>
+                  <Label htmlFor="startDate" className="text-sm">Start Date</Label>
                   <Input
                     id="startDate"
                     type="date"
+                    className="h-10"
                     value={autoGenerate.startDate}
                     onChange={(e) =>
                       setAutoGenerate({
@@ -476,10 +526,11 @@ export default function DoctorAvailabilityManager() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="endDate">End Date</Label>
+                  <Label htmlFor="endDate" className="text-sm">End Date</Label>
                   <Input
                     id="endDate"
                     type="date"
+                    className="h-10"
                     value={autoGenerate.endDate}
                     onChange={(e) =>
                       setAutoGenerate({
@@ -491,7 +542,7 @@ export default function DoctorAvailabilityManager() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="slotDuration">Slot Duration (minutes)</Label>
+                  <Label htmlFor="slotDuration" className="text-sm">Slot Duration (minutes)</Label>
                   <Select
                     value={autoGenerate.slotDuration.toString()}
                     onValueChange={(value) =>
@@ -501,7 +552,7 @@ export default function DoctorAvailabilityManager() {
                       })
                     }
                   >
-                    <SelectTrigger id="slotDuration">
+                    <SelectTrigger id="slotDuration" className="h-10">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -514,14 +565,15 @@ export default function DoctorAvailabilityManager() {
                   </Select>
                 </div>
 
-                <div className="flex gap-2">
-                  <Button onClick={generateSlots} className="flex-1">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button onClick={generateSlots} className="flex-1 h-10 order-1">
                     <Zap className="h-4 w-4 mr-2" />
                     Generate
                   </Button>
                   <Button
                     onClick={() => setShowAutoGenerate(false)}
                     variant="outline"
+                    className="h-10 order-2"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -533,20 +585,21 @@ export default function DoctorAvailabilityManager() {
 
         {/* SECTION 3: Manual Slot Creation */}
         <Card>
-          <CardHeader>
+          <CardHeader className="space-y-1 sm:space-y-1.5">
             <div className="flex items-center gap-2">
-              <CalendarDays className="h-5 w-5 text-primary" />
-              <CardTitle>Manual Slot Creation</CardTitle>
+              <CalendarDays className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <CardTitle className="text-lg sm:text-xl">Manual Slot Creation</CardTitle>
             </div>
-            <CardDescription>Add individual appointment slots</CardDescription>
+            <CardDescription className="text-sm">Add individual appointment slots</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/30">
+          <CardContent className="space-y-3 sm:space-y-4">
+            <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 border border-border rounded-lg bg-muted/30">
               <div className="space-y-2">
-                <Label htmlFor="slotDate">Date</Label>
+                <Label htmlFor="slotDate" className="text-sm">Date</Label>
                 <Input
                   id="slotDate"
                   type="date"
+                  className="h-10"
                   value={newSlot.date}
                   onChange={(e) =>
                     setNewSlot({ ...newSlot, date: e.target.value })
@@ -554,12 +607,13 @@ export default function DoctorAvailabilityManager() {
                 />
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="slotStartTime">Start Time</Label>
+                  <Label htmlFor="slotStartTime" className="text-sm">Start Time</Label>
                   <Input
                     id="slotStartTime"
                     type="time"
+                    className="h-10"
                     value={newSlot.startTime}
                     onChange={(e) =>
                       setNewSlot({ ...newSlot, startTime: e.target.value })
@@ -568,10 +622,11 @@ export default function DoctorAvailabilityManager() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="slotEndTime">End Time</Label>
+                  <Label htmlFor="slotEndTime" className="text-sm">End Time</Label>
                   <Input
                     id="slotEndTime"
                     type="time"
+                    className="h-10"
                     value={newSlot.endTime}
                     onChange={(e) =>
                       setNewSlot({ ...newSlot, endTime: e.target.value })
@@ -580,7 +635,7 @@ export default function DoctorAvailabilityManager() {
                 </div>
               </div>
 
-              <Button onClick={addSlot} className="w-full">
+              <Button onClick={addSlot} className="w-full h-10">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Slot
               </Button>
@@ -590,14 +645,14 @@ export default function DoctorAvailabilityManager() {
 
         {/* SECTION 4: Existing Slots List */}
         <Card className="lg:col-span-2">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
+          <CardHeader className="space-y-3 sm:space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="space-y-1 sm:space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-primary" />
-                  <CardTitle>Appointment Slots</CardTitle>
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <CardTitle className="text-lg sm:text-xl">Appointment Slots</CardTitle>
                 </div>
-                <CardDescription>
+                <CardDescription className="text-sm">
                   View and manage your appointment slots
                 </CardDescription>
               </div>
@@ -605,7 +660,7 @@ export default function DoctorAvailabilityManager() {
                 value={filterStatus}
                 onValueChange={(value: any) => setFilterStatus(value)}
               >
-                <SelectTrigger className="w-[150px]">
+                <SelectTrigger className="w-full sm:w-[150px] h-10">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -618,12 +673,12 @@ export default function DoctorAvailabilityManager() {
           </CardHeader>
           <CardContent>
             {filteredSlots.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <CalendarDays className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No slots found. Create your first slot above.</p>
+              <div className="text-center py-8 sm:py-12 text-muted-foreground">
+                <CalendarDays className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 opacity-50" />
+                <p className="text-sm sm:text-base">No slots found. Create your first slot above.</p>
               </div>
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredSlots
                   .sort((a, b) => {
                     const dateCompare = a.date.localeCompare(b.date);
@@ -633,38 +688,36 @@ export default function DoctorAvailabilityManager() {
                   .map((slot) => (
                     <div
                       key={slot.id}
-                      className={`p-4 border rounded-lg transition-all ${
+                      className={`p-3 sm:p-4 border rounded-lg transition-all ${
                         slot.isBooked
                           ? "bg-muted border-muted-foreground/20 opacity-75"
                           : "bg-card border-border hover:border-primary/50 hover:shadow-sm"
                       }`}
                     >
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <p className="font-semibold text-sm">
+                      <div className="space-y-2 sm:space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="space-y-1 min-w-0 flex-1">
+                            <p className="font-semibold text-xs sm:text-sm truncate">
                               {new Date(slot.date).toLocaleDateString("en-US", {
                                 weekday: "short",
                                 month: "short",
                                 day: "numeric",
                               })}
                             </p>
-                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                              <Clock className="h-3 w-3" />
-                              <span>
+                            <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+                              <Clock className="h-3 w-3 flex-shrink-0" />
+                              <span className="truncate">
                                 {slot.startTime} – {slot.endTime}
                               </span>
                             </div>
                           </div>
                           <Badge
-                            variant={
-                              slot.isBooked ? "destructive" : "secondary"
-                            }
-                            className={
+                            variant={slot.isBooked ? "destructive" : "secondary"}
+                            className={`text-xs flex-shrink-0 ${
                               slot.isBooked
                                 ? "bg-red-500/10 text-red-700 dark:text-red-400 hover:bg-red-500/20"
                                 : "bg-green-500/10 text-green-700 dark:text-green-400 hover:bg-green-500/20"
-                            }
+                            }`}
                           >
                             {slot.isBooked ? "Booked" : "Available"}
                           </Badge>
@@ -675,7 +728,7 @@ export default function DoctorAvailabilityManager() {
                             variant="ghost"
                             size="sm"
                             onClick={() => deleteSlot(slot.id)}
-                            className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                            className="w-full text-destructive hover:text-destructive hover:bg-destructive/10 h-8 text-xs sm:text-sm"
                           >
                             <Trash2 className="h-3 w-3 mr-2" />
                             Delete Slot

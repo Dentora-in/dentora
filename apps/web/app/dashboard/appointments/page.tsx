@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { DataTable } from "@/app/dashboard/components/data-table";
 import { getAllAppointments } from "@/api/api.appointment";
-import { FullPageSpinner } from "@/components/child/full-page-spinner";
+import { FullPageSpinnerSub } from "@/components/child/page-spinner";
 
 interface metaData {
   total: number;
@@ -45,7 +45,7 @@ export default function AppointmentsPage() {
   }, [pagination.pageIndex, pagination.pageSize, status]);
 
   if (isLoading || !metaData) {
-    return <FullPageSpinner />;
+    return <FullPageSpinnerSub />;
   }
 
   return (
