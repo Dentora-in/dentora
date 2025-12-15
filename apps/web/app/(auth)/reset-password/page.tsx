@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { ResetPasswordForm } from "@/components/auth/reset-password";
 import Image from "next/image";
 import Dentor from "@/public/logo.png";
-import { FullPageSpinner } from "@/components/child/full-page-spinner";
+import { FullPageSpinner } from "@/components/child/page-spinner";
 
 export default function ResetPasswordPage() {
   return (
