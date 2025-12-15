@@ -1,6 +1,5 @@
 "use client";
 
-import { GalleryVerticalEnd } from "lucide-react";
 import { SignupForm } from "@/components/auth/signup-form";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -9,7 +8,6 @@ import { SignUp } from "@/interfaces/user.interface";
 import { signIn, signUp } from "@dentora/auth/client";
 import { toast } from "@workspace/ui/components/sonner";
 import Image from "next/image";
-import Link from "next/link";
 import Dentor from "@/public/logo.png";
 import { signupSchema } from "@dentora/shared/zod";
 

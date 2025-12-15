@@ -10,6 +10,7 @@ export interface userSessionType {
     emailVerified: boolean;
     name: string;
     image?: string | null | undefined;
+    role?: string;
 }
 
 declare global {

@@ -3,7 +3,6 @@ import { prisma } from "@dentora/database";
 import { appointmentSchema } from "@dentora/shared/zod";
 import { UserRole } from "@dentora/database";
 import { appointmentQueue } from "@dentora/shared/queue";
-import { isDevelopmentMode } from "@dentora/shared/globals";
 
 export const bookAppointment = async (req: Request, res: Response) => {
     try {
@@ -93,63 +92,91 @@ export const bookAppointment = async (req: Request, res: Response) => {
 };
 
 export const getAllAppointment = async (req: Request, res: Response) => {
-  try {
-    const user = req.user;
-    const statusQuery = (req.query.status as string) || undefined;
-    const pageQuery = Number(req.query.page ?? 1);
-    const limitQuery = Number(req.query.limit ?? 10);
+    try {
+        const user = req.user;
+        const statusQuery = (req.query.status as string) || undefined;
+        const pageQuery = Number(req.query.page ?? 1);
+        const limitQuery = Number(req.query.limit ?? 10);
 
-    if(!user) {
-        return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const doctor_details = await prisma.user.findUnique({
-        where: {
-            id: user.id,
-            role: UserRole.DOCTOR as UserRole
+        if (!user) {
+            return res.status(401).json({ message: "Unauthorized" });
         }
-    });
 
-    if(!doctor_details) {
-        return res.status(401).json({ message: "Unauthorized" });
+        const doctor_details = await prisma.user.findUnique({
+            where: {
+                id: user.id,
+                role: user.role as UserRole
+            }
+        });
+
+        if (!doctor_details) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        // sanitize the inputs
+        const page = Number.isFinite(pageQuery) && pageQuery > 0 ? Math.floor(pageQuery) : 1;
+        const limit = Number.isFinite(limitQuery) && limitQuery > 0 ? Math.min(Math.floor(limitQuery), 100) : 10; // max 100
+
+        const where: any = { doctorId: doctor_details.id }
+
+        if (statusQuery) {
+            where.status = statusQuery;
+        }
+
+        // find the total count for pagination
+        const total = await prisma.appointment.count({ where });
+        const total_pending = await prisma.appointment.count({
+            where: {
+                status: "PENDING",
+                doctorId: doctor_details.id
+            }
+        });
+        const total_confirmed = await prisma.appointment.count({
+            where: {
+                status: "CONFIRMED",
+                doctorId: doctor_details.id
+            }
+        });
+        const total_completed = await prisma.appointment.count({
+            where: {
+                status: "COMPLETED",
+                doctorId: doctor_details.id
+            }
+        });
+        const total_cancelled = await prisma.appointment.count({
+            where: {
+                status: "CANCELLED",
+                doctorId: doctor_details.id
+            }
+        });
+
+        // based the the query have to calc the page and limit
+        const totalPages = Math.max(1, Math.ceil(total / limit));
+        const skip = (page - 1) * limit;
+
+        const appointments = await prisma.appointment.findMany({
+            where,
+            orderBy: { appointmentDate: "desc" },
+            skip,
+            take: limit,
+        });
+
+        return res.status(200).json({
+            success: true,
+            meta_data: {
+                totalPages,
+                page,
+                limit,
+                total,
+                total_pending,
+                total_confirmed,
+                total_completed,
+                total_cancelled,
+            },
+            appointments,
+        });
+
+    } catch (e: any) {
+        return res.status(500).json({ message: e.message });
     }
-
-    // sanitize the inputs
-    const page = Number.isFinite(pageQuery) && pageQuery > 0 ? Math.floor(pageQuery) : 1;
-    const limit = Number.isFinite(limitQuery) && limitQuery > 0 ? Math.min(Math.floor(limitQuery), 100) : 10; // max 100
-
-    const where: any = { doctorId: doctor_details.id }
-
-    if(statusQuery) {
-        where.status = statusQuery;
-    }
-
-    // find the total count for pagination
-    const total = await prisma.appointment.count({ where });
-
-    // based the the query have to calc the page and limit
-    const totalPages = Math.max(1, Math.ceil(total / limit));
-    const skip = (page - 1) * limit;
-
-    const appointments = await prisma.appointment.findMany({
-        where,
-        orderBy: { appointmentDate: "desc" },
-        skip,
-        take: limit,
-    });
-
-    return res.status(200).json({
-      success: true,
-      meta_data: {
-        total,
-        page,
-        limit,
-        totalPages
-      },
-      appointments
-    });
-
-  } catch (e: any) {
-    return res.status(500).json({ message: e.message });
-  }
 };

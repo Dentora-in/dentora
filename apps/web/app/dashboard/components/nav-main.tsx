@@ -1,8 +1,7 @@
 "use client"
 
-import { IconCirclePlusFilled, IconDashboard, IconMail, type Icon } from "@tabler/icons-react"
+import { IconDashboard } from "@tabler/icons-react"
 
-import { Button } from "@workspace/ui/components/button"
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -11,15 +10,7 @@ import {
   SidebarMenuItem,
 } from "@workspace/ui/components/sidebar"
 
-export function NavMain({
-  items,
-}: {
-  items?: {
-    title: string
-    url: string
-    icon?: Icon
-  }[]
-}) {
+export function NavMain() {
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">

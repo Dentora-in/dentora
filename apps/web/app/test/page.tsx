@@ -1,4 +1,4 @@
-import { FullPageSpinner } from '@/components/child/full-page-spinner'
+import { FullPageSpinner } from '@/components/child/page-spinner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import React from 'react'
 
