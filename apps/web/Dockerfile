@@ -26,6 +26,9 @@ COPY --from=deps /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
 COPY . .
 
+ARG NEXT_PUBLIC_BACKEND_URL
+ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
+
 RUN pnpm --filter @dentora/database db:generate
 RUN pnpm --filter web add -D @tailwindcss/postcss
 RUN pnpm --filter web build
