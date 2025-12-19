@@ -78,7 +78,7 @@ export default function AppointmentPage() {
         <Card
           className={cn(
             "rounded-none shadow-none border-0 bg-background",
-            "md:rounded-3xl md:shadow-xl md:border md:backdrop-blur-xl md:bg-white/60 md:dark:bg-neutral-900/60 md:border-white/20 md:dark:border-neutral-700/30"
+            "md:rounded-3xl md:shadow-xl md:border md:backdrop-blur-xl md:bg-white/60 md:dark:bg-neutral-900/60 md:border-white/20 md:dark:border-neutral-700/30",
           )}
         >
           <CardHeader className="text-center pb-2">

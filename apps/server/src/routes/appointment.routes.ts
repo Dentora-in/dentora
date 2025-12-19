@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { bookAppointment, getAllAppointment } from "../controllers/appointment.controller";
+import {
+  bookAppointment,
+  getAllAppointment,
+} from "../controllers/appointment.controller";
 import authMiddleware from "@/middlewares/auth.middleware";
 
 const router: Router = Router();

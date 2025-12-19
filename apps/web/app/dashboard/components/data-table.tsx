@@ -211,7 +211,7 @@ const DraggableRow = React.memo(
         ))}
       </TableRow>
     );
-  }
+  },
 );
 
 DraggableRow.displayName = "DraggableRow";
@@ -259,7 +259,7 @@ export function DataTable({
   currentStatus,
 }: DataTableProps) {
   const [data, setData] = React.useState<z.infer<typeof schema>[]>(
-    initialData || []
+    initialData || [],
   );
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -272,12 +272,12 @@ export function DataTable({
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
     useSensor(TouchSensor, {}),
-    useSensor(KeyboardSensor, {})
+    useSensor(KeyboardSensor, {}),
   );
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
     () => data?.map(({ id }) => id) || [],
-    [data]
+    [data],
   );
 
   React.useEffect(() => {
@@ -332,7 +332,7 @@ export function DataTable({
       setPagination((prev) => ({ ...prev, pageIndex: 0 }));
       setStatus(value === "outline" ? undefined : value);
     },
-    [setPagination, setStatus, metaData]
+    [setPagination, setStatus, metaData],
   );
 
   return (
@@ -425,7 +425,7 @@ export function DataTable({
                             ? null
                             : flexRender(
                                 header.column.columnDef.header,
-                                header.getContext()
+                                header.getContext(),
                               )}
                         </TableHead>
                       ))}

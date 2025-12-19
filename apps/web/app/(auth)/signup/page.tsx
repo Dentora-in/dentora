@@ -34,7 +34,7 @@ export default function SignupPage() {
             : "Invalid value";
           return acc;
         },
-        {} as Record<string, string>
+        {} as Record<string, string>,
       );
       const firstErr = Object.values(mapped)[0];
       if (firstErr) toast.warning(firstErr);
@@ -62,7 +62,7 @@ export default function SignupPage() {
             console.error(ctx.error.message);
             toast.error(ctx.error.message);
           },
-        }
+        },
       );
     } catch (err) {
       console.error(err);
@@ -91,7 +91,7 @@ export default function SignupPage() {
             console.error(ctx.error.message);
             toast.error(ctx.error.message);
           },
-        }
+        },
       );
     } catch (err) {
       console.error(err);

@@ -11,7 +11,7 @@ import { headers } from "next/headers";
 const fontSans = Lexend({
   subsets: ["latin"],
   variable: "--font-sans",
-  weight: "600"
+  weight: "600",
 });
 
 const fontMono = Geist_Mono({
@@ -25,7 +25,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await auth.api.getSession({
-    headers: await headers()
+    headers: await headers(),
   });
 
   return (
@@ -36,9 +36,7 @@ export default async function RootLayout({
         <Providers session={session}>
           <AuthWatcher />
           <HeaderWrapper />
-          <main>
-            {children}
-          </main>
+          <main>{children}</main>
         </Providers>
 
         <Toaster richColors />

@@ -2,8 +2,8 @@ import { Queue } from "bullmq";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-console.log('Redis Host:', process.env.REDIS_HOST);
-console.log('Redis Port:', process.env.REDIS_PORT);
+console.log("Redis Host:", process.env.REDIS_HOST);
+console.log("Redis Port:", process.env.REDIS_PORT);
 
 export const redisConnection = {
   host: process.env.REDIS_HOST,

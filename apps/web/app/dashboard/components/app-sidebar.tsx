@@ -1,20 +1,17 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import {
-  IconDatabase,
-  IconReport,
-} from "@tabler/icons-react"
+import * as React from "react";
+import { IconDatabase, IconReport } from "@tabler/icons-react";
 
-import { NavDocuments } from "@/app/dashboard/components/nav-documents"
-import { NavMain } from "@/app/dashboard/components/nav-main"
-import { NavUser } from "@/app/dashboard/components/nav-user"
+import { NavDocuments } from "@/app/dashboard/components/nav-documents";
+import { NavMain } from "@/app/dashboard/components/nav-main";
+import { NavUser } from "@/app/dashboard/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarHeader
-} from "@workspace/ui/components/sidebar"
+  SidebarHeader,
+} from "@workspace/ui/components/sidebar";
 
 const data = {
   documents: [
@@ -29,14 +26,12 @@ const data = {
       icon: IconReport,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
-        DENTORA
-      </SidebarHeader>
+      <SidebarHeader>DENTORA</SidebarHeader>
       <SidebarContent>
         <NavMain />
         <NavDocuments items={data.documents} />
@@ -45,5 +40,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

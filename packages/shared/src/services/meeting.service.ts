@@ -1,6 +1,6 @@
 import { google } from "googleapis";
 
-export const getGoogleClient:any = () => {
+export const getGoogleClient: any = () => {
   const {
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
@@ -8,14 +8,19 @@ export const getGoogleClient:any = () => {
     GOOGLE_REFRESH_TOKEN,
   } = process.env;
 
-  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REDIRECT_URI || !GOOGLE_REFRESH_TOKEN) {
+  if (
+    !GOOGLE_CLIENT_ID ||
+    !GOOGLE_CLIENT_SECRET ||
+    !GOOGLE_REDIRECT_URI ||
+    !GOOGLE_REFRESH_TOKEN
+  ) {
     throw new Error("Missing Google OAuth environment variables");
   }
 
   const oauth2Client = new google.auth.OAuth2(
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
-    GOOGLE_REDIRECT_URI
+    GOOGLE_REDIRECT_URI,
   );
 
   oauth2Client.setCredentials({
@@ -25,7 +30,11 @@ export const getGoogleClient:any = () => {
   return oauth2Client;
 };
 
-export const createMeetEvent = async (email: string, startTime: string, endTime: string) => {
+export const createMeetEvent = async (
+  email: string,
+  startTime: string,
+  endTime: string,
+) => {
   try {
     const auth = getGoogleClient();
     const calendar = google.calendar({ version: "v3", auth });
@@ -55,10 +64,11 @@ export const createMeetEvent = async (email: string, startTime: string, endTime:
       conferenceDataVersion: 1,
     });
 
-    const meetLink = response.data?.hangoutLink || response.data?.conferenceData?.entryPoints?.[0]?.uri;
+    const meetLink =
+      response.data?.hangoutLink ||
+      response.data?.conferenceData?.entryPoints?.[0]?.uri;
 
     return meetLink;
-
   } catch (err) {
     console.error("❌ Error creating meet link:", err);
     return null;

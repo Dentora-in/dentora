@@ -28,11 +28,17 @@ export class EmailService {
 
   async sendEmail(options: SendEmailOptions) {
     if (isDevelopmentMode) {
-      console.log("========================================================================");
-      console.log("📨 DEV MODE: Email would be sent with the following details:");
+      console.log(
+        "========================================================================",
+      );
+      console.log(
+        "📨 DEV MODE: Email would be sent with the following details:",
+      );
       console.log(options.from);
       console.log(options.text);
-      console.log("========================================================================");
+      console.log(
+        "========================================================================",
+      );
       return { success: true, info: "DEV MODE - email not sent" };
     }
 

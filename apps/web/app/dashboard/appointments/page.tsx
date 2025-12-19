@@ -33,7 +33,7 @@ export default function AppointmentsPage() {
       const res = await getAllAppointments({
         page: pagination.pageIndex + 1,
         limit: pagination.pageSize,
-        status
+        status,
       });
 
       setAppointments(res.appointments);
