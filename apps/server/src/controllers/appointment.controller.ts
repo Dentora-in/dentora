@@ -1,7 +1,6 @@
-import { Request, Response, NextFunction } from "express";
-import { prisma } from "@dentora/database";
+import { Request, Response } from "express";
+import { Prisma, prisma, UserRole } from "@dentora/database";
 import { appointmentSchema } from "@dentora/shared/zod";
-import { UserRole } from "@dentora/database";
 import { appointmentQueue } from "@dentora/shared/queue";
 
 export const bookAppointment = async (req: Request, res: Response) => {
@@ -17,7 +16,7 @@ export const bookAppointment = async (req: Request, res: Response) => {
 
         const data = parsed.data;
 
-        const result = await prisma.$transaction(async (tx) => {
+        const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             let user = await tx.user.findUnique({ where: { email: data.email } });
 
             if (!user) {
