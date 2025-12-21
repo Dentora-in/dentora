@@ -11,9 +11,8 @@ export const getProfileDetails = async (req: Request, res: Response) => {
         .json({ message: "Please login or provide user ID" });
     }
 
-    // TODO : @anmole - only doctor role can get profile
     const profile_details = await prisma.doctor.findUnique({
-      where: { id: userId },
+      where: { userId },
     });
 
     if (!profile_details) {

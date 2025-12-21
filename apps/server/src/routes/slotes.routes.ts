@@ -2,7 +2,10 @@ import { Router } from "express";
 import {
   addDoctorAvailability,
   deleteDoctorAvailability,
+  deleteDoctorSlot,
   getAllSlotes,
+  mySpacePageData,
+  slotCreation,
 } from "../controllers/slotes.controller";
 import { requireRole } from "@/middlewares/role.middleware";
 import { UserRole } from "@dentora/database";
@@ -11,6 +14,16 @@ import authMiddleware from "@/middlewares/auth.middleware";
 const router: Router = Router();
 
 router.get("/", getAllSlotes);
+
+// my space page route
+router.get(
+  "/doctor/my-space",
+  authMiddleware,
+  requireRole(UserRole.DOCTOR),
+  mySpacePageData,
+);
+
+// Weekly Availability
 router.post(
   "/weekly",
   authMiddleware,
@@ -22,6 +35,20 @@ router.delete(
   authMiddleware,
   requireRole(UserRole.DOCTOR),
   deleteDoctorAvailability,
+);
+
+// Slot Creation
+router.post(
+  "/slot-generate",
+  authMiddleware,
+  requireRole(UserRole.DOCTOR),
+  slotCreation,
+);
+router.post(
+  "/slot-delete/:slotId",
+  authMiddleware,
+  requireRole(UserRole.DOCTOR),
+  deleteDoctorSlot,
 );
 
 export default router;
