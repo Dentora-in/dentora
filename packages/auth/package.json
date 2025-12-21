@@ -11,7 +11,7 @@
     "@dentora/database": "workspace:*",
     "@dentora/shared": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
-    "better-auth": "^1.3.34",
+    "better-auth": "^1.4.5",
     "dotenv": "^17.2.3"
   },
   "exports": {
