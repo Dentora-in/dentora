@@ -16,7 +16,7 @@
     "@workspace/typescript-config": "workspace:*",
     "dotenv": "^17.2.3",
     "googleapis": "^166.0.0",
-    "nodemailer": "^7.0.10",
+    "nodemailer": "^7.0.11",
     "zod": "^3.25.76",
     "bullmq": "^5.64.1"
   },
