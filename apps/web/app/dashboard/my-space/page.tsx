@@ -83,7 +83,9 @@ export default function DoctorAvailabilityManager() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Availability state
-  const [availabilities, setAvailabilities] = useState<DoctorAvailability[]>([]);
+  const [availabilities, setAvailabilities] = useState<DoctorAvailability[]>(
+    [],
+  );
   const [newAvailability, setNewAvailability] = useState<NewAvailability>({
     dayOfWeek: null,
     startTime: "",
@@ -107,7 +109,9 @@ export default function DoctorAvailabilityManager() {
   const [showAutoGenerate, setShowAutoGenerate] = useState(false);
 
   // Filter state
-  const [filterStatus, setFilterStatus] = useState<"all" | "available" | "booked">("all");
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "available" | "booked"
+  >("all");
 
   // Load data on mount (simulated)
   useEffect(() => {
@@ -120,18 +124,18 @@ export default function DoctorAvailabilityManager() {
       // TODO: Replace with actual API calls
       // const availabilityRes = await fetch("/api/doctor/availability");
       // const slotsRes = await fetch("/api/doctor/slots");
-      
+
       // Simulated delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       // Load from localStorage or use empty arrays
-      const savedAvailabilities = localStorage.getItem('availabilities');
-      const savedSlots = localStorage.getItem('slots');
-      
+      const savedAvailabilities = localStorage.getItem("availabilities");
+      const savedSlots = localStorage.getItem("slots");
+
       if (savedAvailabilities) {
         setAvailabilities(JSON.parse(savedAvailabilities));
       }
-      
+
       if (savedSlots) {
         setSlots(JSON.parse(savedSlots));
       }
@@ -185,8 +189,11 @@ export default function DoctorAvailabilityManager() {
 
       const updatedAvailabilities = [...availabilities, newData];
       setAvailabilities(updatedAvailabilities);
-      localStorage.setItem('availabilities', JSON.stringify(updatedAvailabilities));
-      
+      localStorage.setItem(
+        "availabilities",
+        JSON.stringify(updatedAvailabilities),
+      );
+
       setNewAvailability({ dayOfWeek: null, startTime: "", endTime: "" });
       toast.success("Success", {
         description: "Availability added successfully",
@@ -205,8 +212,11 @@ export default function DoctorAvailabilityManager() {
 
       const updatedAvailabilities = availabilities.filter((a) => a.id !== id);
       setAvailabilities(updatedAvailabilities);
-      localStorage.setItem('availabilities', JSON.stringify(updatedAvailabilities));
-      
+      localStorage.setItem(
+        "availabilities",
+        JSON.stringify(updatedAvailabilities),
+      );
+
       toast.success("Availability deleted successfully");
     } catch (error) {
       toast.error("Failed to delete availability");
@@ -244,8 +254,8 @@ export default function DoctorAvailabilityManager() {
 
       const updatedSlots = [...slots, newData];
       setSlots(updatedSlots);
-      localStorage.setItem('slots', JSON.stringify(updatedSlots));
-      
+      localStorage.setItem("slots", JSON.stringify(updatedSlots));
+
       setNewSlot({ date: "", startTime: "", endTime: "" });
       toast.success("Slot created successfully");
     } catch (error) {
@@ -262,8 +272,8 @@ export default function DoctorAvailabilityManager() {
 
       const updatedSlots = slots.filter((s) => s.id !== id);
       setSlots(updatedSlots);
-      localStorage.setItem('slots', JSON.stringify(updatedSlots));
-      
+      localStorage.setItem("slots", JSON.stringify(updatedSlots));
+
       toast.success("Slot deleted successfully");
     } catch (error) {
       toast.error("Failed to delete slot");
@@ -296,16 +306,22 @@ export default function DoctorAvailabilityManager() {
 
       for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
         const dayOfWeek = d.getDay() as DayOfWeek;
-        const dayAvailabilities = availabilities.filter(a => a.dayOfWeek === dayOfWeek);
+        const dayAvailabilities = availabilities.filter(
+          (a) => a.dayOfWeek === dayOfWeek,
+        );
 
-        dayAvailabilities.forEach(avail => {
-          const [startHour, startMin] = avail.startTime.split(':').map(Number);
-          const [endHour, endMin] = avail.endTime.split(':').map(Number);
-          
+        dayAvailabilities.forEach((avail) => {
+          const [startHour, startMin] = avail.startTime.split(":").map(Number);
+          const [endHour, endMin] = avail.endTime.split(":").map(Number);
+
           const startMinutes = startHour * 60 + startMin;
           const endMinutes = endHour * 60 + endMin;
-          
-          for (let time = startMinutes; time < endMinutes; time += autoGenerate.slotDuration) {
+
+          for (
+            let time = startMinutes;
+            time < endMinutes;
+            time += autoGenerate.slotDuration
+          ) {
             const slotStartHour = Math.floor(time / 60);
             const slotStartMin = time % 60;
             const slotEndTime = time + autoGenerate.slotDuration;
@@ -313,11 +329,11 @@ export default function DoctorAvailabilityManager() {
             const slotEndMin = slotEndTime % 60;
 
             generatedSlots.push({
-              id: `${d.toISOString().split('T')[0]}-${time}-${Date.now()}`,
+              id: `${d.toISOString().split("T")[0]}-${time}-${Date.now()}`,
               doctorId: "doctor-1",
-              date: d.toISOString().split('T')[0],
-              startTime: `${String(slotStartHour).padStart(2, '0')}:${String(slotStartMin).padStart(2, '0')}`,
-              endTime: `${String(slotEndHour).padStart(2, '0')}:${String(slotEndMin).padStart(2, '0')}`,
+              date: d.toISOString().split("T")[0],
+              startTime: `${String(slotStartHour).padStart(2, "0")}:${String(slotStartMin).padStart(2, "0")}`,
+              endTime: `${String(slotEndHour).padStart(2, "0")}:${String(slotEndMin).padStart(2, "0")}`,
               isBooked: false,
             });
           }
@@ -326,7 +342,7 @@ export default function DoctorAvailabilityManager() {
 
       const updatedSlots = [...slots, ...generatedSlots];
       setSlots(updatedSlots);
-      localStorage.setItem('slots', JSON.stringify(updatedSlots));
+      localStorage.setItem("slots", JSON.stringify(updatedSlots));
 
       toast.success(`Generated ${generatedSlots.length} slots successfully`);
       setShowAutoGenerate(false);
@@ -369,7 +385,9 @@ export default function DoctorAvailabilityManager() {
           <CardHeader className="space-y-1 sm:space-y-1.5">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              <CardTitle className="text-lg sm:text-xl">Weekly Availability</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">
+                Weekly Availability
+              </CardTitle>
             </div>
             <CardDescription className="text-sm">
               Define your recurring weekly schedule
@@ -380,7 +398,9 @@ export default function DoctorAvailabilityManager() {
             <div className="grid gap-3 sm:gap-4 p-3 sm:p-4 border border-border rounded-lg bg-muted/30">
               <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
-                  <Label htmlFor="dayOfWeek" className="text-sm">Day of Week</Label>
+                  <Label htmlFor="dayOfWeek" className="text-sm">
+                    Day of Week
+                  </Label>
                   <Select
                     value={newAvailability.dayOfWeek?.toString() ?? ""}
                     onValueChange={(value) =>
@@ -404,7 +424,9 @@ export default function DoctorAvailabilityManager() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="startTime" className="text-sm">Start Time</Label>
+                  <Label htmlFor="startTime" className="text-sm">
+                    Start Time
+                  </Label>
                   <Input
                     id="startTime"
                     type="time"
@@ -420,7 +442,9 @@ export default function DoctorAvailabilityManager() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="endTime" className="text-sm">End Time</Label>
+                  <Label htmlFor="endTime" className="text-sm">
+                    End Time
+                  </Label>
                   <Input
                     id="endTime"
                     type="time"
@@ -436,7 +460,10 @@ export default function DoctorAvailabilityManager() {
                 </div>
               </div>
 
-              <Button onClick={addAvailability} className="w-full sm:w-auto h-10">
+              <Button
+                onClick={addAvailability}
+                className="w-full sm:w-auto h-10"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Availability
               </Button>
@@ -459,7 +486,10 @@ export default function DoctorAvailabilityManager() {
                       className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 border border-border rounded-lg bg-card hover:bg-accent/50 transition-colors"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                        <Badge variant="secondary" className="font-semibold text-xs sm:text-sm w-fit">
+                        <Badge
+                          variant="secondary"
+                          className="font-semibold text-xs sm:text-sm w-fit"
+                        >
                           {DAYS_OF_WEEK[availability.dayOfWeek]}
                         </Badge>
                         <div className="flex items-center gap-2 text-xs sm:text-sm">
@@ -491,7 +521,9 @@ export default function DoctorAvailabilityManager() {
           <CardHeader className="space-y-1 sm:space-y-1.5">
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              <CardTitle className="text-lg sm:text-xl">Auto-Generate Slots</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">
+                Auto-Generate Slots
+              </CardTitle>
             </div>
             <CardDescription className="text-sm">
               Create slots from your availability schedule
@@ -510,7 +542,9 @@ export default function DoctorAvailabilityManager() {
             ) : (
               <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 border border-border rounded-lg bg-muted/30">
                 <div className="space-y-2">
-                  <Label htmlFor="startDate" className="text-sm">Start Date</Label>
+                  <Label htmlFor="startDate" className="text-sm">
+                    Start Date
+                  </Label>
                   <Input
                     id="startDate"
                     type="date"
@@ -526,7 +560,9 @@ export default function DoctorAvailabilityManager() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="endDate" className="text-sm">End Date</Label>
+                  <Label htmlFor="endDate" className="text-sm">
+                    End Date
+                  </Label>
                   <Input
                     id="endDate"
                     type="date"
@@ -542,7 +578,9 @@ export default function DoctorAvailabilityManager() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="slotDuration" className="text-sm">Slot Duration (minutes)</Label>
+                  <Label htmlFor="slotDuration" className="text-sm">
+                    Slot Duration (minutes)
+                  </Label>
                   <Select
                     value={autoGenerate.slotDuration.toString()}
                     onValueChange={(value) =>
@@ -566,7 +604,10 @@ export default function DoctorAvailabilityManager() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Button onClick={generateSlots} className="flex-1 h-10 order-1">
+                  <Button
+                    onClick={generateSlots}
+                    className="flex-1 h-10 order-1"
+                  >
                     <Zap className="h-4 w-4 mr-2" />
                     Generate
                   </Button>
@@ -588,14 +629,20 @@ export default function DoctorAvailabilityManager() {
           <CardHeader className="space-y-1 sm:space-y-1.5">
             <div className="flex items-center gap-2">
               <CalendarDays className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              <CardTitle className="text-lg sm:text-xl">Manual Slot Creation</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">
+                Manual Slot Creation
+              </CardTitle>
             </div>
-            <CardDescription className="text-sm">Add individual appointment slots</CardDescription>
+            <CardDescription className="text-sm">
+              Add individual appointment slots
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 sm:space-y-4">
             <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 border border-border rounded-lg bg-muted/30">
               <div className="space-y-2">
-                <Label htmlFor="slotDate" className="text-sm">Date</Label>
+                <Label htmlFor="slotDate" className="text-sm">
+                  Date
+                </Label>
                 <Input
                   id="slotDate"
                   type="date"
@@ -609,7 +656,9 @@ export default function DoctorAvailabilityManager() {
 
               <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="slotStartTime" className="text-sm">Start Time</Label>
+                  <Label htmlFor="slotStartTime" className="text-sm">
+                    Start Time
+                  </Label>
                   <Input
                     id="slotStartTime"
                     type="time"
@@ -622,7 +671,9 @@ export default function DoctorAvailabilityManager() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="slotEndTime" className="text-sm">End Time</Label>
+                  <Label htmlFor="slotEndTime" className="text-sm">
+                    End Time
+                  </Label>
                   <Input
                     id="slotEndTime"
                     type="time"
@@ -650,7 +701,9 @@ export default function DoctorAvailabilityManager() {
               <div className="space-y-1 sm:space-y-1.5">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                  <CardTitle className="text-lg sm:text-xl">Appointment Slots</CardTitle>
+                  <CardTitle className="text-lg sm:text-xl">
+                    Appointment Slots
+                  </CardTitle>
                 </div>
                 <CardDescription className="text-sm">
                   View and manage your appointment slots
@@ -675,7 +728,9 @@ export default function DoctorAvailabilityManager() {
             {filteredSlots.length === 0 ? (
               <div className="text-center py-8 sm:py-12 text-muted-foreground">
                 <CalendarDays className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 opacity-50" />
-                <p className="text-sm sm:text-base">No slots found. Create your first slot above.</p>
+                <p className="text-sm sm:text-base">
+                  No slots found. Create your first slot above.
+                </p>
               </div>
             ) : (
               <div className="grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -712,7 +767,9 @@ export default function DoctorAvailabilityManager() {
                             </div>
                           </div>
                           <Badge
-                            variant={slot.isBooked ? "destructive" : "secondary"}
+                            variant={
+                              slot.isBooked ? "destructive" : "secondary"
+                            }
                             className={`text-xs flex-shrink-0 ${
                               slot.isBooked
                                 ? "bg-red-500/10 text-red-700 dark:text-red-400 hover:bg-red-500/20"

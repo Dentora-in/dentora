@@ -8,17 +8,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@workspace/ui/components/alert-dialog"
-import { ReactNode } from "react"
+} from "@workspace/ui/components/alert-dialog";
+import { ReactNode } from "react";
 
 type GenericAlertDialogProps = {
-  trigger: ReactNode
-  title: string
-  description?: string
-  confirmText?: string
-  cancelText?: string
-  onResult: (confirmed: boolean) => void
-}
+  trigger: ReactNode;
+  title: string;
+  description?: string;
+  confirmText?: string;
+  cancelText?: string;
+  onResult: (confirmed: boolean) => void;
+};
 
 export function GenericAlertDialog({
   trigger,
@@ -30,17 +30,13 @@ export function GenericAlertDialog({
 }: GenericAlertDialogProps) {
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        {trigger}
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
 
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           {description && (
-            <AlertDialogDescription>
-              {description}
-            </AlertDialogDescription>
+            <AlertDialogDescription>{description}</AlertDialogDescription>
           )}
         </AlertDialogHeader>
 
@@ -55,5 +51,5 @@ export function GenericAlertDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

@@ -3,5 +3,5 @@ packages:
   - packages/*
 
 ignoredBuiltDependencies:
-  - '@prisma/client'
+  - "@prisma/client"
   - prisma

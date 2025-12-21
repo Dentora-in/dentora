@@ -9,7 +9,8 @@ export function CTASection() {
         </h2>
 
         <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-          Join hundreds of dental practices that trust Dentora to manage their operations efficiently and securely.
+          Join hundreds of dental practices that trust Dentora to manage their
+          operations efficiently and securely.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -21,8 +22,10 @@ export function CTASection() {
           </Button>
         </div>
 
-        <p className="text-sm text-muted-foreground mt-8">No credit card required. 14-day free trial included.</p>
+        <p className="text-sm text-muted-foreground mt-8">
+          No credit card required. 14-day free trial included.
+        </p>
       </div>
     </section>
-  )
+  );
 }

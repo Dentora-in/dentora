@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import { GenericAlertDialog } from "@/components/child/alert-dialog"
-import { useAuthSession } from "@/components/providers/session-provider"
-import { signOut } from "@dentora/auth/client"
+import { GenericAlertDialog } from "@/components/child/alert-dialog";
+import { useAuthSession } from "@/components/providers/session-provider";
+import { signOut } from "@dentora/auth/client";
 import {
   IconCreditCard,
   IconDotsVertical,
   IconLogout,
   IconNotification,
   IconUserCircle,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@workspace/ui/components/avatar"
+} from "@workspace/ui/components/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,17 +24,17 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu"
+} from "@workspace/ui/components/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@workspace/ui/components/sidebar"
-import { useRouter } from "next/navigation"
+} from "@workspace/ui/components/sidebar";
+import { useRouter } from "next/navigation";
 
 export function NavUser() {
-  const { isMobile } = useSidebar()
+  const { isMobile } = useSidebar();
   const session = useAuthSession();
   const router = useRouter();
 
@@ -44,10 +44,10 @@ export function NavUser() {
   };
 
   const subPageNavigator = (page: string) => {
-    if(page === "my-account") {
+    if (page === "my-account") {
       router.push("/dashboard/my-account");
     }
-  }
+  };
 
   return (
     <SidebarMenu>
@@ -63,7 +63,9 @@ export function NavUser() {
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{session.user.name}</span>
+                <span className="truncate font-medium">
+                  {session.user.name}
+                </span>
                 <span className="text-muted-foreground truncate text-xs">
                   {session.user.email}
                 </span>
@@ -80,11 +82,16 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={session.user.image} alt={session.user.name} />
+                  <AvatarImage
+                    src={session.user.image}
+                    alt={session.user.name}
+                  />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{session.user.name}</span>
+                  <span className="truncate font-medium">
+                    {session.user.name}
+                  </span>
                   <span className="text-muted-foreground truncate text-xs">
                     {session.user.email}
                   </span>
@@ -97,7 +104,10 @@ export function NavUser() {
                 <IconUserCircle />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem disabled onClick={() => subPageNavigator("notifications")}>
+              <DropdownMenuItem
+                disabled
+                onClick={() => subPageNavigator("notifications")}
+              >
                 <IconNotification />
                 Notifications
               </DropdownMenuItem>
@@ -116,7 +126,7 @@ export function NavUser() {
               cancelText="Cancel"
               onResult={(confirmed) => {
                 if (confirmed) {
-                  logoutHandler()
+                  logoutHandler();
                 }
               }}
             />
@@ -124,5 +134,5 @@ export function NavUser() {
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

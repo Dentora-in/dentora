@@ -129,7 +129,7 @@ export default function DoctorProfile() {
     return Object.fromEntries(
       Object.entries(edited).filter(([key, value]) => {
         return value !== original[key as keyof DoctorData];
-      })
+      }),
     );
   };
 
@@ -174,7 +174,7 @@ export default function DoctorProfile() {
 
   const handleInputChange = (
     field: keyof DoctorData,
-    value: string | number
+    value: string | number,
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -261,7 +261,9 @@ export default function DoctorProfile() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-sm">First Name</Label>
+                  <Label htmlFor="firstName" className="text-sm">
+                    First Name
+                  </Label>
                   {isEditing ? (
                     <div>
                       <Input
@@ -281,12 +283,16 @@ export default function DoctorProfile() {
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm sm:text-base py-2 break-words">{doctorData.first_name}</p>
+                    <p className="text-sm sm:text-base py-2 break-words">
+                      {doctorData.first_name}
+                    </p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-sm">Last Name</Label>
+                  <Label htmlFor="lastName" className="text-sm">
+                    Last Name
+                  </Label>
                   {isEditing ? (
                     <div>
                       <Input
@@ -304,7 +310,9 @@ export default function DoctorProfile() {
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm sm:text-base py-2 break-words">{doctorData.last_name}</p>
+                    <p className="text-sm sm:text-base py-2 break-words">
+                      {doctorData.last_name}
+                    </p>
                   )}
                 </div>
               </div>
@@ -318,7 +326,9 @@ export default function DoctorProfile() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="specialization" className="text-sm">Specialization</Label>
+                  <Label htmlFor="specialization" className="text-sm">
+                    Specialization
+                  </Label>
                   {isEditing ? (
                     <div>
                       <Input
@@ -345,7 +355,9 @@ export default function DoctorProfile() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="experienceYears" className="text-sm">Experience (Years)</Label>
+                  <Label htmlFor="experienceYears" className="text-sm">
+                    Experience (Years)
+                  </Label>
                   {isEditing ? (
                     <div>
                       <Input
@@ -356,7 +368,7 @@ export default function DoctorProfile() {
                         onChange={(e) =>
                           handleInputChange(
                             "experienceYears",
-                            Number.parseInt(e.target.value) || 0
+                            Number.parseInt(e.target.value) || 0,
                           )
                         }
                         className={
@@ -386,7 +398,9 @@ export default function DoctorProfile() {
               </h3>
               <div className="grid gap-3 sm:gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="place" className="text-sm">Place/Clinic</Label>
+                  <Label htmlFor="place" className="text-sm">
+                    Place/Clinic
+                  </Label>
                   {isEditing ? (
                     <div>
                       <Input
@@ -413,7 +427,9 @@ export default function DoctorProfile() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="phoneNo" className="text-sm">Phone Number</Label>
+                    <Label htmlFor="phoneNo" className="text-sm">
+                      Phone Number
+                    </Label>
                     {isEditing ? (
                       <div>
                         <Input
@@ -440,7 +456,9 @@ export default function DoctorProfile() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm">Email</Label>
+                    <Label htmlFor="email" className="text-sm">
+                      Email
+                    </Label>
                     {isEditing ? (
                       <div>
                         <Input

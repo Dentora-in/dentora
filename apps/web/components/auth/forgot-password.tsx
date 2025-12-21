@@ -44,7 +44,7 @@ export function ForgotPassword() {
             console.error(ctx.error?.message);
             setError(ctx.error?.message || "Failed to request password reset");
           },
-        }
+        },
       );
     } catch (err: any) {
       console.error(err);

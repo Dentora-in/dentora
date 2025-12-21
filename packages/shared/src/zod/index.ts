@@ -8,7 +8,10 @@ const passwordSchema = z
   .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
   .regex(/[a-z]/, "Password must contain at least one lowercase letter")
   .regex(/[0-9]/, "Password must contain at least one number")
-  .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character");
+  .regex(
+    /[^A-Za-z0-9]/,
+    "Password must contain at least one special character",
+  );
 
 export const signupSchema = z.object({
   name: z.string().min(5, "Name must be at least 5 characters"),
@@ -46,3 +49,14 @@ export const appointmentSchema = z.object({
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
 });
+
+export const addDoctorAvailabilitySchema = z
+  .object({
+    day: z.number().int().min(1).max(7),
+    startTime: z.coerce.date(),
+    endTime: z.coerce.date(),
+  })
+  .refine((data) => data.endTime > data.startTime, {
+    message: "endTime must be after startTime",
+    path: ["endTime"],
+  });

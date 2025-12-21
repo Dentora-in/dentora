@@ -15,7 +15,7 @@ function buildDate(day: number, hour = 9, minute = 0): Date {
 }
 
 function safeDay(seed: number, offset = 0): number {
-  return ((seed % 28) + offset) % 28 + 1;
+  return (((seed % 28) + offset) % 28) + 1;
 }
 
 // Default hashed password for all users and accounts - Doctor@1234
@@ -55,12 +55,29 @@ async function main() {
     const doctorEmail = `doctor${seed}@example.com`;
 
     const [adminUser, patientUser, doctorUser] = await Promise.all([
-      createUser({ name: `Admin User ${seed}`, email: adminEmail, role: "ADMIN", password: DEFAULT_PASSWORD }),
-      createUser({ name: `John Patient ${seed}`, email: patientEmail, role: "PATIENT", password: DEFAULT_PASSWORD }),
-      createUser({ name: `Dr. Alice ${seed}`, email: doctorEmail, role: "DOCTOR", password: DEFAULT_PASSWORD }),
+      createUser({
+        name: `Admin User ${seed}`,
+        email: adminEmail,
+        role: "ADMIN",
+        password: DEFAULT_PASSWORD,
+      }),
+      createUser({
+        name: `John Patient ${seed}`,
+        email: patientEmail,
+        role: "PATIENT",
+        password: DEFAULT_PASSWORD,
+      }),
+      createUser({
+        name: `Dr. Alice ${seed}`,
+        email: doctorEmail,
+        role: "DOCTOR",
+        password: DEFAULT_PASSWORD,
+      }),
     ]);
 
-    console.log(`✅ Users created: ${adminUser.email}, ${patientUser.email}, ${doctorUser.email}`);
+    console.log(
+      `✅ Users created: ${adminUser.email}, ${patientUser.email}, ${doctorUser.email}`,
+    );
 
     // ---------- SESSIONS ----------
     const session1 = await prisma.session.create({
@@ -87,20 +104,58 @@ async function main() {
 
     // ---------- CREDENTIAL ACCOUNTS ----------
     const credentialAccounts = await Promise.all([
-      prisma.account.create({ data: { id: randomUUID(), userId: adminUser.id, accountId: adminEmail, providerId: "credentials", password: DEFAULT_PASSWORD } }),
-      prisma.account.create({ data: { id: randomUUID(), userId: patientUser.id, accountId: patientEmail, providerId: "credentials", password: DEFAULT_PASSWORD } }),
-      prisma.account.create({ data: { id: randomUUID(), userId: doctorUser.id, accountId: doctorEmail, providerId: "credentials", password: DEFAULT_PASSWORD } }),
+      prisma.account.create({
+        data: {
+          id: randomUUID(),
+          userId: adminUser.id,
+          accountId: adminEmail,
+          providerId: "credentials",
+          password: DEFAULT_PASSWORD,
+        },
+      }),
+      prisma.account.create({
+        data: {
+          id: randomUUID(),
+          userId: patientUser.id,
+          accountId: patientEmail,
+          providerId: "credentials",
+          password: DEFAULT_PASSWORD,
+        },
+      }),
+      prisma.account.create({
+        data: {
+          id: randomUUID(),
+          userId: doctorUser.id,
+          accountId: doctorEmail,
+          providerId: "credentials",
+          password: DEFAULT_PASSWORD,
+        },
+      }),
     ]);
-    console.log(`✅ Credential accounts created: ${credentialAccounts.map(a => a.id).join(", ")}`);
+    console.log(
+      `✅ Credential accounts created: ${credentialAccounts.map((a) => a.id).join(", ")}`,
+    );
 
     // ---------- VERIFICATIONS ----------
     const verification1 = await prisma.verification.create({
-      data: { id: randomUUID(), identifier: patientEmail, value: randomUUID(), expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) },
+      data: {
+        id: randomUUID(),
+        identifier: patientEmail,
+        value: randomUUID(),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      },
     });
     const verification2 = await prisma.verification.create({
-      data: { id: randomUUID(), identifier: doctorEmail, value: randomUUID(), expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000) },
+      data: {
+        id: randomUUID(),
+        identifier: doctorEmail,
+        value: randomUUID(),
+        expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000),
+      },
     });
-    console.log(`✅ Verifications created: ${verification1.id}, ${verification2.id}`);
+    console.log(
+      `✅ Verifications created: ${verification1.id}, ${verification2.id}`,
+    );
 
     // ---------- DOCTOR PROFILE ----------
     const doctorProfile = await prisma.doctor.create({
@@ -120,14 +175,31 @@ async function main() {
     // ---------- DOCTOR AVAILABILITY ----------
     const baseDay = safeDay(seed, 1);
     const availabilityData = [
-      { dayOfWeek: 1, start: buildDate(baseDay, 9), end: buildDate(baseDay, 12) },
-      { dayOfWeek: 3, start: buildDate(baseDay + 1, 14), end: buildDate(baseDay + 1, 18) },
-      { dayOfWeek: 5, start: buildDate(baseDay + 2, 10), end: buildDate(baseDay + 2, 13) },
+      {
+        dayOfWeek: 1,
+        start: buildDate(baseDay, 9),
+        end: buildDate(baseDay, 12),
+      },
+      {
+        dayOfWeek: 3,
+        start: buildDate(baseDay + 1, 14),
+        end: buildDate(baseDay + 1, 18),
+      },
+      {
+        dayOfWeek: 5,
+        start: buildDate(baseDay + 2, 10),
+        end: buildDate(baseDay + 2, 13),
+      },
     ];
     const createdAvailabilities = [];
     for (const a of availabilityData) {
       const created = await prisma.doctorAvailability.create({
-        data: { doctorId: doctorProfile.id, dayOfWeek: a.dayOfWeek, startTime: a.start, endTime: a.end },
+        data: {
+          doctorId: doctorProfile.id,
+          dayOfWeek: a.dayOfWeek,
+          startTime: a.start,
+          endTime: a.end,
+        },
       });
       createdAvailabilities.push(created);
     }
@@ -145,7 +217,12 @@ async function main() {
         const startTime = buildDate(day, startHour, startMinute);
         const endTime = new Date(startTime.getTime() + 30 * 60 * 1000);
         const slot = await prisma.doctorSlot.create({
-          data: { doctorId: doctorProfile.id, date: buildDate(day, 0, 0), startTime, endTime },
+          data: {
+            doctorId: doctorProfile.id,
+            date: buildDate(day, 0, 0),
+            startTime,
+            endTime,
+          },
         });
         createdSlots.push(slot.id);
       }
@@ -157,8 +234,11 @@ async function main() {
 
     if (createdSlots.length > 0) {
       const slotId = createdSlots[0];
-      const slotObj = await prisma.doctorSlot.findUnique({ where: { id: slotId } });
-      const appointmentDate = slotObj?.startTime ?? buildDate(safeDay(seed, 10), 9);
+      const slotObj = await prisma.doctorSlot.findUnique({
+        where: { id: slotId },
+      });
+      const appointmentDate =
+        slotObj?.startTime ?? buildDate(safeDay(seed, 10), 9);
 
       await prisma.appointment.create({
         data: {
@@ -176,14 +256,20 @@ async function main() {
           userId: patientUser.id,
         },
       });
-      await prisma.doctorSlot.update({ where: { id: slotId }, data: { isBooked: true } });
+      await prisma.doctorSlot.update({
+        where: { id: slotId },
+        data: { isBooked: true },
+      });
       appointmentCount++;
     }
 
     if (createdSlots.length > 1) {
       const slotId = createdSlots[1];
-      const slotObj = await prisma.doctorSlot.findUnique({ where: { id: slotId } });
-      const appointmentDate = slotObj?.startTime ?? buildDate(safeDay(seed, 11), 10);
+      const slotObj = await prisma.doctorSlot.findUnique({
+        where: { id: slotId },
+      });
+      const appointmentDate =
+        slotObj?.startTime ?? buildDate(safeDay(seed, 11), 10);
 
       await prisma.appointment.create({
         data: {
@@ -203,7 +289,10 @@ async function main() {
           userId: patientUser.id,
         },
       });
-      await prisma.doctorSlot.update({ where: { id: slotId }, data: { isBooked: true } });
+      await prisma.doctorSlot.update({
+        where: { id: slotId },
+        data: { isBooked: true },
+      });
       appointmentCount++;
     }
 

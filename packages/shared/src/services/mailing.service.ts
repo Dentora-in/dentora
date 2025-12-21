@@ -54,7 +54,11 @@ export const emailService = async ({
   meetingLink,
   startTime,
   endTime,
-}: AppointmentEmailPayload): Promise<{ success: boolean; message: string; error?: string }> => {
+}: AppointmentEmailPayload): Promise<{
+  success: boolean;
+  message: string;
+  error?: string;
+}> => {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -125,7 +129,10 @@ export const emailService = async ({
     };
 
     if (isDevelopmentMode) {
-      console.log("📧 [DEV MODE] Email payload:", JSON.stringify(message, null, 2));
+      console.log(
+        "📧 [DEV MODE] Email payload:",
+        JSON.stringify(message, null, 2),
+      );
 
       return {
         success: true,

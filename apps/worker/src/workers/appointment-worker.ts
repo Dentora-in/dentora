@@ -5,7 +5,8 @@ import { emailService } from "@dentora/shared/mailing";
 import { prisma } from "@dentora/database";
 import { redisConnection } from "@dentora/shared/queue";
 
-export const appointmentWorker = new Worker("appointment-queue",
+export const appointmentWorker = new Worker(
+  "appointment-queue",
   async (job) => {
     const { appointmentId, email, patientName, slotStart, slotEnd } = job.data;
 
@@ -32,5 +33,5 @@ export const appointmentWorker = new Worker("appointment-queue",
   },
   {
     connection: redisConnection,
-  }
+  },
 );

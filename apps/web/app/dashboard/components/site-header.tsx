@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import { usePathname } from "next/navigation"
-import { Separator } from "@workspace/ui/components/separator"
-import { SidebarTrigger } from "@workspace/ui/components/sidebar"
+import { usePathname } from "next/navigation";
+import { Separator } from "@workspace/ui/components/separator";
+import { SidebarTrigger } from "@workspace/ui/components/sidebar";
 
 const routeTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/dashboard/appointments": "Appointments",
   "/dashboard/my-space": "My Space",
   "/dashboard/my-account": "My Profile",
-}
+};
 
 export function SiteHeader() {
-  const pathname = usePathname()
-  const title = routeTitles[pathname] || "Dashboard"
+  const pathname = usePathname();
+  const title = routeTitles[pathname] || "Dashboard";
 
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
@@ -26,5 +26,5 @@ export function SiteHeader() {
         <h1 className="text-base font-medium">{title}</h1>
       </div>
     </header>
-  )
+  );
 }

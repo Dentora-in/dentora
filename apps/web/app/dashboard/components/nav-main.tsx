@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { IconDashboard } from "@tabler/icons-react"
+import { IconDashboard } from "@tabler/icons-react";
 
 import {
   SidebarGroup,
@@ -8,7 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@workspace/ui/components/sidebar"
+} from "@workspace/ui/components/sidebar";
 
 export function NavMain() {
   return (
@@ -27,5 +27,5 @@ export function NavMain() {
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
+  );
 }

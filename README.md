@@ -8,23 +8,25 @@
 
 Built with the modern web in mind:
 
--   **Framework:** [Next.js](https://nextjs.org) (App Router)
--   **Language:** TypeScript
--   **Styling:** Tailwind CSS & Shadcn UI
--   **Font:** Space Grotesk / Geist Mono
--   **State/Auth:** Custom Providers & Auth Watcher
+- **Framework:** [Next.js](https://nextjs.org) (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS & Shadcn UI
+- **Font:** Space Grotesk / Geist Mono
+- **State/Auth:** Custom Providers & Auth Watcher
 
 ## 🛠️ Getting Started
 
 Follow these steps to run the project locally:
 
 1.  **Clone the repository**
+
     ```bash
     git clone [https://github.com/Dentora-in/dentora.git](https://github.com/Dentora-in/dentora.git)
     cd dentora
     ```
 
 2.  **Install dependencies**
+
     ```bash
     pnpm install
     ```
@@ -33,6 +35,7 @@ Follow these steps to run the project locally:
     Create a `.env` file in the root directory (copy from `.env.example` if available) and configure your database/auth keys.
 
 4.  **Run the development server**
+
     ```bash
     pnpm run dev
     ```
@@ -41,9 +44,9 @@ Follow these steps to run the project locally:
 
 ## 🎯 Project Goals
 
--   **Seamless Booking:** Easy appointment scheduling for patients.
--   **Admin Dashboard:** Manage doctors, slots, and patient history.
--   **Notifications:** Automated reminders via Email/SMS.
+- **Seamless Booking:** Easy appointment scheduling for patients.
+- **Admin Dashboard:** Manage doctors, slots, and patient history.
+- **Notifications:** Automated reminders via Email/SMS.
 
 ## 🤝 Contributing
 

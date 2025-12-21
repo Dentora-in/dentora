@@ -6,8 +6,7 @@ export function HeroSection() {
       <div className="mx-auto max-w-4xl text-center">
         <div className="mb-6 inline-block rounded-full bg-primary/10 px-4 py-2">
           <p className="text-sm font-light text-primary">
-            {/* Introducing Dentora Pro */}
-            ✨ Simplifying Dental Care.
+            {/* Introducing Dentora Pro */}✨ Simplifying Dental Care.
           </p>
         </div>
 

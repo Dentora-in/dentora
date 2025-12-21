@@ -19,10 +19,11 @@ export const resetPassword = async (email: string) => {
 
 export const getAllSlotes = async (date: string) => {
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v0/slotes`,
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/v0/slotes`,
       {
-        params: { date }
-      }
+        params: { date },
+      },
     );
 
     return response.data;
@@ -36,7 +37,7 @@ export const newAppointment = async (data: AppointmentFormData) => {
   try {
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/v0/appointment`,
-      data
+      data,
     );
     return response.data;
   } catch (err: any) {
@@ -44,7 +45,11 @@ export const newAppointment = async (data: AppointmentFormData) => {
   }
 };
 
-export const getAllAppointments = async ({ page, limit, status, }: {
+export const getAllAppointments = async ({
+  page,
+  limit,
+  status,
+}: {
   page: number;
   limit: number;
   status?: string;
@@ -59,7 +64,7 @@ export const getAllAppointments = async ({ page, limit, status, }: {
           status,
         },
         withCredentials: true,
-      }
+      },
     );
 
     return response.data;

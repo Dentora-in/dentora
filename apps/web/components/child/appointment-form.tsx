@@ -108,7 +108,7 @@ export function Appointment({ setIsSuccess }: any) {
 
     toast.error(
       result?.response?.data?.message ||
-        "Could not book your appointment. Please try again."
+        "Could not book your appointment. Please try again.",
     );
 
     setLoading(false);
