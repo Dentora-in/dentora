@@ -49,3 +49,14 @@ export const appointmentSchema = z.object({
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
 });
+
+export const addDoctorAvailabilitySchema = z
+  .object({
+    day: z.number().int().min(1).max(7),
+    startTime: z.coerce.date(),
+    endTime: z.coerce.date(),
+  })
+  .refine((data) => data.endTime > data.startTime, {
+    message: "endTime must be after startTime",
+    path: ["endTime"],
+  });

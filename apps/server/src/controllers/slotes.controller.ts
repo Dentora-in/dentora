@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "@dentora/database";
 import { COUNTRY_CODES } from "@dentora/shared/country-codes";
+import { addDoctorAvailabilitySchema, ZodError } from "@dentora/shared/zod";
 
 export const getAllSlotes = async (req: Request, res: Response) => {
   try {
@@ -9,7 +10,6 @@ export const getAllSlotes = async (req: Request, res: Response) => {
     const specialization = req.query.specialization as string | undefined;
     const place = req.query.place as string | undefined;
 
-    // Edge Case 1: Missing or invalid date parameter
     if (!date) {
       return res.status(400).json({
         success: false,
@@ -17,7 +17,6 @@ export const getAllSlotes = async (req: Request, res: Response) => {
       });
     }
 
-    // Edge Case 2: Validate date format
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(date)) {
       return res.status(400).json({
@@ -26,11 +25,9 @@ export const getAllSlotes = async (req: Request, res: Response) => {
       });
     }
 
-    // Edge Case 3: Handle timezone issues - use UTC for consistency
     const startOfDay = new Date(date + "T00:00:00.000Z");
     const endOfDay = new Date(date + "T23:59:59.999Z");
 
-    // Edge Case 4: Prevent querying past dates (optional - remove if you want to show past slots)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (startOfDay < today) {
@@ -40,7 +37,6 @@ export const getAllSlotes = async (req: Request, res: Response) => {
       });
     }
 
-    // Edge Case 5: Validate date is not invalid
     if (isNaN(startOfDay.getTime()) || isNaN(endOfDay.getTime())) {
       return res.status(400).json({
         success: false,
@@ -48,7 +44,6 @@ export const getAllSlotes = async (req: Request, res: Response) => {
       });
     }
 
-    // Build where clause with filters
     const whereClause: any = {
       isBooked: false,
       startTime: {
@@ -57,12 +52,10 @@ export const getAllSlotes = async (req: Request, res: Response) => {
       },
     };
 
-    // Edge Case 6: Filter by doctorId if provided
     if (doctorId) {
       whereClause.doctorId = doctorId;
     }
 
-    // Edge Case 7: Filter by specialization or place (requires nested filter)
     if (specialization || place) {
       whereClause.doctor = {};
       if (specialization) {
@@ -73,7 +66,6 @@ export const getAllSlotes = async (req: Request, res: Response) => {
       }
     }
 
-    // Edge Case 8: Include doctor information to handle multiple doctors with same slot time
     const availableSlots = await prisma.doctorSlot.findMany({
       where: whereClause,
       include: {
@@ -90,14 +82,9 @@ export const getAllSlotes = async (req: Request, res: Response) => {
           },
         },
       },
-      orderBy: [
-        { startTime: "asc" },
-        { doctorId: "asc" }, // Secondary sort to ensure consistent ordering
-      ],
+      orderBy: [{ startTime: "asc" }, { doctorId: "asc" }],
     });
 
-    // Edge Case 9: Group slots by time for easier frontend handling (optional)
-    // This helps when multiple doctors have the same slot time
     const slotsByTime = availableSlots.reduce((acc: any, slot: any) => {
       const timeKey = slot.startTime.toISOString();
       if (!acc[timeKey]) {
@@ -110,7 +97,7 @@ export const getAllSlotes = async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       slotes: availableSlots,
-      slotsByTime: slotsByTime, // Grouped by time for convenience
+      slotsByTime: slotsByTime,
       filters: {
         date,
         doctorId: doctorId || null,
@@ -124,6 +111,126 @@ export const getAllSlotes = async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       message: e.message || "Failed to get all slots",
+    });
+  }
+};
+
+export const addDoctorAvailability = async (req: Request, res: Response) => {
+  try {
+    const validationResult = addDoctorAvailabilitySchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request body",
+        errors: validationResult.error.flatten(),
+      });
+    }
+
+    const parsedData = validationResult.data;
+
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    const doctorId = req.user.id;
+
+    if (!doctorId) {
+      return res.status(403).json({
+        success: false,
+        message: "Doctor access required",
+      });
+    }
+
+    const overlap = await prisma.doctorAvailability.findFirst({
+      where: {
+        doctorId,
+        dayOfWeek: parsedData.day,
+        OR: [
+          {
+            startTime: { lt: parsedData.endTime },
+            endTime: { gt: parsedData.startTime },
+          },
+        ],
+      },
+    });
+
+    if (overlap) {
+      return res.status(409).json({
+        success: false,
+        message: "Availability overlaps with an existing slot",
+      });
+    }
+
+    const weeklyAvailability = await prisma.doctorAvailability.create({
+      data: {
+        doctorId,
+        dayOfWeek: parsedData.day,
+        startTime: parsedData.startTime,
+        endTime: parsedData.endTime,
+      },
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Doctor availability added successfully",
+      data: {
+        id: weeklyAvailability.id,
+        dayOfWeek: weeklyAvailability.dayOfWeek,
+        startTime: weeklyAvailability.startTime,
+        endTime: weeklyAvailability.endTime,
+      },
+    });
+  } catch (error) {
+    console.error("Add doctor availability error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong while adding doctor availability",
+    });
+  }
+};
+
+export const deleteDoctorAvailability = async (req: Request, res: Response) => {
+  try {
+    const { availabilityId } = req.params;
+
+    if (!availabilityId) {
+      return res.status(400).json({
+        success: false,
+        message: "Availability ID is required",
+      });
+    }
+
+    const doctorId = req.user!.id;
+
+    const deleted = await prisma.doctorAvailability.deleteMany({
+      where: {
+        id: availabilityId,
+        doctorId: doctorId,
+      },
+    });
+
+    if (deleted.count === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Availability not found or not authorized",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Doctor availability deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete doctor availability error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong while deleting doctor availability",
     });
   }
 };
