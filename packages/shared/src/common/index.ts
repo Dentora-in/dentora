@@ -75,3 +75,24 @@ export const generateTimeSlots = (
 
   return slots;
 };
+
+export const timeToTodayDateTime = (time: string): Date => {
+  const [hours, minutes] = time.split(":").map(Number);
+
+  if (
+    Number.isNaN(hours) ||
+    Number.isNaN(minutes) ||
+    hours < 0 ||
+    hours > 23 ||
+    minutes < 0 ||
+    minutes > 59
+  ) {
+    throw new Error("Invalid time format. Expected HH:mm");
+  }
+
+  const now = new Date();
+
+  now.setHours(hours, minutes, 0, 0);
+
+  return now;
+};

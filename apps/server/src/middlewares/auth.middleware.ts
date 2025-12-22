@@ -28,7 +28,11 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
     });
 
     if (!session) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return res
+        .status(401)
+        .json({
+          error: `${"Unauthorized"} ${process.env.NODE_ENV === "dev" && "- auth middleware"}`,
+        });
     }
 
     req.user = session.user;

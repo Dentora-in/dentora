@@ -29,9 +29,13 @@ import {
   Zap,
 } from "lucide-react";
 import { toast } from "@workspace/ui/components/sonner";
+import {
+  addDoctorAvailability,
+  AvailabilityInterface,
+} from "@/api/api.my-space";
 
 // Types
-type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 interface DoctorAvailability {
   id: string;
@@ -77,6 +81,7 @@ const DAYS_OF_WEEK = [
   "Friday",
   "Saturday",
 ];
+const DAYS_AVAILABLE = [1, 2, 3, 4, 5, 6, 7];
 const SLOT_DURATIONS = [15, 30, 45, 60];
 
 export default function DoctorAvailabilityManager() {
@@ -86,11 +91,13 @@ export default function DoctorAvailabilityManager() {
   const [availabilities, setAvailabilities] = useState<DoctorAvailability[]>(
     [],
   );
-  const [newAvailability, setNewAvailability] = useState<NewAvailability>({
-    dayOfWeek: null,
-    startTime: "",
-    endTime: "",
-  });
+  const [newAvailability, setNewAvailability] = useState<AvailabilityInterface>(
+    {
+      day: 1,
+      startTime: "",
+      endTime: "",
+    },
+  );
 
   // Slots state
   const [slots, setSlots] = useState<DoctorSlot[]>([]);
@@ -150,10 +157,8 @@ export default function DoctorAvailabilityManager() {
 
   // Availability handlers
   const addAvailability = async () => {
-    if (!newAvailability.dayOfWeek && newAvailability.dayOfWeek !== 0) {
-      toast.warning("Validation Error", {
-        description: "Please select a day of week",
-      });
+    if (!newAvailability) {
+      toast.warning("Please fill all fields");
       return;
     }
 
@@ -168,33 +173,22 @@ export default function DoctorAvailabilityManager() {
       toast.warning("Validation Error", {
         description: "End time must be after start time",
       });
-      return;
     }
 
     try {
-      // TODO: Replace with actual API call
-      // const res = await fetch("/api/doctor/availability", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(newAvailability),
-      // });
-
-      const newData: DoctorAvailability = {
-        id: Date.now().toString(),
-        doctorId: "doctor-1",
-        dayOfWeek: newAvailability.dayOfWeek!,
+      const newData: AvailabilityInterface = {
+        day: newAvailability.day!,
         startTime: newAvailability.startTime,
         endTime: newAvailability.endTime,
       };
 
-      const updatedAvailabilities = [...availabilities, newData];
-      setAvailabilities(updatedAvailabilities);
-      localStorage.setItem(
-        "availabilities",
-        JSON.stringify(updatedAvailabilities),
-      );
+      console.log(">>>>>>>>>>>>>.newData", newData);
 
-      setNewAvailability({ dayOfWeek: null, startTime: "", endTime: "" });
+      const response = await addDoctorAvailability(newData);
+
+      console.log("<>>>>>>>>>>>>>>>>response", response);
+
+      // setNewAvailability({ day: 0, startTime: "", endTime: "" });
       toast.success("Success", {
         description: "Availability added successfully",
       });
@@ -399,22 +393,22 @@ export default function DoctorAvailabilityManager() {
               <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label htmlFor="dayOfWeek" className="text-sm">
-                    Day of Week
+                    Total days
                   </Label>
                   <Select
-                    value={newAvailability.dayOfWeek?.toString() ?? ""}
-                    onValueChange={(value) =>
+                    value={String(newAvailability?.day)}
+                    onValueChange={(value) => {
                       setNewAvailability({
                         ...newAvailability,
-                        dayOfWeek: Number.parseInt(value) as DayOfWeek,
-                      })
-                    }
+                        day: Number.parseInt(value),
+                      });
+                    }}
                   >
                     <SelectTrigger id="dayOfWeek" className="h-10">
                       <SelectValue placeholder="Select day" />
                     </SelectTrigger>
                     <SelectContent>
-                      {DAYS_OF_WEEK.map((day, index) => (
+                      {DAYS_AVAILABLE.map((day, index) => (
                         <SelectItem key={index} value={index.toString()}>
                           {day}
                         </SelectItem>
@@ -431,13 +425,14 @@ export default function DoctorAvailabilityManager() {
                     id="startTime"
                     type="time"
                     className="h-10"
-                    value={newAvailability.startTime}
-                    onChange={(e) =>
+                    value={newAvailability?.startTime}
+                    onChange={(e) => {
+                      console.log(e);
                       setNewAvailability({
                         ...newAvailability,
                         startTime: e.target.value,
-                      })
-                    }
+                      });
+                    }}
                   />
                 </div>
 
@@ -449,13 +444,13 @@ export default function DoctorAvailabilityManager() {
                     id="endTime"
                     type="time"
                     className="h-10"
-                    value={newAvailability.endTime}
-                    onChange={(e) =>
+                    value={newAvailability?.endTime}
+                    onChange={(e) => {
                       setNewAvailability({
                         ...newAvailability,
                         endTime: e.target.value,
-                      })
-                    }
+                      });
+                    }}
                   />
                 </div>
               </div>

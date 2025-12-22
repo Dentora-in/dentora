@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import { prisma } from "@dentora/database";
 import { COUNTRY_CODES } from "@dentora/shared/country-codes";
 import { addDoctorAvailabilitySchema, ZodError } from "@dentora/shared/zod";
-import { generateTimeSlots, getWeekStartAndEnd } from "@dentora/shared/globals";
+import {
+  generateTimeSlots,
+  getWeekStartAndEnd,
+  timeToTodayDateTime,
+} from "@dentora/shared/globals";
 
 // TODO: here only this week data should be visible
 
@@ -217,7 +221,10 @@ export const addDoctorAvailability = async (req: Request, res: Response) => {
       });
     }
 
-    const parsedData = validationResult.data;
+    const { day, startTime, endTime } = validationResult.data;
+
+    const startDateTime = timeToTodayDateTime(startTime);
+    const endDateTime = timeToTodayDateTime(endTime);
 
     if (!req.user) {
       return res.status(401).json({
@@ -238,13 +245,7 @@ export const addDoctorAvailability = async (req: Request, res: Response) => {
     const overlap = await prisma.doctorAvailability.findFirst({
       where: {
         doctorId,
-        dayOfWeek: parsedData.day,
-        OR: [
-          {
-            startTime: { lt: parsedData.endTime },
-            endTime: { gt: parsedData.startTime },
-          },
-        ],
+        dayOfWeek: day,
       },
     });
 
@@ -258,9 +259,9 @@ export const addDoctorAvailability = async (req: Request, res: Response) => {
     const weeklyAvailability = await prisma.doctorAvailability.create({
       data: {
         doctorId,
-        dayOfWeek: parsedData.day,
-        startTime: parsedData.startTime,
-        endTime: parsedData.endTime,
+        dayOfWeek: day,
+        startTime: startDateTime,
+        endTime: endDateTime,
       },
     });
 
