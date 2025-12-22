@@ -84,6 +84,9 @@ const DAYS_OF_WEEK = [
 const DAYS_AVAILABLE = [1, 2, 3, 4, 5, 6, 7];
 const SLOT_DURATIONS = [15, 30, 45, 60];
 
+export const isoToTime = (iso: string) =>
+  new Date(iso).toISOString().slice(11, 16);
+
 export default function DoctorAvailabilityManager() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -93,7 +96,7 @@ export default function DoctorAvailabilityManager() {
   );
   const [newAvailability, setNewAvailability] = useState<AvailabilityInterface>(
     {
-      day: 1,
+      dayOfWeek: "Sunday",
       startTime: "",
       endTime: "",
     },
@@ -128,14 +131,6 @@ export default function DoctorAvailabilityManager() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // TODO: Replace with actual API calls
-      // const availabilityRes = await fetch("/api/doctor/availability");
-      // const slotsRes = await fetch("/api/doctor/slots");
-
-      // Simulated delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Load from localStorage or use empty arrays
       const savedAvailabilities = localStorage.getItem("availabilities");
       const savedSlots = localStorage.getItem("slots");
 
@@ -157,42 +152,45 @@ export default function DoctorAvailabilityManager() {
 
   // Availability handlers
   const addAvailability = async () => {
-    if (!newAvailability) {
-      toast.warning("Please fill all fields");
-      return;
-    }
-
     if (!newAvailability.startTime || !newAvailability.endTime) {
-      toast.warning("Validation Error", {
-        description: "Please select start and end times",
-      });
+      toast.warning("Please select start and end times");
       return;
     }
 
     if (newAvailability.startTime >= newAvailability.endTime) {
-      toast.warning("Validation Error", {
-        description: "End time must be after start time",
-      });
+      toast.warning("End time must be after start time");
+      return;
     }
 
     try {
-      const newData: AvailabilityInterface = {
-        day: newAvailability.day!,
+      const payload: AvailabilityInterface = {
+        dayOfWeek: newAvailability.dayOfWeek!.toUpperCase(),
         startTime: newAvailability.startTime,
         endTime: newAvailability.endTime,
       };
 
-      console.log(">>>>>>>>>>>>>.newData", newData);
+      const response = await addDoctorAvailability(payload);
+      const data = response.data;
 
-      const response = await addDoctorAvailability(newData);
+      const availabilityToAdd: DoctorAvailability = {
+        id: data.id,
+        doctorId: data.doctorId,
+        dayOfWeek: data.dayOfWeek,
+        startTime: data.startTime,
+        endTime: data.endTime,
+      };
 
-      console.log("<>>>>>>>>>>>>>>>>response", response);
+      setAvailabilities((prev) => [...prev, availabilityToAdd]);
 
-      // setNewAvailability({ day: 0, startTime: "", endTime: "" });
-      toast.success("Success", {
-        description: "Availability added successfully",
+      setNewAvailability({
+        dayOfWeek: "",
+        startTime: "",
+        endTime: "",
       });
+
+      toast.success("Availability added successfully");
     } catch (error) {
+      console.log(error);
       toast.error("Failed to add availability");
     }
   };
@@ -396,21 +394,23 @@ export default function DoctorAvailabilityManager() {
                     Total days
                   </Label>
                   <Select
-                    value={String(newAvailability?.day)}
+                    value={newAvailability.dayOfWeek?.toString()}
                     onValueChange={(value) => {
+                      console.log(value);
                       setNewAvailability({
                         ...newAvailability,
-                        day: Number.parseInt(value),
+                        dayOfWeek: value,
                       });
                     }}
                   >
-                    <SelectTrigger id="dayOfWeek" className="h-10">
-                      <SelectValue placeholder="Select day" />
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="Select total days" />
                     </SelectTrigger>
+
                     <SelectContent>
-                      {DAYS_AVAILABLE.map((day, index) => (
-                        <SelectItem key={index} value={index.toString()}>
-                          {day}
+                      {DAYS_OF_WEEK.map((days) => (
+                        <SelectItem key={days} value={days.toString()}>
+                          {days}
                         </SelectItem>
                       ))}
                     </SelectContent>

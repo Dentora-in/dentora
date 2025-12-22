@@ -101,11 +101,13 @@ model DoctorAvailability {
   id        String   @id @default(cuid())
   doctorId  String
   doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  dayOfWeek Int
-  startTime DateTime
-  endTime   DateTime
+  dayOfWeek String
+  startTime String
+  endTime   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([doctorId, dayOfWeek])
 
   @@map("doctor_availability")
 }

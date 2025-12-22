@@ -2,7 +2,7 @@ import axios from "axios";
 
 // TODO: @anmole move this interface to shared folder. and import here
 export interface AvailabilityInterface {
-  day: number;
+  dayOfWeek: string;
   startTime: string;
   endTime: string;
 }

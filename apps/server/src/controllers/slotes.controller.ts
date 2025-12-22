@@ -151,12 +151,6 @@ export const mySpacePageData = async (req: Request, res: Response) => {
 
     const { startOfWeek, endOfWeek } = getWeekStartAndEnd(new Date());
 
-    const weekDays = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(startOfWeek);
-      d.setDate(startOfWeek.getDate() + i);
-      return d.getDay();
-    });
-
     const slotWhere: any = {
       doctorId,
       date: {
@@ -177,7 +171,6 @@ export const mySpacePageData = async (req: Request, res: Response) => {
       prisma.doctorAvailability.findMany({
         where: {
           doctorId,
-          dayOfWeek: { in: weekDays },
         },
         orderBy: { dayOfWeek: "asc" },
       }),
@@ -221,10 +214,7 @@ export const addDoctorAvailability = async (req: Request, res: Response) => {
       });
     }
 
-    const { day, startTime, endTime } = validationResult.data;
-
-    const startDateTime = timeToTodayDateTime(startTime);
-    const endDateTime = timeToTodayDateTime(endTime);
+    const { dayOfWeek, startTime, endTime } = validationResult.data;
 
     if (!req.user) {
       return res.status(401).json({
@@ -245,7 +235,7 @@ export const addDoctorAvailability = async (req: Request, res: Response) => {
     const overlap = await prisma.doctorAvailability.findFirst({
       where: {
         doctorId,
-        dayOfWeek: day,
+        dayOfWeek,
       },
     });
 
@@ -259,9 +249,9 @@ export const addDoctorAvailability = async (req: Request, res: Response) => {
     const weeklyAvailability = await prisma.doctorAvailability.create({
       data: {
         doctorId,
-        dayOfWeek: day,
-        startTime: startDateTime,
-        endTime: endDateTime,
+        dayOfWeek,
+        startTime,
+        endTime,
       },
     });
 

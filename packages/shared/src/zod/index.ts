@@ -2,6 +2,8 @@ import { z, ZodError, ZodSchema } from "zod";
 
 export { ZodError, ZodSchema, z };
 
+export const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
 const passwordSchema = z
   .string()
   .min(8, "Password must be at least 8 characters")
@@ -52,11 +54,19 @@ export const appointmentSchema = z.object({
 
 export const addDoctorAvailabilitySchema = z
   .object({
-    day: z.number().int().min(1).max(7),
-    startTime: z.string(),
-    endTime: z.string(),
+    dayOfWeek: z.enum([
+      "SUNDAY",
+      "MONDAY",
+      "TUESDAY",
+      "WEDNESDAY",
+      "THURSDAY",
+      "FRIDAY",
+      "SATURDAY",
+    ]),
+    startTime: z.string().regex(timeRegex, "Invalid time format HH:mm"),
+    endTime: z.string().regex(timeRegex, "Invalid time format HH:mm"),
   })
-  .refine((data) => data.endTime > data.startTime, {
+  .refine((data) => data.startTime < data.endTime, {
     message: "endTime must be after startTime",
     path: ["endTime"],
   });
