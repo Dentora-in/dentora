@@ -31,7 +31,7 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>DENTORA</SidebarHeader>
+      <SidebarHeader className="text-xl">DENTORA</SidebarHeader>
       <SidebarContent>
         <NavMain />
         <NavDocuments items={data.documents} />
