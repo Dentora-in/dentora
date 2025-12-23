@@ -84,8 +84,7 @@ const DAYS_OF_WEEK = [
 const DAYS_AVAILABLE = [1, 2, 3, 4, 5, 6, 7];
 const SLOT_DURATIONS = [15, 30, 45, 60];
 
-export const isoToTime = (iso: string) =>
-  new Date(iso).toISOString().slice(11, 16);
+const isoToTime = (iso: string) => new Date(iso).toISOString().slice(11, 16);
 
 export default function DoctorAvailabilityManager() {
   const [isLoading, setIsLoading] = useState(true);

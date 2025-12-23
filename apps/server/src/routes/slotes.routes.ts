@@ -5,7 +5,6 @@ import {
   deleteDoctorSlot,
   getAllSlotes,
   mySpacePageData,
-  slotCreation,
 } from "../controllers/slotes.controller";
 import { requireRole } from "@/middlewares/role.middleware";
 import { UserRole } from "@dentora/database";
@@ -38,12 +37,12 @@ router.delete(
 );
 
 // Slot Creation
-router.post(
-  "/slot-generate",
-  authMiddleware,
-  requireRole(UserRole.DOCTOR),
-  slotCreation,
-);
+// router.post(
+//   "/slot-generate",
+//   authMiddleware,
+//   requireRole(UserRole.DOCTOR),
+//   slotCreation,
+// );
 router.post(
   "/slot-delete/:slotId",
   authMiddleware,
