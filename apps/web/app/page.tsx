@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import Landingpage from "@/components/layouts/landing-page/page";
+import { PublicHeader } from "@/components/layouts/public-header";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Dentora – Modern Dental Management System",
   description:
     "Dentora is a smart dental management platform for clinics. Manage appointments, patients, billing and records with ease.",
@@ -35,8 +37,16 @@ export const metadata = {
       "Powerful software for dental clinics — appointments, records, billing & dashboard.",
     images: ["https://yourdomain.com/og-image.png"],
   },
+  alternates: {
+    canonical: "https://yourdomain.com",
+  },
 };
 
 export default function Page() {
-  return <Landingpage />;
+  return (
+    <>
+      <PublicHeader />
+      <Landingpage />
+    </>
+  );
 }

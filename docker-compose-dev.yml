@@ -7,7 +7,7 @@ services:
     ports:
       - "5433:5432"
     env_file:
-      - .env.docker
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -24,7 +24,7 @@ services:
     ports:
       - "6379:6379"
     env_file:
-      - .env.docker
+      - .env
     volumes:
       - redis_data:/data
     networks:
@@ -44,7 +44,7 @@ services:
     ports:
       - "3001:3001"
     env_file:
-      - .env.docker
+      - .env
     environment:
       NODE_ENV: dev
     depends_on:
@@ -65,7 +65,7 @@ services:
       - /app/node_modules
       - /app/apps/worker/node_modules
     env_file:
-      - .env.docker
+      - .env
     environment:
       NODE_ENV: dev
     depends_on:
@@ -89,7 +89,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - .env.docker
+      - .env
     environment:
       NODE_ENV: dev
     depends_on:

@@ -23,7 +23,7 @@ import {
   Phone,
   Mail,
 } from "lucide-react";
-import { toast } from "@workspace/ui/components/sonner";
+import { toastService } from "@/lib/toast";
 import {
   getProfileDetails,
   updateProfileDetails,
@@ -69,7 +69,7 @@ export default function DoctorProfile() {
         setDoctorData(profileData.profile_details);
       } catch (e) {
         console.error(e);
-        toast.error("Error getting the profile values");
+        toastService.error("Error getting the profile values");
       }
     };
 
@@ -135,7 +135,7 @@ export default function DoctorProfile() {
 
   const handleSave = async () => {
     if (!validateForm()) {
-      toast.error("Validation Error", {
+      toastService.error("Validation Error", {
         description: "Please fix the errors before saving.",
       });
       return;
@@ -146,7 +146,7 @@ export default function DoctorProfile() {
     const changes = getChangedFields(doctorData, formData);
 
     if (Object.keys(changes).length === 0) {
-      toast.info("No changes detected");
+      toastService.info("No changes detected");
       setIsEditing(false);
       setIsSaving(false);
       return;
@@ -160,11 +160,11 @@ export default function DoctorProfile() {
       setFormData(updatedProfile);
       setIsEditing(false);
 
-      toast.success("Success", {
+      toastService.success("Success", {
         description: "Profile updated successfully.",
       });
     } catch (error) {
-      toast.error("Error", {
+      toastService.error("Error", {
         description: "Failed to update profile. Please try again.",
       });
     } finally {

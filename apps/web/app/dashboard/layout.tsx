@@ -1,39 +1,22 @@
-"use client";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { auth } from "@dentora/auth/auth";
+import { DashboardLayoutClient } from "./dashboard-layout-client";
 
-import { AppSidebar } from "@/app/dashboard/components/app-sidebar";
-import { SiteHeader } from "@/app/dashboard/components/site-header";
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@workspace/ui/components/sidebar";
-
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "3.5rem",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar
-        variant="inset"
-        className="!top-14 !h-[calc(100svh-3.5rem)] z-40"
-      />
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-      <SidebarInset>
-        <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            {children}
-          </div>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+  if (!session) {
+    redirect("/login");
+  }
+
+  return (
+    <DashboardLayoutClient session={session}>{children}</DashboardLayoutClient>
   );
 }

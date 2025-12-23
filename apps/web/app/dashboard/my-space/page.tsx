@@ -28,7 +28,7 @@ import {
   CalendarDays,
   Zap,
 } from "lucide-react";
-import { toast } from "@workspace/ui/components/sonner";
+import { toastService } from "@/lib/toast";
 import {
   addDoctorAvailability,
   AvailabilityInterface,
@@ -141,7 +141,7 @@ export default function DoctorAvailabilityManager() {
         setSlots(JSON.parse(savedSlots));
       }
     } catch (error) {
-      toast.error("Error", {
+      toastService.error("Error", {
         description: "Failed to load data",
       });
     } finally {
@@ -152,12 +152,12 @@ export default function DoctorAvailabilityManager() {
   // Availability handlers
   const addAvailability = async () => {
     if (!newAvailability.startTime || !newAvailability.endTime) {
-      toast.warning("Please select start and end times");
+      toastService.warning("Please select start and end times");
       return;
     }
 
     if (newAvailability.startTime >= newAvailability.endTime) {
-      toast.warning("End time must be after start time");
+      toastService.warning("End time must be after start time");
       return;
     }
 
@@ -187,10 +187,10 @@ export default function DoctorAvailabilityManager() {
         endTime: "",
       });
 
-      toast.success("Availability added successfully");
+      toastService.success("Availability added successfully");
     } catch (error) {
       console.log(error);
-      toast.error("Failed to add availability");
+      toastService.error("Failed to add availability");
     }
   };
 
@@ -208,21 +208,21 @@ export default function DoctorAvailabilityManager() {
         JSON.stringify(updatedAvailabilities),
       );
 
-      toast.success("Availability deleted successfully");
+      toastService.success("Availability deleted successfully");
     } catch (error) {
-      toast.error("Failed to delete availability");
+      toastService.error("Failed to delete availability");
     }
   };
 
   // Slot handlers
   const addSlot = async () => {
     if (!newSlot.date || !newSlot.startTime || !newSlot.endTime) {
-      toast.warning("Please fill all slot details");
+      toastService.warning("Please fill all slot details");
       return;
     }
 
     if (newSlot.startTime >= newSlot.endTime) {
-      toast.warning("End time must be after start time");
+      toastService.warning("End time must be after start time");
       return;
     }
 
@@ -248,9 +248,9 @@ export default function DoctorAvailabilityManager() {
       localStorage.setItem("slots", JSON.stringify(updatedSlots));
 
       setNewSlot({ date: "", startTime: "", endTime: "" });
-      toast.success("Slot created successfully");
+      toastService.success("Slot created successfully");
     } catch (error) {
-      toast.error("Failed to create slot");
+      toastService.error("Failed to create slot");
     }
   };
 
@@ -265,20 +265,20 @@ export default function DoctorAvailabilityManager() {
       setSlots(updatedSlots);
       localStorage.setItem("slots", JSON.stringify(updatedSlots));
 
-      toast.success("Slot deleted successfully");
+      toastService.success("Slot deleted successfully");
     } catch (error) {
-      toast.error("Failed to delete slot");
+      toastService.error("Failed to delete slot");
     }
   };
 
   const generateSlots = async () => {
     if (!autoGenerate.startDate || !autoGenerate.endDate) {
-      toast.warning("Please select date range");
+      toastService.warning("Please select date range");
       return;
     }
 
     if (autoGenerate.startDate > autoGenerate.endDate) {
-      toast.warning("End date must be after start date");
+      toastService.warning("End date must be after start date");
       return;
     }
 
@@ -335,11 +335,13 @@ export default function DoctorAvailabilityManager() {
       setSlots(updatedSlots);
       localStorage.setItem("slots", JSON.stringify(updatedSlots));
 
-      toast.success(`Generated ${generatedSlots.length} slots successfully`);
+      toastService.success(
+        `Generated ${generatedSlots.length} slots successfully`,
+      );
       setShowAutoGenerate(false);
       setAutoGenerate({ startDate: "", endDate: "", slotDuration: 30 });
     } catch (error) {
-      toast.error("Failed to generate slots");
+      toastService.error("Failed to generate slots");
     }
   };
 

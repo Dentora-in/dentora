@@ -15,9 +15,9 @@ import { LogIn } from "@/interfaces/user.interface";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { forgetPassword, signIn } from "@dentora/auth/client";
-import { toast } from "@workspace/ui/components/sonner";
-import { resetPassword } from "@/api/api.appointment";
+import { signIn } from "@dentora/auth/client";
+import { toastService } from "@/lib/toast";
+import { handleAuthError } from "@/lib/error-handler";
 
 export function LoginForm({
   className,
@@ -45,13 +45,12 @@ export function LoginForm({
             setLoading(true);
           },
           onSuccess: () => {
-            toast.success("Successfully signed in!");
+            toastService.success("Successfully signed in!");
             setLoading(false);
-            router.push("/");
+            router.push("/dashboard");
           },
           onError: (ctx: any) => {
-            console.error(ctx.error.message);
-            toast.error(ctx.error.message);
+            handleAuthError(ctx.error, "login");
           },
         },
       );
@@ -77,11 +76,10 @@ export function LoginForm({
           },
           onSuccess: () => {
             setLoading(false);
-            router.push("/");
+            router.push("/dashboard");
           },
           onError: (ctx: any) => {
-            console.error(ctx.error.message);
-            toast.error(ctx.error.message);
+            handleAuthError(ctx.error, "login with Google");
           },
         },
       );
