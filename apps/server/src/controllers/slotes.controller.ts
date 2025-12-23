@@ -316,100 +316,100 @@ export const deleteDoctorAvailability = async (req: Request, res: Response) => {
   }
 };
 
-export const slotCreation = async (req: Request, res: Response) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: "Authentication required",
-      });
-    }
+// export const slotCreation = async (req: Request, res: Response) => {
+//   try {
+//     if (!req.user) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Authentication required",
+//       });
+//     }
 
-    const doctorId = req.user.id;
+//     const doctorId = req.user.id;
 
-    const { duration } = req.body as { duration: number };
+//     const { duration } = req.body as { duration: number };
 
-    if (!duration || ![15, 30, 45, 60].includes(duration)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid slot duration",
-      });
-    }
+//     if (!duration || ![15, 30, 45, 60].includes(duration)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid slot duration",
+//       });
+//     }
 
-    const { startOfWeek, endOfWeek } = getWeekStartAndEnd(new Date());
+//     const { startOfWeek, endOfWeek } = getWeekStartAndEnd(new Date());
 
-    const availabilities = await prisma.doctorAvailability.findMany({
-      where: { doctorId },
-    });
+//     const availabilities = await prisma.doctorAvailability.findMany({
+//       where: { doctorId },
+//     });
 
-    if (availabilities.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No availability found to generate slots",
-      });
-    }
+//     if (availabilities.length === 0) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "No availability found to generate slots",
+//       });
+//     }
 
-    await prisma.doctorSlot.deleteMany({
-      where: {
-        doctorId,
-        isBooked: false,
-        date: {
-          gte: startOfWeek,
-          lte: endOfWeek,
-        },
-      },
-    });
+//     await prisma.doctorSlot.deleteMany({
+//       where: {
+//         doctorId,
+//         isBooked: false,
+//         date: {
+//           gte: startOfWeek,
+//           lte: endOfWeek,
+//         },
+//       },
+//     });
 
-    const slotsToCreate = [];
+//     const slotsToCreate = [];
 
-    for (let i = 0; i < 7; i++) {
-      const currentDate = new Date(startOfWeek);
-      currentDate.setDate(startOfWeek.getDate() + i);
+//     for (let i = 0; i < 7; i++) {
+//       const currentDate = new Date(startOfWeek);
+//       currentDate.setDate(startOfWeek.getDate() + i);
 
-      const dayOfWeek = currentDate.getDay();
+//       const dayOfWeek = currentDate.getDay();
 
-      const todaysAvailability = availabilities.filter(
-        (a) => a.dayOfWeek === dayOfWeek,
-      );
+//       const todaysAvailability = availabilities.filter(
+//         (a) => a.dayOfWeek === dayOfWeek,
+//       );
 
-      for (const availability of todaysAvailability) {
-        const slots = generateTimeSlots(
-          currentDate,
-          availability.startTime,
-          availability.endTime,
-          duration,
-        );
+//       for (const availability of todaysAvailability) {
+//         const slots = generateTimeSlots(
+//           currentDate,
+//           availability.startTime,
+//           availability.endTime,
+//           duration,
+//         );
 
-        for (const slot of slots) {
-          slotsToCreate.push({
-            doctorId,
-            date: currentDate,
-            startTime: slot.startTime,
-            endTime: slot.endTime,
-          });
-        }
-      }
-    }
+//         for (const slot of slots) {
+//           slotsToCreate.push({
+//             doctorId,
+//             date: currentDate,
+//             startTime: slot.startTime,
+//             endTime: slot.endTime,
+//           });
+//         }
+//       }
+//     }
 
-    const slotes = await prisma.doctorSlot.createMany({
-      data: slotsToCreate,
-      skipDuplicates: true,
-    });
+//     const slotes = await prisma.doctorSlot.createMany({
+//       data: slotsToCreate,
+//       skipDuplicates: true,
+//     });
 
-    return res.status(201).json({
-      success: true,
-      message: "Slots generated successfully",
-      count: slotsToCreate.length,
-      slotes,
-    });
-  } catch (error) {
-    console.error("Slot generation error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to generate slots",
-    });
-  }
-};
+//     return res.status(201).json({
+//       success: true,
+//       message: "Slots generated successfully",
+//       count: slotsToCreate.length,
+//       slotes,
+//     });
+//   } catch (error) {
+//     console.error("Slot generation error:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Failed to generate slots",
+//     });
+//   }
+// };
 
 export const deleteDoctorSlot = async (req: Request, res: Response) => {
   try {
