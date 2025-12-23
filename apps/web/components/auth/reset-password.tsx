@@ -6,7 +6,8 @@ import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
-import { toast } from "@workspace/ui/components/sonner";
+import { toastService } from "@/lib/toast";
+import { handleAuthError } from "@/lib/error-handler";
 import { resetPassword } from "@dentora/auth/client";
 
 export function ResetPasswordForm() {
@@ -60,13 +61,13 @@ export function ResetPasswordForm() {
         throw new Error(error.message || "Failed to reset password");
       }
 
-      toast.success("Password reset successfully!");
+      toastService.success("Password reset successfully!");
       setSuccess(true);
       setFormData({ password: "", confirmPassword: "" });
       router.push(`/login`);
     } catch (err: any) {
-      console.error(err);
-      setError(err.message || "Something went wrong. Please try again.");
+      const errorMsg = handleAuthError(err, "reset password");
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

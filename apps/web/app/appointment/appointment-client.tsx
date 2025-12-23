@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
-import { toast } from "@workspace/ui/components/sonner";
+import { toastService } from "@/lib/toast";
 import { cn } from "@workspace/ui/lib/utils";
 import { ArrowBigLeftDash, CalendarIcon, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -24,7 +24,7 @@ export function AppointmentClient() {
 
     if (isSuccess) {
       if (!toastShown.current) {
-        toast.success("Appointment Booked Successfully", {
+        toastService.success("Appointment Booked Successfully", {
           description: "Redirecting to homepage in 5 seconds...",
           duration: 5000,
         });

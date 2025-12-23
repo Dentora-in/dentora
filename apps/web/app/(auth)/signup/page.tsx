@@ -5,7 +5,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SignUp } from "@/interfaces/user.interface";
 import { signIn, signUp, getSession } from "@dentora/auth/client";
-import { toast } from "@workspace/ui/components/sonner";
+import { toastService } from "@/lib/toast";
+import { handleAuthError } from "@/lib/error-handler";
 import Image from "next/image";
 import Dentor from "@/public/logo.png";
 import { signupSchema } from "@dentora/shared/zod";
@@ -46,7 +47,7 @@ export default function SignupPage() {
         {} as Record<string, string>,
       );
       const firstErr = Object.values(mapped)[0];
-      if (firstErr) toast.warning(firstErr);
+      if (firstErr) toastService.warning(firstErr);
       return;
     }
 
@@ -63,19 +64,17 @@ export default function SignupPage() {
             setLoading(true);
           },
           onSuccess: () => {
-            toast.success("Successfully signed up!");
+            toastService.success("Successfully signed up!");
             setLoading(false);
             router.push("/dashboard");
           },
           onError: (ctx: any) => {
-            console.error(ctx.error.message);
-            toast.error(ctx.error.message);
+            handleAuthError(ctx.error, "signup");
           },
         },
       );
     } catch (err) {
-      console.error(err);
-      toast.error("Sign up failed. Check console for details.");
+      handleAuthError(err, "signup");
     } finally {
       setLoading(false);
     }
@@ -97,8 +96,7 @@ export default function SignupPage() {
             router.push("/dashboard");
           },
           onError: (ctx: any) => {
-            console.error(ctx.error.message);
-            toast.error(ctx.error.message);
+            handleAuthError(ctx.error, "signup with Google");
           },
         },
       );

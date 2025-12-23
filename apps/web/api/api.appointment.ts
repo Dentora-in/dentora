@@ -1,5 +1,6 @@
 import { AppointmentFormData } from "@/interfaces/appointment.interface";
 import axios from "axios";
+import { handleApiError } from "@/lib/error-handler";
 
 export const resetPassword = async (email: string) => {
   try {
@@ -12,7 +13,7 @@ export const resetPassword = async (email: string) => {
 
     return response.data;
   } catch (e) {
-    console.error(e);
+    handleApiError(e, "reset password", { showToast: false });
     return e;
   }
 };
@@ -28,7 +29,7 @@ export const getAllSlotes = async (date: string) => {
 
     return response.data;
   } catch (e) {
-    console.error(e);
+    handleApiError(e, "fetch available slots", { showToast: false });
     return e;
   }
 };
@@ -41,6 +42,7 @@ export const newAppointment = async (data: AppointmentFormData) => {
     );
     return response.data;
   } catch (err: any) {
+    handleApiError(err, "create appointment", { showToast: false });
     return err;
   }
 };
@@ -69,7 +71,7 @@ export const getAllAppointments = async ({
 
     return response.data;
   } catch (err: any) {
-    console.error(err);
+    handleApiError(err, "fetch appointments");
     throw err;
   }
 };

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { handleApiError } from "@/lib/error-handler";
 
 // TODO: @anmole move this interface to shared folder. and import here
 export interface AvailabilityInterface {
@@ -16,6 +17,7 @@ export const addDoctorAvailability = async (data: AvailabilityInterface) => {
     );
     return response.data;
   } catch (err: any) {
+    handleApiError(err, "add availability", { showToast: false });
     return err;
   }
 };

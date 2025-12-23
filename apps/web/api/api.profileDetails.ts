@@ -1,4 +1,5 @@
 import axios from "axios";
+import { handleApiError } from "@/lib/error-handler";
 
 export type EditProfileBody = {
   first_name?: string;
@@ -12,20 +13,28 @@ export type EditProfileBody = {
 };
 
 export const getProfileDetails = async () => {
-  const { data } = await axios.get(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/v0/profile`,
-    { withCredentials: true },
-  );
-
-  return data;
+  try {
+    const { data } = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/v0/profile`,
+      { withCredentials: true },
+    );
+    return data;
+  } catch (err: any) {
+    handleApiError(err, "fetch profile details");
+    throw err;
+  }
 };
 
 export const updateProfileDetails = async (editData: EditProfileBody) => {
-  const { data } = await axios.post(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/v0/profile`,
-    editData,
-    { withCredentials: true },
-  );
-
-  return data;
+  try {
+    const { data } = await axios.post(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/v0/profile`,
+      editData,
+      { withCredentials: true },
+    );
+    return data;
+  } catch (err: any) {
+    handleApiError(err, "update profile");
+    throw err;
+  }
 };
