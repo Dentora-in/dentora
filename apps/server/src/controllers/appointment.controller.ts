@@ -216,20 +216,20 @@ export const updateAppointment = async (req: Request, res: Response) => {
       });
     }
 
-    const { appointments } = result.data;
+    const { ids, status } = result.data;
 
-    const ids = appointments.map((a) => a.id);
-    const status = appointments[0].status;
+    const all_ids = ids.map((a) => a.id);
 
     const updatedAppointments = await prisma.appointment.updateManyAndReturn({
       where: {
-        id: { in: ids },
+        id: { in: all_ids },
         doctorId: user.id,
       },
       data: { status },
     });
 
     return res.json({
+      success: true,
       message: "Appointments updated successfully",
       data: updatedAppointments,
     });

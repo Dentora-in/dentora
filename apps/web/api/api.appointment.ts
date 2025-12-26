@@ -75,3 +75,23 @@ export const getAllAppointments = async ({
     throw err;
   }
 };
+
+export const updateAppointments = async (ids: string[], status: string) => {
+  try {
+    const response = await axios.patch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/v0/appointment`,
+      {
+        ids: ids.map((id) => ({ id })),
+        status,
+      },
+      {
+        withCredentials: true,
+      },
+    );
+
+    return response.data;
+  } catch (err: any) {
+    handleApiError(err, "update appointments");
+    throw err;
+  }
+};

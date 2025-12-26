@@ -53,14 +53,14 @@ export const appointmentSchema = z.object({
 });
 
 export const editAppointmentSchema = z.object({
-  appointments: z
+  ids: z
     .array(
       z.object({
         id: z.string().cuid(),
-        status: AppointmentStatusSchema,
       }),
     )
-    .min(1, "At least one appointment is required"),
+    .min(1),
+  status: AppointmentStatusSchema,
 });
 
 export const addDoctorAvailabilitySchema = z
