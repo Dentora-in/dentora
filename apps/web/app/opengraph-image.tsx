@@ -26,6 +26,6 @@ export default function OpengraphImage() {
         Dentora – Smart Dental Management
       </div>
     ),
-    size
+    size,
   );
 }

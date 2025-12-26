@@ -1,0 +1,106 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: dentora_db
+    ports:
+      - "5433:5432"
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dentora-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    container_name: dentora_redis
+    ports:
+      - "6379:6379"
+    env_file:
+      - .env
+    volumes:
+      - redis_data:/data
+    networks:
+      - dentora-network
+
+  server:
+    container_name: dentora_server
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+      target: deps
+    command: pnpm --filter server dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/server/node_modules
+    ports:
+      - "3001:3001"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: dev
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - dentora-network
+
+  worker:
+    container_name: dentora_worker
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+      target: deps
+    command: pnpm --filter worker dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/worker/node_modules
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: dev
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - dentora-network
+
+  web:
+    container_name: dentora_web
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: deps
+    command: pnpm --filter web dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/web/node_modules
+      - /app/apps/web/.next
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: dev
+    depends_on:
+      - server
+    networks:
+      - dentora-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  dentora-network:
+    driver: bridge

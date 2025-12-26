@@ -9,12 +9,14 @@ import rateLimit from "express-rate-limit";
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
+  "https://4r5w0cht-3000.inc1.devtunnels.ms",
+  "https://4r5w0cht-3001.inc1.devtunnels.ms",
 ];
 
 const app = express();
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
+  windowMs: 15 * 60 * 1000,
   max: 100,
   message: {
     error: true,
@@ -29,32 +31,32 @@ app.use(limiter);
 app.use(
   cors({
     origin: allowedOrigins,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
-  })
+  }),
 );
 app.use(express.json());
 
 const port = process.env.BACKEND_PORT || 5000;
 
 app.get("/health", (req: Request, res: Response) => {
-    return res.status(200).json({
-        status: "ok",
-        message: "Server is healthy",
-    });
+  return res.status(200).json({
+    status: "ok",
+    message: "Server is healthy",
+  });
 });
 
 app.use("/v0/", router);
 app.use("/g/", google_route);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    console.error("Error:", err);
-    res.status(500).json({
-        error: true,
-        message: err.message || "Something went wrong",
-    });
+  console.error("Error:", err);
+  res.status(500).json({
+    error: true,
+    message: err.message || "Something went wrong",
+  });
 });
 
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });

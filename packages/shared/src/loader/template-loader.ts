@@ -5,7 +5,10 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export function loadEmailTemplate(templateName: string, props: Record<string, string>) {
+export function loadEmailTemplate(
+  templateName: string,
+  props: Record<string, string>,
+) {
   const filePath = path.join(__dirname, "..", "html-templates", templateName);
 
   let template = fs.readFileSync(filePath, "utf-8");

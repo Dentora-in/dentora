@@ -1,94 +1,102 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
-import { Eye, EyeOff } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@workspace/ui/components/button"
-import { Input } from "@workspace/ui/components/input"
-import { toast } from "@workspace/ui/components/sonner"
-import { resetPassword } from "@dentora/auth/client"
+import { useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@workspace/ui/components/button";
+import { Input } from "@workspace/ui/components/input";
+import { toastService } from "@/lib/toast";
+import { handleAuthError } from "@/lib/error-handler";
+import { resetPassword } from "@dentora/auth/client";
 
 export function ResetPasswordForm() {
-  const searchParams = useSearchParams()
-  const token = searchParams.get("token") || ""
-  const router = useRouter()
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") || "";
+  const router = useRouter();
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({ password: "", confirmPassword: "" })
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    password: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-    setError("")
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setError("");
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
     if (!token) {
-      setError("Invalid or missing token")
-      return
+      setError("Invalid or missing token");
+      return;
     }
 
     // Validation
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters")
-      return
+      setError("Password must be at least 8 characters");
+      return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match")
-      return
+      setError("Passwords do not match");
+      return;
     }
 
     try {
-      setLoading(true)
+      setLoading(true);
       const { data, error } = await resetPassword({
-          newPassword: formData.password,
-          token: token as string,
+        newPassword: formData.password,
+        token: token as string,
       });
 
       if (error) {
-        throw new Error(error.message || "Failed to reset password")
+        throw new Error(error.message || "Failed to reset password");
       }
 
-      toast.success("Password reset successfully!")
-      setSuccess(true)
-      setFormData({ password: "", confirmPassword: "" })
-      router.push(`/login`)
+      toastService.success("Password reset successfully!");
+      setSuccess(true);
+      setFormData({ password: "", confirmPassword: "" });
+      router.push(`/login`);
     } catch (err: any) {
-      console.error(err)
-      setError(err.message || "Something went wrong. Please try again.")
+      const errorMsg = handleAuthError(err, "reset password");
+      setError(errorMsg);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (success) {
     return (
       <div className="space-y-4 text-center">
         <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-4">
           <p className="text-green-800 dark:text-green-200 font-medium">
-            Password reset successfully! You can now log in with your new password.
+            Password reset successfully! You can now log in with your new
+            password.
           </p>
         </div>
         <Link href={`/login`}>
           <Button className="w-full">Back to login</Button>
         </Link>
       </div>
-    )
+    );
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Password Fields */}
       <div className="space-y-2">
-        <label htmlFor="password" className="block text-sm font-medium text-foreground">
+        <label
+          htmlFor="password"
+          className="block text-sm font-medium text-foreground"
+        >
           New Password<span className="text-destructive">*</span>
         </label>
         <div className="relative">
@@ -107,13 +115,20 @@ export function ResetPasswordForm() {
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
-            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            {showPassword ? (
+              <EyeOff className="w-4 h-4" />
+            ) : (
+              <Eye className="w-4 h-4" />
+            )}
           </button>
         </div>
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground">
+        <label
+          htmlFor="confirmPassword"
+          className="block text-sm font-medium text-foreground"
+        >
           Confirm Password<span className="text-destructive">*</span>
         </label>
         <div className="relative">
@@ -132,7 +147,11 @@ export function ResetPasswordForm() {
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
-            {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            {showConfirmPassword ? (
+              <EyeOff className="w-4 h-4" />
+            ) : (
+              <Eye className="w-4 h-4" />
+            )}
           </button>
         </div>
       </div>
@@ -152,10 +171,13 @@ export function ResetPasswordForm() {
       </Button>
 
       <div className="text-center">
-        <Link href={`/login`} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <Link
+          href={`/login`}
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
           Back to login
         </Link>
       </div>
     </form>
-  )
+  );
 }

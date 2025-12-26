@@ -1,4 +1,3 @@
-
 export interface AppointmentFormData {
   firstName: string;
   lastName: string;

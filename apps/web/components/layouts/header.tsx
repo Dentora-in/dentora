@@ -18,13 +18,13 @@ import {
 } from "@workspace/ui/components/sheet";
 import { Button } from "@workspace/ui/components/button";
 import { ThemeToggler } from "@/components/child/theme-toggler";
-import { useAuthSession } from "@/hooks/get-session";
 import { signOut } from "@dentora/auth/client";
 import { Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuthSession } from "../providers/session-provider";
 
 export function Header() {
-  const { user, session, isLoading } = useAuthSession();
+  const session = useAuthSession();
   const [isOpen, setIsOpen] = React.useState(false);
   const router = useRouter();
 
@@ -40,10 +40,6 @@ export function Header() {
     setIsOpen(false);
     router.push("/login");
   };
-
-  if (isLoading) {
-    return <div className="h-14 bg-background" />; 
-  }
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
@@ -72,8 +68,10 @@ export function Header() {
         {/* --- Desktop Buttons --- */}
         <div className="hidden md:flex items-center gap-3">
           <ThemeToggler />
-          {user?.name && <p className="text-sm font-medium">{user.name}</p>}
-          {session ? (
+          {session?.session && (
+            <p className="text-sm font-medium">{session?.user.name}</p>
+          )}
+          {session?.session ? (
             <Button
               variant="destructive"
               size="sm"
@@ -97,7 +95,7 @@ export function Header() {
         {/* --- Mobile Navigation (Sheet/Sidebar) --- */}
         <div className="md:hidden flex items-center gap-2">
           <ThemeToggler />
-          
+
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -105,12 +103,12 @@ export function Header() {
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            
+
             <SheetContent side="right">
               <SheetHeader className="text-left border-b pb-4 mb-4">
                 <SheetTitle className="font-bold">Dentora</SheetTitle>
               </SheetHeader>
-              
+
               <div className="flex flex-col gap-4 px-5">
                 {/* Mobile Links */}
                 <div className="flex flex-col gap-2">
@@ -130,20 +128,30 @@ export function Header() {
 
                 {/* Mobile Auth Buttons */}
                 <div className="flex flex-col gap-2">
-                  {session ? (
+                  {session?.session ? (
                     <div className="flex flex-col gap-2">
-                       <p className="text-sm text-muted-foreground">Signed in as {user?.name}</p>
-                       <Button onClick={logoutHandler} variant="destructive" className="w-full hover:cursor-pointer">
-                         Log out
-                       </Button>
+                      <p className="text-sm text-muted-foreground">
+                        Signed in as {session?.user?.name}
+                      </p>
+                      <Button
+                        onClick={logoutHandler}
+                        variant="destructive"
+                        className="w-full hover:cursor-pointer"
+                      >
+                        Log out
+                      </Button>
                     </div>
                   ) : (
                     <>
                       <Button variant="outline" asChild className="w-full">
-                        <Link href="/login" onClick={() => setIsOpen(false)}>Log In</Link>
+                        <Link href="/login" onClick={() => setIsOpen(false)}>
+                          Log In
+                        </Link>
                       </Button>
                       <Button asChild className="w-full">
-                        <Link href="/signup" onClick={() => setIsOpen(false)}>Sign Up</Link>
+                        <Link href="/signup" onClick={() => setIsOpen(false)}>
+                          Sign Up
+                        </Link>
                       </Button>
                     </>
                   )}

@@ -1,20 +1,18 @@
 "use client";
 
-import { GalleryVerticalEnd } from "lucide-react";
 import { SignupForm } from "@/components/auth/signup-form";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SignUp } from "@/interfaces/user.interface";
-import { signIn, signUp } from "@dentora/auth/client";
-import { toast } from "@workspace/ui/components/sonner";
+import { signIn, signUp, getSession } from "@dentora/auth/client";
+import { toastService } from "@/lib/toast";
+import { handleAuthError } from "@/lib/error-handler";
 import Image from "next/image";
-import Link from "next/link";
 import Dentor from "@/public/logo.png";
 import { signupSchema } from "@dentora/shared/zod";
+import { useEffect } from "react";
 
 export default function SignupPage() {
-  const pathname = usePathname();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<SignUp>({
@@ -22,6 +20,16 @@ export default function SignupPage() {
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") {
+      getSession().then((session: any) => {
+        if (session?.data?.user) {
+          router.push("/dashboard");
+        }
+      });
+    }
+  }, [router]);
 
   const manual_login = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,10 +44,10 @@ export default function SignupPage() {
             : "Invalid value";
           return acc;
         },
-        {} as Record<string, string>
+        {} as Record<string, string>,
       );
       const firstErr = Object.values(mapped)[0];
-      if (firstErr) toast.warning(firstErr);
+      if (firstErr) toastService.warning(firstErr);
       return;
     }
 
@@ -56,19 +64,17 @@ export default function SignupPage() {
             setLoading(true);
           },
           onSuccess: () => {
-            toast.success("Successfully signed in!");
+            toastService.success("Successfully signed up!");
             setLoading(false);
-            router.push("/");
+            router.push("/dashboard");
           },
           onError: (ctx: any) => {
-            console.error(ctx.error.message);
-            toast.error(ctx.error.message);
+            handleAuthError(ctx.error, "signup");
           },
-        }
+        },
       );
     } catch (err) {
-      console.error(err);
-      toast.error("Sign up failed. Check console for details.");
+      handleAuthError(err, "signup");
     } finally {
       setLoading(false);
     }
@@ -87,13 +93,12 @@ export default function SignupPage() {
           onRequest: () => setLoading(true),
           onSuccess: () => {
             setLoading(false);
-            router.push("/");
+            router.push("/dashboard");
           },
           onError: (ctx: any) => {
-            console.error(ctx.error.message);
-            toast.error(ctx.error.message);
+            handleAuthError(ctx.error, "signup with Google");
           },
-        }
+        },
       );
     } catch (err) {
       console.error(err);

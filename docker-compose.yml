@@ -1,0 +1,131 @@
+version: "3.8"
+
+services:
+  # -------------------------------------------------------------------------
+  # INFRASTRUCTURE (Database & Redis)
+  # -------------------------------------------------------------------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: dentora_db
+    ports:
+      - "5433:5432" # Host:5433 -> Container:5432 (Matches your local setup)
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dentora
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dentora-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    container_name: dentora_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - dentora-network
+
+  # -------------------------------------------------------------------------
+  # BACKEND SERVER
+  # -------------------------------------------------------------------------
+  server:
+    container_name: dentora_server
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    ports:
+      - "3001:3001"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      # Internal Docker DNS names
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/dentora
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # Public URL for Google Auth callbacks
+      GOOGLE_REDIRECT_URI: http://localhost:3001/g/auth/google/callback
+      # Secrets (Pass these from a .env file or host environment)
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_REFRESH_TOKEN: ${GOOGLE_REFRESH_TOKEN}
+      MAIL_SERVICE_EMAIL: ${MAIL_SERVICE_EMAIL}
+      MAIL_SERVICE_EMAIL_PASS: ${MAIL_SERVICE_EMAIL_PASS}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - dentora-network
+
+  # -------------------------------------------------------------------------
+  # WORKER
+  # -------------------------------------------------------------------------
+  worker:
+    container_name: dentora_worker
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    # No ports needed (it's a background processor)
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/dentora
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - dentora-network
+
+  # -------------------------------------------------------------------------
+  # FRONTEND (Next.js)
+  # -------------------------------------------------------------------------
+  web:
+    container_name: dentora_web
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      # Critical: Pass build args for Next.js baking
+      args:
+        NEXT_PUBLIC_BACKEND_URL: http://localhost:3001
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      # Internal DNS for server-side fetches
+      # External DNS for client-side redirects
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:3001
+      BETTER_AUTH_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+    depends_on:
+      - server
+    networks:
+      - dentora-network
+
+# -------------------------------------------------------------------------
+# VOLUMES & NETWORKS
+# -------------------------------------------------------------------------
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  dentora-network:
+    driver: bridge

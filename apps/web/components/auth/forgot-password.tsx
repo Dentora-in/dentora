@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
-import { toast } from "@workspace/ui/components/sonner";
+import { toastService } from "@/lib/toast";
+import { handleAuthError } from "@/lib/error-handler";
 import { forgetPassword } from "@dentora/auth/client";
 
 export function ForgotPassword() {
@@ -36,19 +37,22 @@ export function ForgotPassword() {
           onRequest: () => setLoading(true),
           onResponse: () => setLoading(false),
           onSuccess: () => {
-            toast.success("Reset password link has been sent");
+            toastService.success("Reset password link has been sent");
             setSuccess(true);
             router.push("/login");
           },
           onError: (ctx: any) => {
-            console.error(ctx.error?.message);
-            setError(ctx.error?.message || "Failed to request password reset");
+            const errorMsg = handleAuthError(
+              ctx.error,
+              "request password reset",
+            );
+            setError(errorMsg);
           },
-        }
+        },
       );
     } catch (err: any) {
-      console.error(err);
-      setError(err.message || "Something went wrong");
+      const errorMsg = handleAuthError(err, "request password reset");
+      setError(errorMsg);
     }
   }
 

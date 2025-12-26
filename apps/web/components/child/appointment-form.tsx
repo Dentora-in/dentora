@@ -15,7 +15,7 @@ import {
 } from "@workspace/ui/components/select";
 import { Card } from "@workspace/ui/components/card";
 import { Spinner } from "@workspace/ui/components/spinner";
-import { toast } from "@workspace/ui/components/sonner";
+import { toastService } from "@/lib/toast";
 import { getAllSlotes, newAppointment } from "@/api/api.appointment";
 import { AppointmentFormData } from "@/interfaces/appointment.interface";
 
@@ -80,7 +80,7 @@ export function Appointment({ setIsSuccess }: any) {
     e.preventDefault();
 
     if (!isFormValid()) {
-      toast("Missing Information", {
+      toastService.warning("Missing Information", {
         description: "Please fill all fields before submitting.",
       });
       return;
@@ -106,9 +106,9 @@ export function Appointment({ setIsSuccess }: any) {
       return;
     }
 
-    toast.error(
+    toastService.error(
       result?.response?.data?.message ||
-        "Could not book your appointment. Please try again."
+        "Could not book your appointment. Please try again.",
     );
 
     setLoading(false);
