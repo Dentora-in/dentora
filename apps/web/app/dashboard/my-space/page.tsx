@@ -135,7 +135,7 @@ export default function DoctorAvailabilityManager() {
       const response = await getMySpaceData();
       if (response.success) {
         setAvailabilities(response.data.weeklyAvailability);
-        // setSlots();
+        setSlots(response.data.weeklySlots);
       }
     } catch (error) {
       toastService.error("Error", {
@@ -233,7 +233,6 @@ export default function DoctorAvailabilityManager() {
 
       const updatedSlots = [...slots, newData];
       setSlots(updatedSlots);
-      localStorage.setItem("slots", JSON.stringify(updatedSlots));
 
       setNewSlot({ date: "", startTime: "", endTime: "" });
       toastService.success("Slot created successfully");
@@ -251,7 +250,6 @@ export default function DoctorAvailabilityManager() {
 
       const updatedSlots = slots.filter((s) => s.id !== id);
       setSlots(updatedSlots);
-      localStorage.setItem("slots", JSON.stringify(updatedSlots));
 
       toastService.success("Slot deleted successfully");
     } catch (error) {
@@ -321,7 +319,6 @@ export default function DoctorAvailabilityManager() {
 
       const updatedSlots = [...slots, ...generatedSlots];
       setSlots(updatedSlots);
-      localStorage.setItem("slots", JSON.stringify(updatedSlots));
 
       toastService.success(
         `Generated ${generatedSlots.length} slots successfully`,
@@ -746,7 +743,8 @@ export default function DoctorAvailabilityManager() {
                             <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
                               <Clock className="h-3 w-3 flex-shrink-0" />
                               <span className="truncate">
-                                {slot.startTime} – {slot.endTime}
+                                {isoToTime(slot.startTime)} –{" "}
+                                {isoToTime(slot.endTime)}
                               </span>
                             </div>
                           </div>
