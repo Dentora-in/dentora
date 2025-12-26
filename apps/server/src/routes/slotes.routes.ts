@@ -43,7 +43,8 @@ router.delete(
 //   requireRole(UserRole.DOCTOR),
 //   slotCreation,
 // );
-router.post(
+
+router.delete(
   "/slot-delete/:slotId",
   authMiddleware,
   requireRole(UserRole.DOCTOR),

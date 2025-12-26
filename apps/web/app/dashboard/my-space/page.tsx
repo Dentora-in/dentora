@@ -33,6 +33,7 @@ import {
   addDoctorAvailability,
   AvailabilityInterface,
   deleteDoctorAvailability,
+  deleteSlotByID,
   getMySpaceData,
 } from "@/api/api.my-space";
 
@@ -243,15 +244,12 @@ export default function DoctorAvailabilityManager() {
 
   const deleteSlot = async (id: string) => {
     try {
-      // TODO: Replace with actual API call
-      // const res = await fetch(`/api/doctor/slots/${id}`, {
-      //   method: "DELETE",
-      // });
-
-      const updatedSlots = slots.filter((s) => s.id !== id);
-      setSlots(updatedSlots);
-
-      toastService.success("Slot deleted successfully");
+      const response = await deleteSlotByID(id);
+      if (response.success) {
+        const updatedSlots = slots.filter((s) => s.id !== id);
+        setSlots(updatedSlots);
+        toastService.success("Slot deleted successfully");
+      }
     } catch (error) {
       toastService.error("Failed to delete slot");
     }

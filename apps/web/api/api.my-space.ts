@@ -51,3 +51,19 @@ export const deleteDoctorAvailability = async (id: string) => {
     return err;
   }
 };
+
+export const deleteSlotByID = async (id: string) => {
+  try {
+    if (!id) {
+      toastService.error("ID not found!");
+    }
+    const response = await axios.delete(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/v0/slotes/slot-delete/${id}`,
+      { withCredentials: true },
+    );
+    return response.data;
+  } catch (err: any) {
+    handleApiError(err, "add availability", { showToast: false });
+    return err;
+  }
+};
