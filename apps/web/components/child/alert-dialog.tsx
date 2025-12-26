@@ -9,6 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@workspace/ui/components/alert-dialog";
+import { Button } from "@workspace/ui/components/button";
 import { ReactNode } from "react";
 
 type GenericAlertDialogProps = {
@@ -17,6 +18,15 @@ type GenericAlertDialogProps = {
   description?: string;
   confirmText?: string;
   cancelText?: string;
+  actionButtonColor?:
+    | "default"
+    | "link"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | null
+    | undefined;
   onResult: (confirmed: boolean) => void;
 };
 
@@ -26,6 +36,7 @@ export function GenericAlertDialog({
   description,
   confirmText = "Yes",
   cancelText = "No",
+  actionButtonColor = "default",
   onResult,
 }: GenericAlertDialogProps) {
   return (
@@ -45,8 +56,10 @@ export function GenericAlertDialog({
             {cancelText}
           </AlertDialogCancel>
 
-          <AlertDialogAction onClick={() => onResult(true)}>
-            {confirmText}
+          <AlertDialogAction asChild>
+            <Button variant={actionButtonColor} onClick={() => onResult(true)}>
+              {confirmText}
+            </Button>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

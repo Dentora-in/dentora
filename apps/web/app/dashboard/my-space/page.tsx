@@ -32,6 +32,9 @@ import { toastService } from "@/lib/toast";
 import {
   addDoctorAvailability,
   AvailabilityInterface,
+  deleteDoctorAvailability,
+  deleteSlotByID,
+  getMySpaceData,
 } from "@/api/api.my-space";
 
 // Types
@@ -130,15 +133,10 @@ export default function DoctorAvailabilityManager() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const savedAvailabilities = localStorage.getItem("availabilities");
-      const savedSlots = localStorage.getItem("slots");
-
-      if (savedAvailabilities) {
-        setAvailabilities(JSON.parse(savedAvailabilities));
-      }
-
-      if (savedSlots) {
-        setSlots(JSON.parse(savedSlots));
+      const response = await getMySpaceData();
+      if (response.success) {
+        setAvailabilities(response.data.weeklyAvailability);
+        setSlots(response.data.weeklySlots);
       }
     } catch (error) {
       toastService.error("Error", {
@@ -189,24 +187,15 @@ export default function DoctorAvailabilityManager() {
 
       toastService.success("Availability added successfully");
     } catch (error) {
-      console.log(error);
-      toastService.error("Failed to add availability");
+      toastService.error("Weekday already exists!!");
     }
   };
 
   const deleteAvailability = async (id: string) => {
     try {
-      // TODO: Replace with actual API call
-      // const res = await fetch(`/api/doctor/availability/${id}`, {
-      //   method: "DELETE",
-      // });
-
+      const response = await deleteDoctorAvailability(id);
       const updatedAvailabilities = availabilities.filter((a) => a.id !== id);
       setAvailabilities(updatedAvailabilities);
-      localStorage.setItem(
-        "availabilities",
-        JSON.stringify(updatedAvailabilities),
-      );
 
       toastService.success("Availability deleted successfully");
     } catch (error) {
@@ -245,7 +234,6 @@ export default function DoctorAvailabilityManager() {
 
       const updatedSlots = [...slots, newData];
       setSlots(updatedSlots);
-      localStorage.setItem("slots", JSON.stringify(updatedSlots));
 
       setNewSlot({ date: "", startTime: "", endTime: "" });
       toastService.success("Slot created successfully");
@@ -256,16 +244,12 @@ export default function DoctorAvailabilityManager() {
 
   const deleteSlot = async (id: string) => {
     try {
-      // TODO: Replace with actual API call
-      // const res = await fetch(`/api/doctor/slots/${id}`, {
-      //   method: "DELETE",
-      // });
-
-      const updatedSlots = slots.filter((s) => s.id !== id);
-      setSlots(updatedSlots);
-      localStorage.setItem("slots", JSON.stringify(updatedSlots));
-
-      toastService.success("Slot deleted successfully");
+      const response = await deleteSlotByID(id);
+      if (response.success) {
+        const updatedSlots = slots.filter((s) => s.id !== id);
+        setSlots(updatedSlots);
+        toastService.success("Slot deleted successfully");
+      }
     } catch (error) {
       toastService.error("Failed to delete slot");
     }
@@ -333,7 +317,6 @@ export default function DoctorAvailabilityManager() {
 
       const updatedSlots = [...slots, ...generatedSlots];
       setSlots(updatedSlots);
-      localStorage.setItem("slots", JSON.stringify(updatedSlots));
 
       toastService.success(
         `Generated ${generatedSlots.length} slots successfully`,
@@ -475,10 +458,10 @@ export default function DoctorAvailabilityManager() {
                   No availability set. Add your first time slot above.
                 </div>
               ) : (
-                <div className="grid gap-2 sm:gap-3">
-                  {availabilities.map((availability) => (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-3">
+                  {availabilities.map((availability, index) => (
                     <div
-                      key={availability.id}
+                      key={index}
                       className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 border border-border rounded-lg bg-card hover:bg-accent/50 transition-colors"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
@@ -486,7 +469,7 @@ export default function DoctorAvailabilityManager() {
                           variant="secondary"
                           className="font-semibold text-xs sm:text-sm w-fit"
                         >
-                          {DAYS_OF_WEEK[availability.dayOfWeek]}
+                          {availability.dayOfWeek}
                         </Badge>
                         <div className="flex items-center gap-2 text-xs sm:text-sm">
                           <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
@@ -758,7 +741,8 @@ export default function DoctorAvailabilityManager() {
                             <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
                               <Clock className="h-3 w-3 flex-shrink-0" />
                               <span className="truncate">
-                                {slot.startTime} – {slot.endTime}
+                                {isoToTime(slot.startTime)} –{" "}
+                                {isoToTime(slot.endTime)}
                               </span>
                             </div>
                           </div>

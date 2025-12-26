@@ -74,7 +74,11 @@ import {
   TabsTrigger,
 } from "@workspace/ui/components/tabs";
 import { z } from "@dentora/shared/zod";
+import { GenericAlertDialog } from "@/components/child/alert-dialog";
+import { toastService } from "@/lib/toast";
+import { updateAppointments } from "@/api/api.appointment";
 
+// TODO: need to move this to zod folder and export from there
 export const schema = z.object({
   id: z.string(),
   firstName: z.string(),
@@ -250,6 +254,13 @@ const STATUS_VALUES = [
   "COMPLETED",
 ] as const;
 
+const STATUS_DROP_DOWN_VALUES = [
+  "PENDING",
+  "CONFIRMED",
+  "CANCELLED",
+  "COMPLETED",
+];
+
 export function DataTable({
   data: initialData,
   metaData,
@@ -335,6 +346,98 @@ export function DataTable({
     [setPagination, setStatus, metaData],
   );
 
+  const changeAppointmentStatus = async (status: string) => {
+    if (!status) {
+      toastService.error("Please select a valid appointment status.");
+      return;
+    }
+
+    // Ensure proper row typing
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+
+    if (selectedRows.length === 0) {
+      toastService.warning("Please select at least one appointment to update.");
+      return;
+    }
+
+    const allUpdateIds = selectedRows.map((row) => row.id);
+
+    const allSameStatus = selectedRows.every(
+      (row) => row.getValue("status") === status,
+    );
+
+    if (allSameStatus) {
+      toastService.info(
+        `Selected appointments are already marked as ${status.toLowerCase()}.`,
+      );
+      return;
+    }
+
+    setData((prevData) =>
+      prevData.map((row) =>
+        allUpdateIds.includes(row.id) ? { ...row, status } : row,
+      ),
+    );
+
+    try {
+      const updatePromise = updateAppointments(allUpdateIds, status);
+
+      toastService.promise(updatePromise, {
+        loading: "Updating appointment status...",
+        success: () =>
+          `${allUpdateIds.length} appointment${
+            allUpdateIds.length > 1 ? "s" : ""
+          } updated to ${status.toLowerCase()} successfully.`,
+        error: (err) =>
+          err?.response?.data?.message ||
+          "Failed to update appointment status. Please try again.",
+      });
+
+      const response = await updatePromise;
+
+      if (!response.success) {
+        toastService.error(
+          response.message || "Failed to update appointment status.",
+        );
+        setData((prevData) =>
+          prevData.map((row) =>
+            allUpdateIds.includes(row.id)
+              ? {
+                  ...row,
+                  status:
+                    selectedRows
+                      .find((r) => r.id === row.id)
+                      ?.getValue("status") ?? row.status,
+                }
+              : row,
+          ),
+        );
+      }
+    } catch (error) {
+      toastService.error(
+        "Failed to update appointment status due to network or server error.",
+      );
+      setData((prevData) =>
+        prevData.map((row) =>
+          allUpdateIds.includes(row.id)
+            ? {
+                ...row,
+                status:
+                  selectedRows
+                    .find((r) => r.id === row.id)
+                    ?.getValue("status") ?? row.status,
+              }
+            : row,
+        ),
+      );
+    }
+  };
+
+  // TODO: @anmol - add delete appointment endpoint
+  const deleteAppoinetment = () => {
+    console.log("deleteAppoinetment");
+  };
+
   return (
     <Tabs
       className="w-full flex-col justify-start gap-6"
@@ -392,11 +495,35 @@ export function DataTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-32">
-              <DropdownMenuItem>Confirm</DropdownMenuItem>
-              <DropdownMenuItem>Completed</DropdownMenuItem>
-              <DropdownMenuItem>Cancel</DropdownMenuItem>
+              {STATUS_DROP_DOWN_VALUES.map((status, index) => (
+                <DropdownMenuItem
+                  onClick={() => changeAppointmentStatus(status)}
+                  key={index}
+                >
+                  {status}
+                </DropdownMenuItem>
+              ))}
               <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+              <GenericAlertDialog
+                trigger={
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                }
+                actionButtonColor="destructive"
+                title="Are you absolutely sure?"
+                description="This action is permanent and cannot be undone. If you don’t want to proceed with this appointment, you can simply cancel or ignore it instead of deleting."
+                confirmText="Yes"
+                cancelText="No"
+                onResult={(confirmed) => {
+                  if (confirmed) {
+                    deleteAppoinetment();
+                  }
+                }}
+              />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

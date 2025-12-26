@@ -5,6 +5,7 @@ import { DataTable } from "@/app/dashboard/components/data-table";
 import { getAllAppointments } from "@/api/api.appointment";
 import { FullPageSpinnerSub } from "@/components/child/page-spinner";
 
+// TODO: need to move this to interface file and export from there
 interface metaData {
   total: number;
   totalPages: number;
