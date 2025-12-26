@@ -3,6 +3,7 @@ import { Prisma, prisma, UserRole } from "@dentora/database";
 import { appointmentSchema, editAppointmentSchema } from "@dentora/shared/zod";
 import { appointmentQueue } from "@dentora/shared/queue";
 
+// TODO: optimization
 export const bookAppointment = async (req: Request, res: Response) => {
   try {
     const parsed = appointmentSchema.safeParse(req.body);

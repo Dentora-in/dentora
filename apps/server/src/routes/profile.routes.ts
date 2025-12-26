@@ -6,6 +6,7 @@ import {
 
 const router: Router = Router();
 
+// TODO: add roles restrictions
 router.get("/", getProfileDetails);
 router.post("/", editProfileDetails);
 

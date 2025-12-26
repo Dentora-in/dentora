@@ -78,6 +78,7 @@ import { GenericAlertDialog } from "@/components/child/alert-dialog";
 import { toastService } from "@/lib/toast";
 import { updateAppointments } from "@/api/api.appointment";
 
+// TODO: need to move this to zod folder and export from there
 export const schema = z.object({
   id: z.string(),
   firstName: z.string(),
