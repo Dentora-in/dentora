@@ -52,6 +52,17 @@ export const appointmentSchema = z.object({
   updatedAt: z.date().optional(),
 });
 
+export const editAppointmentSchema = z.object({
+  appointments: z
+    .array(
+      z.object({
+        id: z.string().cuid(),
+        status: AppointmentStatusSchema,
+      }),
+    )
+    .min(1, "At least one appointment is required"),
+});
+
 export const addDoctorAvailabilitySchema = z
   .object({
     dayOfWeek: z.enum([

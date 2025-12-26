@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Prisma, prisma, UserRole } from "@dentora/database";
-import { appointmentSchema } from "@dentora/shared/zod";
+import { appointmentSchema, editAppointmentSchema } from "@dentora/shared/zod";
 import { appointmentQueue } from "@dentora/shared/queue";
 
 export const bookAppointment = async (req: Request, res: Response) => {
@@ -182,6 +182,56 @@ export const getAllAppointment = async (req: Request, res: Response) => {
         total_cancelled,
       },
       appointments,
+    });
+  } catch (e: any) {
+    return res.status(500).json({ message: e.message });
+  }
+};
+
+export const updateAppointment = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const doctor_details = await prisma.user.findUnique({
+      where: {
+        id: user.id,
+        role: user.role as UserRole,
+      },
+    });
+
+    if (!doctor_details) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const result = editAppointmentSchema.safeParse(req.body);
+
+    if (!result.success) {
+      return res.status(400).json({
+        message: "Invalid request body",
+        errors: result.error.flatten(),
+      });
+    }
+
+    const { appointments } = result.data;
+
+    const ids = appointments.map((a) => a.id);
+    const status = appointments[0].status;
+
+    const updatedAppointments = await prisma.appointment.updateManyAndReturn({
+      where: {
+        id: { in: ids },
+        doctorId: user.id,
+      },
+      data: { status },
+    });
+
+    return res.json({
+      message: "Appointments updated successfully",
+      data: updatedAppointments,
     });
   } catch (e: any) {
     return res.status(500).json({ message: e.message });

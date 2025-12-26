@@ -29,6 +29,7 @@ router.post(
   requireRole(UserRole.DOCTOR),
   addDoctorAvailability,
 );
+
 router.delete(
   "/weekly/:availabilityId",
   authMiddleware,
