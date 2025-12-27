@@ -7,6 +7,9 @@ import {
 } from "@workspace/ui/components/sidebar";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { DashboardHeader } from "@/components/layouts/dashboard-header";
+import { useEffect } from "react";
+import { removeItem, setItem } from "@/lib/localStorage";
+import { UserRole } from "@dentora/database";
 
 export function DashboardLayoutClient({
   children,
@@ -15,6 +18,14 @@ export function DashboardLayoutClient({
   children: React.ReactNode;
   session: any;
 }) {
+  useEffect(() => {
+    if (session?.user?.role) {
+      setItem("role", session.user.role as UserRole);
+    } else {
+      removeItem("role");
+    }
+  }, [session]);
+
   return (
     <SessionProvider session={session}>
       <SidebarProvider
