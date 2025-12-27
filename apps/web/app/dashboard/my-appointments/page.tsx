@@ -170,7 +170,6 @@ function AppointmentCard({
   appointment: Appointment;
   isUpcoming: boolean;
 }) {
-  const [showCancelDialog, setShowCancelDialog] = React.useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = React.useState(false);
 
   const dateStr = format(new Date(appointment.appointmentDate), "PPP");
@@ -269,103 +268,116 @@ function AppointmentCard({
         </CardContent>
       </Card>
 
-      {/* --- Rich Details Dialog (Restored from Version 1) --- */}
+      {/* --- Responsive Details Dialog --- */}
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
-        <DialogContent className="sm:max-w-[425px] gap-0 p-0 overflow-hidden border-none shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-          <DialogHeader className="p-6 pb-4 bg-primary/5 dark:bg-primary/10">
-            <DialogTitle className="text-xl">Appointment Details</DialogTitle>
-            <DialogDescription className="text-muted-foreground/80">
+        <DialogContent
+          className="
+            w-[90vw] max-w-[360px] 
+            md:w-full md:max-w-[500px] 
+            gap-0 p-0 overflow-hidden border-none shadow-2xl 
+            rounded-xl bg-background
+          "
+        >
+          {/* Header */}
+          <DialogHeader className="p-4 pb-2 md:p-6 md:pb-4 bg-primary/5 dark:bg-primary/10 shrink-0">
+            <DialogTitle className="text-base md:text-xl">
+              Appointment Details
+            </DialogTitle>
+            <DialogDescription className="text-xs md:text-sm text-muted-foreground/80">
               Detailed summary of your scheduled visit.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-6 p-6">
-            {/* Patient Mock Info */}
-            <div className="grid grid-cols-3 gap-4 border-b pb-4">
+          {/* Body: Compact on Mobile, Spacious on Desktop */}
+          <div className="grid gap-3 p-4 md:gap-6 md:p-6">
+            {/* Patient Info */}
+            <div className="flex justify-between md:grid md:grid-cols-3 md:gap-4 items-end border-b pb-3 md:pb-4">
               <div>
-                <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
+                <p className="text-[10px] md:text-xs uppercase font-bold text-muted-foreground tracking-widest">
                   Patient
                 </p>
-                <p className="text-sm font-medium">John Doe</p>
+                <p className="text-sm md:text-base font-semibold truncate">
+                  John Doe
+                </p>
               </div>
-              <div>
-                <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
+              <div className="text-center md:text-left">
+                <p className="text-[10px] md:text-xs uppercase font-bold text-muted-foreground tracking-widest">
                   Age
                 </p>
-                <p className="text-sm font-medium">32 Years</p>
+                <p className="text-sm md:text-base font-medium">32 Years</p>
               </div>
-              <div>
-                <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
+              <div className="text-right md:text-left">
+                <p className="text-[10px] md:text-xs uppercase font-bold text-muted-foreground tracking-widest">
                   Gender
                 </p>
-                <p className="text-sm font-medium">Male</p>
+                <p className="text-sm md:text-base font-medium">Male</p>
               </div>
             </div>
 
-            {/* Doctor & Timing */}
-            <div className="space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary shrink-0 shadow-inner">
-                  <span className="font-bold text-lg">
-                    {appointment.doctor.firstName[0]}
-                    {appointment.doctor.lastName[0]}
-                  </span>
-                </div>
-                <div className="space-y-0.5">
-                  <p className="font-bold text-base">
-                    Dr. {appointment.doctor.firstName}{" "}
-                    {appointment.doctor.lastName}
-                  </p>
-                  <p className="text-sm text-muted-foreground font-medium">
-                    {appointment.doctor.specialization}
-                  </p>
-                </div>
+            {/* Doctor Info */}
+            <div className="flex items-center gap-3 md:gap-4 py-1">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0 shadow-sm">
+                <span className="font-bold text-base md:text-lg">
+                  {appointment.doctor.firstName[0]}
+                  {appointment.doctor.lastName[0]}
+                </span>
               </div>
-
-              <div className="bg-muted/40 dark:bg-muted/20 rounded-xl p-4 space-y-4 border border-border/50">
-                <div className="flex items-center gap-3 text-sm font-medium">
-                  <div className="p-1.5 rounded-md bg-background shadow-sm">
-                    <Calendar className="w-4 h-4 text-primary" />
-                  </div>
-                  <span>{dateStr}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm font-medium">
-                  <div className="p-1.5 rounded-md bg-background shadow-sm">
-                    <Clock className="w-4 h-4 text-primary" />
-                  </div>
-                  <span>{timeRange}</span>
-                </div>
-                {appointment.meetLink && (
-                  <div className="flex items-center gap-3 text-sm font-medium">
-                    <div className="p-1.5 rounded-md bg-background shadow-sm">
-                      <Video className="w-4 h-4 text-primary" />
-                    </div>
-                    <a
-                      href={appointment.meetLink}
-                      className="text-primary hover:underline font-medium break-all"
-                    >
-                      {appointment.meetLink}
-                    </a>
-                  </div>
-                )}
+              <div className="space-y-0.5">
+                <p className="font-bold text-sm md:text-base">
+                  Dr. {appointment.doctor.firstName}{" "}
+                  {appointment.doctor.lastName}
+                </p>
+                <p className="text-xs md:text-sm text-muted-foreground font-medium">
+                  {appointment.doctor.specialization}
+                </p>
               </div>
             </div>
 
-            {/* Status & Verification */}
+            {/* Date & Time Box */}
+            <div className="bg-muted/40 rounded-lg p-3 md:p-4 space-y-2 md:space-y-3 border border-border/50">
+              <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm font-medium">
+                <div className="p-1 rounded bg-background shadow-sm">
+                  <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
+                </div>
+                <span>{dateStr}</span>
+              </div>
+              <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm font-medium">
+                <div className="p-1 rounded bg-background shadow-sm">
+                  <Clock className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
+                </div>
+                <span>{timeRange}</span>
+              </div>
+              {appointment.meetLink && (
+                <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm font-medium pt-1 md:pt-0">
+                  <div className="p-1 rounded bg-background shadow-sm shrink-0">
+                    <Video className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
+                  </div>
+                  <a
+                    href={appointment.meetLink}
+                    className="text-primary hover:underline truncate"
+                  >
+                    {appointment.meetLink}
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Status Row */}
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
-                  Status
+                <p className="hidden md:block text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
+                  Current Status
                 </p>
                 <StatusBadge status={appointment.status} />
               </div>
               {appointment.verified && (
-                <div className="text-right space-y-1">
-                  <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
+                <div className="flex flex-col md:items-end">
+                  <p className="hidden md:block text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
                     Verification
                   </p>
-                  <div className="flex items-center text-green-600 text-sm font-medium">
-                    <CheckCircle2 className="w-4 h-4 mr-1" /> Verified
+                  <div className="flex items-center text-green-600 text-xs md:text-sm font-bold uppercase tracking-wide">
+                    <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1" />{" "}
+                    Verified
                   </div>
                 </div>
               )}
@@ -373,27 +385,23 @@ function AppointmentCard({
 
             {/* Notes */}
             {appointment.notes && (
-              <div className="space-y-2">
-                <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
-                  Notes
-                </p>
-                <div className="text-sm bg-muted/60 dark:bg-muted/30 p-4 rounded-xl italic border-l-4 border-primary/30 text-foreground/90">
-                  "{appointment.notes}"
-                </div>
+              <div className="text-xs md:text-sm bg-muted/60 p-3 md:p-4 rounded-md italic text-muted-foreground border-l-2 md:border-l-4 border-primary/30">
+                "{appointment.notes}"
               </div>
             )}
           </div>
 
-          <DialogFooter className="p-2 bg-muted/20 dark:bg-muted/10 border-t border-border/50 flex flex-col-reverse sm:flex-row gap-2">
+          {/* Footer - Always shows Close */}
+          <DialogFooter className="p-3 md:p-6 bg-muted/20 border-t border-border/50 flex flex-col gap-2 sm:flex-row sm:justify-end">
             <Button
               variant="ghost"
               onClick={() => setShowDetailsDialog(false)}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto h-9 md:h-10 text-sm order-2 sm:order-1"
             >
               Close
             </Button>
             {appointment.meetLink && appointment.status === "CONFIRMED" && (
-              <Button className="w-full sm:w-auto shadow-md">
+              <Button className="w-full sm:w-auto h-9 md:h-10 text-sm shadow-sm order-1 sm:order-2">
                 Join Meeting
               </Button>
             )}
@@ -404,10 +412,10 @@ function AppointmentCard({
   );
 }
 
-// --- Empty State (Centered) ---
+// --- Empty State (No Animation) ---
 function EmptyState({ type }: { type: "upcoming" | "past" }) {
   return (
-    <div className="flex flex-col items-center justify-center w-full min-h-[50vh] text-center p-8 animate-in fade-in zoom-in duration-500">
+    <div className="flex flex-col items-center justify-center w-full min-h-[50vh] text-center p-8">
       <div className="w-20 h-20 bg-muted/30 rounded-full flex items-center justify-center mb-6 ring-8 ring-muted/10">
         {type === "upcoming" ? (
           <Calendar className="w-10 h-10 text-muted-foreground/60" />
@@ -441,7 +449,6 @@ export default function PatientAppointments() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Optimized filtering
   const upcomingAppointments = useMemo(
     () =>
       MOCK_APPOINTMENTS.filter(
@@ -469,7 +476,6 @@ export default function PatientAppointments() {
     }
 
     if (list.length === 0) {
-      // Flex container for centering empty state
       return (
         <div className="flex items-center justify-center w-full h-full">
           <EmptyState type={type} />
@@ -493,7 +499,7 @@ export default function PatientAppointments() {
   return (
     <div className="w-full mx-auto p-4 md:p-8 space-y-6">
       <Tabs defaultValue="upcoming" className="w-full flex flex-col h-full">
-        {/* Header Section: Stacked on Mobile, Row on Desktop */}
+        {/* Header Section */}
         <div className="flex flex-col sm:flex-row w-full justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <p className="text-muted-foreground text-sm">
