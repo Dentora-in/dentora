@@ -10,7 +10,7 @@ export function Providers({ children, session }: ProvidersProps) {
     <SessionProvider session={session}>
       <NextThemesProvider
         attribute="class"
-        defaultTheme="white"
+        defaultTheme="system"
         enableSystem
         disableTransitionOnChange
         enableColorScheme

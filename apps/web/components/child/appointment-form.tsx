@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, ChangeEvent, FormEvent, useEffect } from "react";
-import { useRouter } from "next/navigation";
+// 1. Import the constant
+import { COUNTRY_CODES } from "@dentora/shared/country-codes";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
@@ -29,7 +30,7 @@ export function Appointment({ setIsSuccess }: any) {
     lastName: "",
     age: undefined,
     gender: "",
-    phoneCountry: "+91",
+    phoneCountry: "+91", // Default value matching your constant
     phoneNo: "",
     email: "",
     bookingDate: today,
@@ -38,13 +39,11 @@ export function Appointment({ setIsSuccess }: any) {
   });
 
   const [slotes, setSlotes] = useState([]);
-  const [countryCode, setCountryCode] = useState([]);
 
   useEffect(() => {
     const fetch = async () => {
       const data = await getAllSlotes(formData.bookingDate);
       setSlotes(data.slotes || []);
-      setCountryCode(data.country_codes || []);
     };
     fetch();
   }, [formData.bookingDate]);
@@ -62,6 +61,7 @@ export function Appointment({ setIsSuccess }: any) {
     setFormData((prev) => ({ ...prev, bookingTiming: id }));
   };
 
+  // ... (Keep isFormValid and handleSubmit logic as is) ...
   const isFormValid = () => {
     return Object.values({
       firstName: formData.firstName,
@@ -125,7 +125,7 @@ export function Appointment({ setIsSuccess }: any) {
     <>
       <Card className="w-full max-w-md mx-auto p-6 sm:p-8">
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name Fields */}
+          {/* ... (Keep Name, Age, Gender inputs as is) ... */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="firstName">First Name</Label>
@@ -151,7 +151,6 @@ export function Appointment({ setIsSuccess }: any) {
             </div>
           </div>
 
-          {/* Age and Gender */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="age">Age</Label>
@@ -185,6 +184,7 @@ export function Appointment({ setIsSuccess }: any) {
             </div>
           </div>
 
+          {/* 4. Updated Phone Code Logic */}
           <div className="space-y-2">
             <Label htmlFor="phoneNo">Phone Number</Label>
             <div className="flex gap-2">
@@ -194,14 +194,21 @@ export function Appointment({ setIsSuccess }: any) {
                   handleSelectChange("phoneCountry", value)
                 }
               >
-                <SelectTrigger className="w-20">
+                <SelectTrigger className="w-24">
                   <SelectValue />
                 </SelectTrigger>
 
                 <SelectContent>
-                  {countryCode.map((item: any) => (
+                  {/* Map directly over the imported constant */}
+                  {COUNTRY_CODES.map((item: any) => (
                     <SelectItem key={item.id} value={`+${item.phone_code}`}>
-                      +{item.phone_code}
+                      {/* Display format: IN (+91) */}
+                      <span className="flex items-center gap-2">
+                        <span className="text-muted-foreground text-xs">
+                          {item.country_en.slice(0, 2).toUpperCase()}
+                        </span>
+                        <span>+{item.phone_code}</span>
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -219,6 +226,7 @@ export function Appointment({ setIsSuccess }: any) {
             </div>
           </div>
 
+          {/* ... (Rest of the form remains unchanged) ... */}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -275,7 +283,6 @@ export function Appointment({ setIsSuccess }: any) {
             </div>
           </div>
 
-          {/* Policy Checkbox */}
           <div className="flex items-center space-x-2 mb-2">
             <Checkbox
               id="acceptPolicy"
@@ -295,7 +302,6 @@ export function Appointment({ setIsSuccess }: any) {
             </Label>
           </div>
 
-          {/* Submit Button */}
           <Button
             type="submit"
             disabled={!formData.acceptPolicy}
