@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { ThemeToggler } from "@/components/child/theme-toggler";
 import { Separator } from "@workspace/ui/components/separator";
 import { SidebarTrigger } from "@workspace/ui/components/sidebar";
+import { UserRole } from "@dentora/database";
+import { SIDEBAR_CONFIG } from "@/lib/sidebar-config";
 
 const routeTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -13,9 +15,12 @@ const routeTitles: Record<string, string> = {
   "/dashboard/my-account": "My Profile",
 };
 
-export function DashboardHeader() {
+export function DashboardHeader({ role }: { role: UserRole }) {
   const pathname = usePathname();
-  const title = routeTitles[pathname] || "Dashboard";
+  const sidebarConfig = SIDEBAR_CONFIG[role];
+  const title =
+    sidebarConfig.items.find((item) => item.url === pathname)?.name ??
+    "Dashboard";
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-14">

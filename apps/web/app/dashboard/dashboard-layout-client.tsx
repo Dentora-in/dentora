@@ -6,8 +6,8 @@ import {
   SidebarProvider,
 } from "@workspace/ui/components/sidebar";
 import { SessionProvider } from "@/components/providers/session-provider";
-import { DashboardHeader } from "@/components/layouts/dashboard-header";
-import { useEffect } from "react";
+import { DashboardHeader } from "@/app/dashboard/components/dashboard-header";
+import { useEffect, useState } from "react";
 import { removeItem, setItem } from "@/lib/localStorage";
 import { UserRole } from "@dentora/database";
 
@@ -18,9 +18,12 @@ export function DashboardLayoutClient({
   children: React.ReactNode;
   session: any;
 }) {
+  const [role, setRole] = useState<UserRole>();
+
   useEffect(() => {
     if (session?.user?.role) {
       setItem("role", session.user.role as UserRole);
+      setRole(session.user.role as UserRole);
     } else {
       removeItem("role");
     }
@@ -39,7 +42,7 @@ export function DashboardLayoutClient({
         <AppSidebar variant="inset" className="z-40" />
 
         <SidebarInset>
-          <DashboardHeader />
+          {role && <DashboardHeader role={role} />}
           <div className="flex flex-1 flex-col">
             <div className="@container/main flex flex-1 flex-col gap-2">
               {children}

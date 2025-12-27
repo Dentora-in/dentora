@@ -115,8 +115,10 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <GenericAlertDialog
               trigger={
-                // TODO: I need this button to be red (no CSS)
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={(e) => e.preventDefault()}
+                >
                   <IconLogout />
                   Log out
                 </DropdownMenuItem>
