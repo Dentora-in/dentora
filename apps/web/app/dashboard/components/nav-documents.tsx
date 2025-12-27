@@ -14,18 +14,19 @@ import {
 
 export function NavDocuments({
   items,
+  label,
 }: {
   items: {
     name: string;
     url: string;
     icon: Icon;
   }[];
+  label: string | undefined;
 }) {
   const pathname = usePathname();
-
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Doctor</SidebarGroupLabel>
+      <SidebarGroupLabel>{label}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>

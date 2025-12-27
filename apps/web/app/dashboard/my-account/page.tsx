@@ -41,6 +41,7 @@ export interface DoctorData {
   updated_at: string;
 }
 
+// TODO: need to make this page generic for all roles. and API also
 export default function DoctorProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
