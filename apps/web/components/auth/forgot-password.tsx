@@ -7,52 +7,45 @@ import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { toastService } from "@/lib/toast";
 import { handleAuthError } from "@/lib/error-handler";
-import { forgetPassword } from "@dentora/auth/client";
+import { requestPasswordReset } from "@dentora/auth/client";
 
 export function ForgotPassword() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
-    setSuccess(false);
+    setLoading(true);
 
-    if (!email) {
-      setError("Email is required");
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      toastService.warning("Email is required");
+      setLoading(false);
       return;
     }
 
     try {
-      await forgetPassword(
-        {
-          email,
-          redirectTo: "/reset-password",
-        },
-        {
-          onRequest: () => setLoading(true),
-          onResponse: () => setLoading(false),
-          onSuccess: () => {
-            toastService.success("Reset password link has been sent");
-            setSuccess(true);
-            router.push("/login");
-          },
-          onError: (ctx: any) => {
-            const errorMsg = handleAuthError(
-              ctx.error,
-              "request password reset",
-            );
-            setError(errorMsg);
-          },
-        },
-      );
+      const { data, error } = await requestPasswordReset({
+        email: trimmedEmail,
+        redirectTo: "/reset-password",
+      });
+
+      if (error) {
+        toastService.error(handleAuthError(error, "request password reset"));
+      } else if (data?.status) {
+        toastService.success(
+          "Password reset link sent. Redirecting to login...",
+        );
+        router.push("/login");
+      } else {
+        toastService.error(data?.message || "Unable to process your request.");
+      }
     } catch (err: any) {
-      const errorMsg = handleAuthError(err, "request password reset");
-      setError(errorMsg);
+      toastService.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -76,20 +69,6 @@ export function ForgotPassword() {
           disabled={loading}
         />
       </div>
-
-      {error && (
-        <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-3">
-          <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
-        </div>
-      )}
-
-      {success && (
-        <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-3">
-          <p className="text-green-800 dark:text-green-200 text-sm">
-            Reset link sent successfully!
-          </p>
-        </div>
-      )}
 
       <Button
         type="submit"
