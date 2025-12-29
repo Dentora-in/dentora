@@ -1,4 +1,4 @@
 # Ignore artifacts:
 build
 coverage
-./apps/server/routes
+./apps/server/src/routes
