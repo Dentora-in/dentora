@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   bookAppointment,
+  editPatientAppointmentDetails,
   getAllAppointment,
   getAllPatientAppointment,
   updateAppointment,
@@ -19,5 +20,6 @@ router.patch("/", authMiddleware, requireRole(UserRole.DOCTOR), updateAppointmen
 
 // FOR PATIENT
 router.get("/patient", authMiddleware, requireRole(UserRole.PATIENT), getAllPatientAppointment);
+router.post("/patient", authMiddleware, requireRole(UserRole.PATIENT), editPatientAppointmentDetails);
 
 export default router;

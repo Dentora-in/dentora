@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
-import { Prisma, prisma, UserRole } from "@dentora/database";
+import { AppointmentStatus, Prisma, prisma, UserRole } from "@dentora/database";
 import { appointmentSchema, editAppointmentSchema } from "@dentora/shared/zod";
 import { appointmentQueue } from "@dentora/shared/queue";
+
+type AppointmentTimeline = "upcoming" | "past";
 
 // TODO: optimization
 // FOR DOCTORS:
@@ -243,7 +245,202 @@ export const updateAppointment = async (req: Request, res: Response) => {
 // FOR PATIENT:
 export const getAllPatientAppointment = async (req: Request, res: Response) => {
   try {
+    const patient = req.user;
+
+    if (!patient) {
+      return res.status(401).json({ message: "Un-authorized Patient!!" });
+    }
+
+    const timelineParam = req.query.timeline;
+
+    const timeline: "upcoming" | "past" =
+      timelineParam === "past" || timelineParam === "upcoming"
+        ? timelineParam
+        : "upcoming";
+
+    const statusFilter =
+      timeline === "upcoming"
+        ? [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED]
+        : [AppointmentStatus.COMPLETED, AppointmentStatus.CANCELLED];
+
+    const appointments = await prisma.appointment.findMany({
+      where: {
+        userId: patient.id,
+        status: { in: statusFilter },
+      },
+      orderBy: {
+        appointmentDate: "asc",
+      },
+      include: {
+        doctor: {
+          select: {
+            firstName: true,
+            lastName: true,
+            specialization: true,
+          },
+        },
+        slot: {
+          select: {
+            startTime: true,
+            endTime: true,
+          },
+        },
+      },
+    });
+
+    const formattedAppointments = appointments.map((a) => ({
+      id: a.id,
+      appointmentDate: a.appointmentDate.toISOString(),
+      status: a.status,
+      verified: a.verified,
+      meetLink: a.meetLink ?? undefined,
+      notes: a.notes ?? undefined,
+
+      doctor: a.doctor
+        ? {
+            firstName: a.doctor.firstName,
+            lastName: a.doctor.lastName,
+            specialization: a.doctor.specialization ?? undefined,
+          }
+        : null,
+
+      slot: a.slot
+        ? {
+            startTime: a.slot.startTime.toISOString(),
+            endTime: a.slot.endTime.toISOString(),
+          }
+        : undefined,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      timeline,
+      count: formattedAppointments.length,
+      appointments: formattedAppointments,
+    });
   } catch (e: any) {
     return res.status(500).json({ message: e.message });
+  }
+};
+
+export const editPatientAppointmentDetails = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const patient = req.user;
+
+    if (!patient) {
+      return res.status(401).json({ message: "Unauthorized patient" });
+    }
+
+    const { cancelId } = req.body;
+
+    if (!cancelId) {
+      return res.status(400).json({ message: "cancelId is required" });
+    }
+
+    const appointment = await prisma.appointment.findFirst({
+      where: {
+        id: cancelId,
+        userId: patient.id,
+      },
+      select: {
+        id: true,
+        status: true,
+        slotId: true,
+      },
+    });
+
+    if (!appointment) {
+      return res.status(404).json({
+        message: "Appointment not found",
+      });
+    }
+
+    if (appointment.status === AppointmentStatus.CANCELLED) {
+      return res.status(400).json({
+        message: "Appointment already cancelled",
+      });
+    }
+
+    if (appointment.status === AppointmentStatus.COMPLETED) {
+      return res.status(400).json({
+        message: "Completed appointments cannot be cancelled",
+      });
+    }
+
+    const updatedAppointment = await prisma.$transaction(async (tx) => {
+      const updated = await tx.appointment.update({
+        where: { id: appointment.id },
+        data: {
+          status: AppointmentStatus.CANCELLED,
+          meetLink: null,
+        },
+        include: {
+          doctor: {
+            select: {
+              firstName: true,
+              lastName: true,
+              specialization: true,
+            },
+          },
+          slot: {
+            select: {
+              startTime: true,
+              endTime: true,
+            },
+          },
+        },
+      });
+
+      if (appointment.slotId) {
+        await tx.doctorSlot.update({
+          where: { id: appointment.slotId },
+          data: { isBooked: false },
+        });
+      }
+
+      return updated;
+    });
+
+    // 🔁 Same formatting as getAllPatientAppointment
+    const formattedAppointment = {
+      id: updatedAppointment.id,
+      appointmentDate: updatedAppointment.appointmentDate.toISOString(),
+      status: updatedAppointment.status,
+      verified: updatedAppointment.verified,
+      meetLink: updatedAppointment.meetLink ?? undefined,
+      notes: updatedAppointment.notes ?? undefined,
+
+      doctor: updatedAppointment.doctor
+        ? {
+            firstName: updatedAppointment.doctor.firstName,
+            lastName: updatedAppointment.doctor.lastName,
+            specialization:
+              updatedAppointment.doctor.specialization ?? undefined,
+          }
+        : null,
+
+      slot: updatedAppointment.slot
+        ? {
+            startTime: updatedAppointment.slot.startTime.toISOString(),
+            endTime: updatedAppointment.slot.endTime.toISOString(),
+          }
+        : undefined,
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: "Appointment cancelled successfully",
+      appointment: formattedAppointment,
+    });
+  } catch (error: any) {
+    console.error("Cancel appointment error:", error);
+
+    return res.status(500).json({
+      message: "Failed to cancel appointment",
+      error: error?.message,
+    });
   }
 };
