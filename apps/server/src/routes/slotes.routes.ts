@@ -38,12 +38,7 @@ router.delete(
 );
 
 // Slot Creation
-// router.post(
-//   "/slot-generate",
-//   authMiddleware,
-//   requireRole(UserRole.DOCTOR),
-//   slotCreation,
-// );
+// router.post("/slot-generate", authMiddleware, requireRole(UserRole.DOCTOR), slotCreation);
 
 router.delete(
   "/slot-delete/:slotId",

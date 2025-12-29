@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   bookAppointment,
   getAllAppointment,
+  getAllPatientAppointment,
   updateAppointment,
 } from "../controllers/appointment.controller";
 import authMiddleware from "@/middlewares/auth.middleware";
@@ -11,6 +12,8 @@ import { UserRole } from "@dentora/database";
 const router: Router = Router();
 
 router.post("/", bookAppointment);
+
+// FOR DOCTOR
 router.get(
   "/",
   authMiddleware,
@@ -22,6 +25,14 @@ router.patch(
   authMiddleware,
   requireRole(UserRole.DOCTOR),
   updateAppointment,
+);
+
+// FOR PATIENT
+router.get(
+  "/patient",
+  authMiddleware,
+  requireRole(UserRole.PATIENT),
+  getAllPatientAppointment,
 );
 
 export default router;

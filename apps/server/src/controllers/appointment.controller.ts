@@ -4,6 +4,7 @@ import { appointmentSchema, editAppointmentSchema } from "@dentora/shared/zod";
 import { appointmentQueue } from "@dentora/shared/queue";
 
 // TODO: optimization
+// FOR DOCTORS:
 export const bookAppointment = async (req: Request, res: Response) => {
   try {
     const parsed = appointmentSchema.safeParse(req.body);
@@ -234,6 +235,14 @@ export const updateAppointment = async (req: Request, res: Response) => {
       message: "Appointments updated successfully",
       data: updatedAppointments,
     });
+  } catch (e: any) {
+    return res.status(500).json({ message: e.message });
+  }
+};
+
+// FOR PATIENT:
+export const getAllPatientAppointment = async (req: Request, res: Response) => {
+  try {
   } catch (e: any) {
     return res.status(500).json({ message: e.message });
   }
