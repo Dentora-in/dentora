@@ -14,25 +14,10 @@ const router: Router = Router();
 router.post("/", bookAppointment);
 
 // FOR DOCTOR
-router.get(
-  "/",
-  authMiddleware,
-  requireRole(UserRole.DOCTOR),
-  getAllAppointment,
-);
-router.patch(
-  "/",
-  authMiddleware,
-  requireRole(UserRole.DOCTOR),
-  updateAppointment,
-);
+router.get("/", authMiddleware, requireRole(UserRole.DOCTOR), getAllAppointment);
+router.patch("/", authMiddleware, requireRole(UserRole.DOCTOR), updateAppointment);
 
 // FOR PATIENT
-router.get(
-  "/patient",
-  authMiddleware,
-  requireRole(UserRole.PATIENT),
-  getAllPatientAppointment,
-);
+router.get("/patient", authMiddleware, requireRole(UserRole.PATIENT), getAllPatientAppointment);
 
 export default router;
