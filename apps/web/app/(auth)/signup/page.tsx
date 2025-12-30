@@ -1,6 +1,7 @@
 "use client";
 
 import { SignupForm } from "@/components/auth/signup-form";
+import { ThemeToggler } from "@/components/child/theme-toggler";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -110,6 +111,11 @@ export default function SignupPage() {
     <div className="relative min-h-screen flex items-center justify-center bg-background p-4">
       {/* Subtle background pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:24px_24px]" />
+
+      {/* Theme toggle - top right */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggler />
+      </div>
 
       {/* Main content */}
       <div className="relative z-10 w-full max-w-md">
