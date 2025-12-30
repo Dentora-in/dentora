@@ -8,13 +8,6 @@ import { SidebarTrigger } from "@workspace/ui/components/sidebar";
 import { UserRole } from "@dentora/database";
 import { SIDEBAR_CONFIG } from "@/lib/sidebar-config";
 
-const routeTitles: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/dashboard/appointments": "Appointments",
-  "/dashboard/my-space": "My Space",
-  "/dashboard/my-account": "My Profile",
-};
-
 export function DashboardHeader({ role }: { role: UserRole }) {
   const pathname = usePathname();
   const sidebarConfig = SIDEBAR_CONFIG[role];

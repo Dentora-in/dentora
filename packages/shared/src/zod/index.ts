@@ -1,4 +1,5 @@
 import { z, ZodError, ZodSchema } from "zod";
+import { UserRole } from "@dentora/database";
 
 export { ZodError, ZodSchema, z };
 
@@ -81,3 +82,14 @@ export const addDoctorAvailabilitySchema = z
     message: "endTime must be after startTime",
     path: ["endTime"],
   });
+
+export const editControlCenterSchema = z.object({
+  ids: z
+    .array(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .min(1),
+  role: z.nativeEnum(UserRole),
+});

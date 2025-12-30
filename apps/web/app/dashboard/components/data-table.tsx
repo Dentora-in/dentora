@@ -73,36 +73,24 @@ import {
   TabsList,
   TabsTrigger,
 } from "@workspace/ui/components/tabs";
-import { z } from "@dentora/shared/zod";
 import { GenericAlertDialog } from "@/components/child/alert-dialog";
 import { toastService } from "@/lib/toast";
-import { updateAppointments } from "@/api/api.appointment";
 
 // TODO: need to move this to zod folder and export from there
-export const schema = z.object({
-  id: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  age: z.number(),
-  gender: z.string(),
-  phoneCountry: z.string().nullable(),
-  phoneNo: z.string(),
-  email: z.string().email(),
-  appointmentDate: z.string(),
-  notes: z.string().nullable(),
-  meetLink: z.string().nullable(),
-  doctorId: z.string(),
-  slotId: z.string().nullable(),
-  paymentStatus: z.string().nullable(),
-  paymentId: z.string().nullable(),
-  verified: z.boolean(),
-  status: z.string(),
-  userId: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
+// Make DataTable generic and driven by props. No hard-coded columns or status values.
 
-const DragHandle = React.memo(({ id }: { id: number }) => {
+type TabItem = {
+  value: string;
+  label?: string;
+  badgeCount?: number;
+};
+
+type DropdownItem = {
+  value: string;
+  label?: string;
+};
+
+const DragHandle = React.memo(({ id }: { id: UniqueIdentifier }) => {
   const { attributes, listeners } = useSortable({ id });
 
   return (
@@ -121,117 +109,38 @@ const DragHandle = React.memo(({ id }: { id: number }) => {
 
 DragHandle.displayName = "DragHandle";
 
-const columns: ColumnDef<z.infer<typeof schema>>[] = [
-  {
-    id: "drag",
-    header: () => null,
-    cell: ({ row }) => <DragHandle id={Number(row.original.id)} />,
-  },
-  {
-    id: "select",
-    header: ({ table }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        />
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-        />
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    id: "fullName",
-    header: "Name",
-    accessorFn: (row) => `${row.firstName} ${row.lastName}`,
-  },
-  {
-    accessorKey: "age",
-    header: "Age",
-  },
-  {
-    accessorKey: "gender",
-    header: "Gender",
-  },
-  {
-    accessorKey: "phoneNo",
-    header: "Phone",
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-  },
-  {
-    accessorKey: "meetLink",
-    header: "Meet Link",
-  },
-  {
-    accessorKey: "paymentStatus",
-    header: "Payment Status",
-  },
-  {
-    accessorKey: "appointmentDate",
-    header: "Appointment Date",
-    cell: ({ row }) => new Date(row.original.appointmentDate).toLocaleString(),
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-  },
-];
+const DraggableRow = React.memo(<T,>({ row }: { row: Row<T> }) => {
+  const { transform, transition, setNodeRef, isDragging } = useSortable({
+    id: row.id,
+  });
 
-const DraggableRow = React.memo(
-  ({ row }: { row: Row<z.infer<typeof schema>> }) => {
-    const { transform, transition, setNodeRef, isDragging } = useSortable({
-      id: row.original.id,
-    });
-
-    return (
-      <TableRow
-        data-state={row.getIsSelected() && "selected"}
-        data-dragging={isDragging}
-        ref={setNodeRef}
-        className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
-        style={{
-          transform: CSS.Transform.toString(transform),
-          transition: transition,
-        }}
-      >
-        {row.getVisibleCells().map((cell) => (
-          <TableCell key={cell.id}>
-            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-          </TableCell>
-        ))}
-      </TableRow>
-    );
-  },
-);
+  return (
+    <TableRow
+      data-state={row.getIsSelected() && "selected"}
+      data-dragging={isDragging}
+      ref={setNodeRef}
+      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition: transition,
+      }}
+    >
+      {row.getVisibleCells().map((cell) => (
+        <TableCell key={cell.id}>
+          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+});
 
 DraggableRow.displayName = "DraggableRow";
 
-type DataTableProps = {
-  data?: z.infer<typeof schema>[];
-  metaData: {
-    total: number;
-    totalPages: number;
-    page: number;
-    limit: number;
-    total_pending: number;
-    total_confirmed: number;
-    total_completed: number;
-    total_cancelled: number;
-  };
+type DataTableProps<T> = {
+  data?: T[];
+  columns: ColumnDef<T>[];
+  meta?: Record<string, any> | null;
+  pageCount?: number;
   pagination: {
     pageIndex: number;
     pageSize: number;
@@ -242,42 +151,43 @@ type DataTableProps = {
       pageSize: number;
     }>
   >;
-  setStatus: (status?: string) => void;
-  currentStatus?: string;
+  tabs?: TabItem[];
+  dropdownItems?: DropdownItem[];
+  currentTab?: string;
+  onTabChange?: (value?: string) => void;
+  onBulkAction?: (ids: string[], value: string) => Promise<any> | void;
+  onDelete?: (ids: string[]) => Promise<any> | void;
+  onRowsUpdated?: (updatedRows: T[], statusKey: string) => void;
+  rowId?: (row: T) => UniqueIdentifier;
+  statusKey?: string;
+  enableDrag?: boolean;
 };
 
-const STATUS_VALUES = [
-  "outline",
-  "PENDING",
-  "CONFIRMED",
-  "CANCELLED",
-  "COMPLETED",
-] as const;
-
-const STATUS_DROP_DOWN_VALUES = [
-  "PENDING",
-  "CONFIRMED",
-  "CANCELLED",
-  "COMPLETED",
-];
-
-export function DataTable({
+export function DataTable<T extends Record<string, any>>({
   data: initialData,
-  metaData,
+  columns,
+  meta,
+  pageCount,
   pagination,
   setPagination,
-  setStatus,
-  currentStatus,
-}: DataTableProps) {
-  const [data, setData] = React.useState<z.infer<typeof schema>[]>(
-    initialData || [],
-  );
+  tabs,
+  dropdownItems,
+  currentTab,
+  onTabChange,
+  onBulkAction,
+  onDelete,
+  onRowsUpdated,
+  rowId,
+  statusKey = "status",
+  enableDrag = true,
+}: DataTableProps<T>) {
+  const [data, setData] = React.useState<T[]>(initialData || []);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const activeStatus = currentStatus || "outline";
+  const activeTab = currentTab || (tabs && tabs[0]?.value) || "";
 
   const sortableId = React.useId();
   const sensors = useSensors(
@@ -287,7 +197,7 @@ export function DataTable({
   );
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }) => id) || [],
+    () => data?.map((row) => (rowId ? rowId(row) : (row as any).id)) || [],
     [data],
   );
 
@@ -295,18 +205,32 @@ export function DataTable({
     setData(initialData || []);
   }, [initialData]);
 
-  const table = useReactTable({
+  const effectiveColumns = React.useMemo<ColumnDef<T>[]>(() => {
+    if (!enableDrag) return columns;
+
+    const dragColumn: ColumnDef<T> = {
+      id: "drag",
+      header: () => null,
+      cell: ({ row }) => <DragHandle id={row.id} />,
+      enableSorting: false,
+      enableHiding: false,
+    };
+
+    return [dragColumn, ...columns];
+  }, [columns, enableDrag]);
+
+  const table = useReactTable<T>({
     data,
-    columns,
+    columns: effectiveColumns,
     manualPagination: true,
-    pageCount: metaData.totalPages,
+    pageCount: pageCount ?? meta?.totalPages,
     state: {
       sorting,
       columnVisibility,
       rowSelection,
       pagination,
     },
-    getRowId: (row) => row.id.toString(),
+    getRowId: (row) => String(rowId ? rowId(row) : (row as any).id),
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -319,168 +243,216 @@ export function DataTable({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
-  const handleDragEnd = React.useCallback((event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setData((data) => {
-        const oldIndex = data.findIndex((item) => item.id === active.id);
-        const newIndex = data.findIndex((item) => item.id === over.id);
-        return arrayMove(data, oldIndex, newIndex);
-      });
-    }
-  }, []);
-
-  const handleStatusChange = React.useCallback(
-    (value: string) => {
-      if (value !== "outline") {
-        const countKey =
-          `total_${value.toLowerCase()}` as keyof typeof metaData;
-        if (metaData[countKey] === 0 || metaData[countKey] === undefined) {
-          return;
-        }
+  const handleDragEnd = React.useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (active && over && active.id !== over.id) {
+        setData((data) => {
+          const oldIndex = data.findIndex(
+            (item) =>
+              String(rowId ? rowId(item) : (item as any).id) ===
+              String(active.id),
+          );
+          const newIndex = data.findIndex(
+            (item) =>
+              String(rowId ? rowId(item) : (item as any).id) ===
+              String(over.id),
+          );
+          return arrayMove(data, oldIndex, newIndex);
+        });
       }
-
-      setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-      setStatus(value === "outline" ? undefined : value);
     },
-    [setPagination, setStatus, metaData],
+    [rowId],
   );
 
-  const changeAppointmentStatus = async (status: string) => {
-    if (!status) {
-      toastService.error("Please select a valid appointment status.");
+  const handleTabChange = React.useCallback(
+    (value: string) => {
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+      if (onTabChange) {
+        onTabChange(value === "outline" ? undefined : value);
+      }
+    },
+    [setPagination, onTabChange],
+  );
+
+  const invokeBulkAction = async (newStatus: string) => {
+    if (!newStatus || newStatus.trim() === "") {
+      toastService.error("Please select a valid action.");
       return;
     }
 
-    // Ensure proper row typing
     const selectedRows = table.getFilteredSelectedRowModel().rows;
-
     if (selectedRows.length === 0) {
-      toastService.warning("Please select at least one appointment to update.");
+      toastService.warning("Please select at least one row to update.");
       return;
     }
 
-    const allUpdateIds = selectedRows.map((row) => row.id);
+    if (!onBulkAction) {
+      toastService.error("No bulk action handler provided.");
+      return;
+    }
 
-    const allSameStatus = selectedRows.every(
-      (row) => row.getValue("status") === status,
+    // Convert row IDs to strings for the handler
+    const allUpdateIds: string[] = selectedRows.map((row) => String(row.id));
+    const rowsToUpdate = selectedRows.map((row) => row.original);
+    const previousStatuses = new Map(
+      selectedRows.map((row) => [
+        String(row.id),
+        (row.original as any)[statusKey],
+      ]),
     );
 
-    if (allSameStatus) {
-      toastService.info(
-        `Selected appointments are already marked as ${status.toLowerCase()}.`,
-      );
-      return;
-    }
-
+    // Optimistic UI: update local state immediately
     setData((prevData) =>
       prevData.map((row) =>
-        allUpdateIds.includes(row.id) ? { ...row, status } : row,
+        allUpdateIds.includes(String(rowId ? rowId(row) : (row as any).id))
+          ? { ...row, [statusKey]: newStatus }
+          : row,
       ),
     );
 
+    // Clear selection after status update
+    setRowSelection({});
+
     try {
-      const updatePromise = updateAppointments(allUpdateIds, status);
+      const promiseOrResult = onBulkAction(allUpdateIds, newStatus);
+      const isPromise =
+        promiseOrResult && typeof (promiseOrResult as any).then === "function";
 
-      toastService.promise(updatePromise, {
-        loading: "Updating appointment status...",
-        success: () =>
-          `${allUpdateIds.length} appointment${
-            allUpdateIds.length > 1 ? "s" : ""
-          } updated to ${status.toLowerCase()} successfully.`,
-        error: (err) =>
-          err?.response?.data?.message ||
-          "Failed to update appointment status. Please try again.",
-      });
+      if (isPromise) {
+        toastService.promise(promiseOrResult as Promise<any>, {
+          loading: "Updating status...",
+          success: () =>
+            `${allUpdateIds.length} item(s) updated to ${newStatus}.`,
+          error: () => "Failed to update status. Please try again.",
+        });
 
-      const response = await updatePromise;
+        const response = await (promiseOrResult as Promise<any>);
 
-      if (!response.success) {
-        toastService.error(
-          response.message || "Failed to update appointment status.",
-        );
-        setData((prevData) =>
-          prevData.map((row) =>
-            allUpdateIds.includes(row.id)
-              ? {
-                  ...row,
-                  status:
-                    selectedRows
-                      .find((r) => r.id === row.id)
-                      ?.getValue("status") ?? row.status,
-                }
-              : row,
-          ),
-        );
+        // On success, notify parent about updated rows for tab-based filtering
+        if (onRowsUpdated) {
+          const updatedRows = rowsToUpdate.map((row) => ({
+            ...row,
+            [statusKey]: newStatus,
+          }));
+          onRowsUpdated(updatedRows, newStatus);
+        }
+
+        return response;
+      } else {
+        // Handler returned void/sync result
+        if (onRowsUpdated) {
+          const updatedRows = rowsToUpdate.map((row) => ({
+            ...row,
+            [statusKey]: newStatus,
+          }));
+          onRowsUpdated(updatedRows, newStatus);
+        }
       }
-    } catch (error) {
-      toastService.error(
-        "Failed to update appointment status due to network or server error.",
-      );
+    } catch (err) {
+      // Rollback optimistic update on error
       setData((prevData) =>
-        prevData.map((row) =>
-          allUpdateIds.includes(row.id)
-            ? {
-                ...row,
-                status:
-                  selectedRows
-                    .find((r) => r.id === row.id)
-                    ?.getValue("status") ?? row.status,
-              }
-            : row,
-        ),
+        prevData.map((row) => {
+          const rowIdStr = String(rowId ? rowId(row) : (row as any).id);
+          if (allUpdateIds.includes(rowIdStr)) {
+            const previousStatus = previousStatuses.get(rowIdStr);
+            return { ...row, [statusKey]: previousStatus };
+          }
+          return row;
+        }),
+      );
+      toastService.error(
+        (err as any)?.message || "Failed to update status. Please try again.",
       );
     }
   };
 
-  // TODO: @anmol - add delete appointment endpoint
-  const deleteAppoinetment = () => {
-    console.log("deleteAppoinetment");
+  // Delete handler will be delegated to parent if provided
+  const handleDelete = async () => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    if (selectedRows.length === 0) {
+      toastService.warning("Please select at least one row to delete.");
+      return;
+    }
+
+    if (!onDelete) {
+      toastService.error("No delete handler provided.");
+      return;
+    }
+
+    // Convert row IDs to strings for the handler
+    const allDeleteIds: string[] = selectedRows.map((row) => String(row.id));
+
+    try {
+      const promiseOrResult = onDelete(allDeleteIds);
+      const isPromise =
+        promiseOrResult && typeof (promiseOrResult as any).then === "function";
+
+      if (isPromise) {
+        toastService.promise(promiseOrResult as Promise<any>, {
+          loading: "Deleting...",
+          success: () => `${allDeleteIds.length} item(s) deleted successfully.`,
+          error: "Failed to delete. Please try again.",
+        });
+        await (promiseOrResult as Promise<any>);
+      }
+
+      // Optimistically remove rows from local state
+      setData((prevData) =>
+        prevData.filter(
+          (row) =>
+            !allDeleteIds.includes(
+              String(rowId ? rowId(row) : (row as any).id),
+            ),
+        ),
+      );
+
+      // Clear selection
+      setRowSelection({});
+    } catch (err) {
+      toastService.error(
+        (err as any)?.message || "Failed to delete items. Please try again.",
+      );
+    }
   };
 
   return (
     <Tabs
       className="w-full flex-col justify-start gap-6"
-      value={activeStatus}
-      onValueChange={handleStatusChange}
+      value={activeTab}
+      onValueChange={handleTabChange}
     >
       <div className="flex items-center justify-between px-4 lg:px-6">
         <Label htmlFor="view-selector" className="sr-only">
           View
         </Label>
-        <Select value={activeStatus} onValueChange={handleStatusChange}>
+        <Select value={activeTab} onValueChange={handleTabChange}>
           <SelectTrigger
             className="flex w-fit @4xl/main:hidden"
             size="sm"
             id="view-selector"
           >
-            <SelectValue placeholder="Select a view" />
+            <span>
+              {tabs?.find((t) => t.value === activeTab)?.label ?? activeTab}
+            </span>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="outline">ALL</SelectItem>
-            <SelectItem value="PENDING">PENDING</SelectItem>
-            <SelectItem value="CONFIRMED">CONFIRMED</SelectItem>
-            <SelectItem value="CANCELLED">CANCELLED</SelectItem>
-            <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+            {tabs?.map((t) => (
+              <SelectItem key={t.value} value={t.value}>
+                {t.label ?? t.value}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
-          <TabsTrigger value="outline">ALL</TabsTrigger>
-          <TabsTrigger value="PENDING">
-            PENDING <Badge variant="secondary">{metaData?.total_pending}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="CONFIRMED">
-            CONFIRMED{" "}
-            <Badge variant="secondary">{metaData?.total_confirmed}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="CANCELLED">
-            CANCELLED{" "}
-            <Badge variant="secondary">{metaData?.total_cancelled}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="COMPLETED">
-            COMPLETED{" "}
-            <Badge variant="secondary">{metaData?.total_completed}</Badge>
-          </TabsTrigger>
+          {tabs?.map((t) => (
+            <TabsTrigger key={t.value} value={t.value}>
+              {t.label ?? t.value}
+              {typeof t.badgeCount === "number" ? (
+                <Badge variant="secondary">{t.badgeCount}</Badge>
+              ) : null}
+            </TabsTrigger>
+          ))}
         </TabsList>
         <div className="flex items-center gap-2">
           <DropdownMenu>
@@ -495,12 +467,12 @@ export function DataTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-32">
-              {STATUS_DROP_DOWN_VALUES.map((status, index) => (
+              {dropdownItems?.map((it, index) => (
                 <DropdownMenuItem
-                  onClick={() => changeAppointmentStatus(status)}
+                  onClick={() => invokeBulkAction(it.value)}
                   key={index}
                 >
-                  {status}
+                  {it.label ?? it.value}
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
@@ -520,7 +492,7 @@ export function DataTable({
                 cancelText="No"
                 onResult={(confirmed) => {
                   if (confirmed) {
-                    deleteAppoinetment();
+                    handleDelete();
                   }
                 }}
               />
@@ -528,10 +500,10 @@ export function DataTable({
           </DropdownMenu>
         </div>
       </div>
-      {STATUS_VALUES.map((status) => (
+      {tabs?.map((tab) => (
         <TabsContent
-          key={status}
-          value={status}
+          key={tab.value}
+          value={tab.value}
           className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
         >
           <div className="overflow-hidden rounded-lg border">
@@ -572,7 +544,7 @@ export function DataTable({
                   ) : (
                     <TableRow>
                       <TableCell
-                        colSpan={columns.length}
+                        colSpan={effectiveColumns.length}
                         className="h-24 text-center"
                       >
                         No results.

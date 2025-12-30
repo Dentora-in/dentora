@@ -342,6 +342,9 @@ importers:
 
   packages/shared:
     dependencies:
+      "@dentora/database":
+        specifier: workspace:*
+        version: link:../database
       "@google-apps/meet":
         specifier: ^0.7.1
         version: 0.7.1
