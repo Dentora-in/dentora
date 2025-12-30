@@ -1,14 +1,13 @@
 "use client";
 
 import { SignupForm } from "@/components/auth/signup-form";
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SignUp } from "@/interfaces/user.interface";
 import { signIn, signUp, getSession } from "@dentora/auth/client";
 import { toastService } from "@/lib/toast";
 import { handleAuthError } from "@/lib/error-handler";
-import Image from "next/image";
-import Dentor from "@/public/logo.png";
 import { signupSchema } from "@dentora/shared/zod";
 import { useEffect } from "react";
 
@@ -31,7 +30,7 @@ export default function SignupPage() {
     }
   }, [router]);
 
-  const manual_login = async (e: React.FormEvent) => {
+  const manual_signup = async (e: React.FormEvent) => {
     e.preventDefault();
     const validation = signupSchema.safeParse(formData);
 
@@ -108,27 +107,36 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
-            <SignupForm
-              onSubmit={manual_login}
-              loading={loading}
-              setFormData={setFormData}
-              formData={formData}
-              onGoogleLogin={with_google}
-            />
-          </div>
+    <div className="relative min-h-screen flex items-center justify-center bg-background p-4">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:24px_24px]" />
+
+      {/* Main content */}
+      <div className="relative z-10 w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-block">
+            <span className="text-2xl font-bold text-foreground">Dentora</span>
+          </Link>
         </div>
-      </div>
-      <div className="bg-muted relative hidden lg:block">
-        <Image
-          src={Dentor}
-          alt="Image"
-          fill
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-        />
+
+        {/* Form container */}
+        <div className="bg-background border border-border/50 rounded-2xl p-8 shadow-sm">
+          <SignupForm
+            onSubmit={manual_signup}
+            loading={loading}
+            setFormData={setFormData}
+            formData={formData}
+            onGoogleLogin={with_google}
+          />
+        </div>
+
+        {/* Footer links */}
+        <div className="mt-6 text-center text-sm text-muted-foreground">
+          <Link href="/" className="hover:text-foreground transition-colors">
+            ← Back to home
+          </Link>
+        </div>
       </div>
     </div>
   );
