@@ -155,11 +155,12 @@ export default function AppointmentsPage() {
     (v) => ({ value: v, label: v }),
   );
 
+  // TODO: handle edge case and error handling check the cc/page.tsx
   const handleBulkUpdate = async (ids: string[], newStatus: string) => {
     return updateAppointments(ids, newStatus);
   };
 
-  // TODO: implement delete appointment API
+  // TODO: implement delete appointment API - handle edge case and error handling
   const handleDelete = async (ids: string[]) => {
     console.log("delete", ids);
   };

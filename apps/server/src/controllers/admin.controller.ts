@@ -1,4 +1,5 @@
 import { Prisma, prisma, UserRole } from "@dentora/database";
+import { editControlCenterSchema } from "@dentora/shared/zod";
 import { Request, Response } from "express";
 
 export const getControlCenterDetails = async (req: Request, res: Response) => {
@@ -8,10 +9,10 @@ export const getControlCenterDetails = async (req: Request, res: Response) => {
     const pageQuery = Number(req.query.page ?? 1);
     const limitQuery = Number(req.query.limit ?? 10);
 
-    const sortQuery = Object.values(UserRole).includes(
-      req.query.sort as UserRole,
+    const roleQuery = Object.values(UserRole).includes(
+      req.query.role as UserRole,
     )
-      ? (req.query.sort as UserRole)
+      ? (req.query.role as UserRole)
       : undefined;
 
     if (!user) {
@@ -40,16 +41,19 @@ export const getControlCenterDetails = async (req: Request, res: Response) => {
 
     const where: Prisma.UserWhereInput = {};
 
-    if (sortQuery) {
-      where.role = sortQuery;
+    if (roleQuery) {
+      where.role = roleQuery;
     }
 
     // counts
-    const [total, total_users, total_doctors] = await prisma.$transaction([
-      prisma.user.count({ where }),
-      prisma.user.count(),
-      prisma.user.count({ where: { role: UserRole.DOCTOR } }),
-    ]);
+    const [total, total_users, total_doctors, total_patients, total_admins] =
+      await prisma.$transaction([
+        prisma.user.count({ where }),
+        prisma.user.count(),
+        prisma.user.count({ where: { role: UserRole.DOCTOR } }),
+        prisma.user.count({ where: { role: UserRole.PATIENT } }),
+        prisma.user.count({ where: { role: UserRole.ADMIN } }),
+      ]);
 
     const totalPages = Math.max(1, Math.ceil(total / limit));
     const skip = (page - 1) * limit;
@@ -80,8 +84,59 @@ export const getControlCenterDetails = async (req: Request, res: Response) => {
         total,
         total_users,
         total_doctors,
+        total_patients,
+        total_admins,
       },
       users,
+    });
+  } catch (e: any) {
+    return res.status(500).json({ message: e.message });
+  }
+};
+
+export const editControlCenterDetails = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const doctor_details = await prisma.user.findUnique({
+      where: {
+        id: user.id,
+        role: user.role as UserRole,
+      },
+    });
+
+    if (!doctor_details) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const result = editControlCenterSchema.safeParse(req.body);
+
+    if (!result.success) {
+      return res.status(400).json({
+        message: "Invalid request body",
+        errors: result.error.flatten(),
+      });
+    }
+
+    const { ids, role } = result.data;
+
+    const all_ids = ids.map((a) => a.id);
+
+    const updatedUsers = await prisma.user.updateManyAndReturn({
+      where: {
+        id: { in: all_ids },
+      },
+      data: { role },
+    });
+
+    return res.json({
+      success: true,
+      message: "Users updated successfully",
+      data: updatedUsers,
     });
   } catch (e: any) {
     return res.status(500).json({ message: e.message });
