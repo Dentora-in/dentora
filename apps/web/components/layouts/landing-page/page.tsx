@@ -8,7 +8,7 @@ import { HowItWorksSection } from "./childs/how-it-works-section";
 
 export default function Landingpage() {
   return (
-    <div className="relative min-h-screen bg-white">
+    <div className="relative min-h-screen bg-background">
       {/* Hero background - fixed position */}
       <div className="relative">
         <AnimatedBackground variant="hero" />

@@ -18,6 +18,7 @@ import {
 } from "@workspace/ui/components/sheet";
 import { Button } from "@workspace/ui/components/button";
 import { Menu } from "lucide-react";
+import { ThemeToggler } from "../child/theme-toggler";
 
 export function PublicHeader() {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -30,7 +31,7 @@ export function PublicHeader() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-border/40">
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
       <nav className="flex items-center justify-between px-6 py-4 mx-auto max-w-7xl">
         {/* --- Logo --- */}
         <Link href="/" className="flex items-center gap-2 group">
@@ -62,6 +63,7 @@ export function PublicHeader() {
 
         {/* --- Desktop Buttons --- */}
         <div className="hidden md:flex items-center gap-3">
+          <ThemeToggler />
           <Button
             variant="ghost"
             size="sm"
@@ -77,6 +79,7 @@ export function PublicHeader() {
 
         {/* --- Mobile Navigation (Sheet/Sidebar) --- */}
         <div className="md:hidden flex items-center gap-2">
+          <ThemeToggler />
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
