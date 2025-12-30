@@ -102,35 +102,56 @@ export const editControlCenterDetails = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const doctor_details = await prisma.user.findUnique({
-      where: {
-        id: user.id,
-        role: user.role as UserRole,
-      },
+    const admin = await prisma.user.findUnique({
+      where: { id: user.id, role: UserRole.ADMIN },
+      select: { id: true },
     });
 
-    if (!doctor_details) {
+    if (!admin) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const result = editControlCenterSchema.safeParse(req.body);
+    const parsed = editControlCenterSchema.safeParse(req.body);
 
-    if (!result.success) {
+    if (!parsed.success) {
       return res.status(400).json({
         message: "Invalid request body",
-        errors: result.error.flatten(),
+        errors: parsed.error.flatten(),
       });
     }
 
-    const { ids, role } = result.data;
+    const { ids, role } = parsed.data;
+    const userIds = ids.map((i) => i.id);
 
-    const all_ids = ids.map((a) => a.id);
+    const updatedUsers = await prisma.$transaction(async (tx) => {
+      const existing = await tx.user.findMany({
+        where: { id: { in: userIds } },
+        select: { id: true, role: true },
+      });
 
-    const updatedUsers = await prisma.user.updateManyAndReturn({
-      where: {
-        id: { in: all_ids },
-      },
-      data: { role },
+      const newDoctors =
+        role === UserRole.DOCTOR
+          ? existing.filter((u) => u.role !== UserRole.DOCTOR)
+          : [];
+
+      const users = await tx.user.updateManyAndReturn({
+        where: { id: { in: userIds } },
+        data: { role },
+      });
+
+      if (newDoctors.length > 0) {
+        await tx.doctor.createMany({
+          data: newDoctors.map((u) => ({
+            userId: u.id,
+            firstName: "",
+            lastName: "",
+            phoneNo: "",
+          })),
+          skipDuplicates: true,
+        });
+      }
+
+      return users;
     });
 
     return res.json({
